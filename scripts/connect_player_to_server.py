@@ -1,7 +1,7 @@
 import argparse
 import multiprocessing
-from recon_chess.players import load_player
-from recon_chess.game import play_remote_game
+from rbmc import load_player
+from rbmc import play_remote_game
 
 parser = argparse.ArgumentParser()
 parser.add_argument('server', help='url to the server')

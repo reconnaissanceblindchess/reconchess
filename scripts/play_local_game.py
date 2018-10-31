@@ -1,6 +1,6 @@
 import argparse
-from recon_chess.players import load_player
-from recon_chess.game import play_local_game
+from rbmc import load_player
+from rbmc import play_local_game
 
 parser = argparse.ArgumentParser()
 parser.add_argument('white_bot_path', help='path to white bot source file')
