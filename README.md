@@ -1,3 +1,3 @@
 # python-rbmc
 
-Python version of Reconnaissance Chess
+Python version of Reconnaissance Chess.
