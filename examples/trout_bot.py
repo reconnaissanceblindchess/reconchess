@@ -17,21 +17,18 @@ class TroutBot(Player):
     def handle_game_start(self, color: Color, board: chess.Board):
         self.color = color
 
-    def handle_turn_start(self, seconds_left: float):
-        self.my_piece_captured_square = None
-
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
         if captured_my_piece:
             self.board.remove_piece_at(capture_square)
             self.my_piece_captured_square = capture_square
 
-    def choose_sense(self, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
+    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
         # sense where our ally piece was captured
         if self.my_piece_captured_square:
             return self.my_piece_captured_square
 
         # sense where we may capture an enemy piece
-        future_move = self.choose_move(valid_moves)
+        future_move = self.choose_move(seconds_left, valid_moves)
         if self.board.piece_at(future_move.to_square) is not None:
             return future_move.to_square
 
@@ -50,7 +47,7 @@ class TroutBot(Player):
             else:
                 self.board.set_piece_at(square, piece)
 
-    def choose_move(self, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
         # try to take the king if we know where it might be
         enemy_king_positions = self.board.pieces(chess.KING, not self.color)
         if enemy_king_positions:
@@ -80,9 +77,6 @@ class TroutBot(Player):
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         piece = self.board.remove_piece_at(taken_move.from_square)
         self.board.set_piece_at(taken_move.to_square, piece)
-
-    def handle_turn_end(self):
-        pass
 
     def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
                         opponent_senses: List[Square], opponent_moves: List[chess.Move]):
