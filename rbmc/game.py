@@ -22,7 +22,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def was_my_piece_captured(self) -> Optional[Square]:
+    def opponent_move_results(self) -> Optional[Square]:
         pass
 
     @abstractmethod
@@ -88,7 +88,8 @@ class RemoteGame(Game):
         pass
 
 
-def play_local_game(white_player: Player, black_player: Player):
+def play_local_game(white_player: Player, black_player: Player) \
+        -> Tuple[Optional[Color], List[Square], List[chess.Move], List[Square], List[chess.Move]]:
     players = [black_player, white_player]
 
     game = LocalGame()
@@ -107,6 +108,8 @@ def play_local_game(white_player: Player, black_player: Player):
 
     white_player.handle_game_end(winner_color, white_senses, white_moves, black_senses, black_moves)
     black_player.handle_game_end(winner_color, black_senses, black_moves, white_senses, white_moves)
+
+    return winner_color, white_senses, white_moves, black_senses, black_moves
 
 
 def play_remote_game(name, game_id, player: Player):
@@ -130,9 +133,8 @@ def play_turn(game: Game, player: Player):
     player.handle_turn_start(game.get_seconds_left())
 
     # ally captured
-    captured_square = game.was_my_piece_captured()
-    if captured_square:
-        player.handle_my_piece_captured(captured_square)
+    opt_capture_square = game.opponent_move_results()
+    player.handle_opponent_move_result(opt_capture_square is not None, opt_capture_square)
 
     valid_senses = game.valid_senses()
     valid_moves = game.valid_moves()
@@ -144,8 +146,9 @@ def play_turn(game: Game, player: Player):
 
     # move
     move = player.choose_move(valid_moves)
-    requested_move, taken_move, enemy_capture_square = game.move(move)
-    player.handle_move_result(requested_move, taken_move, enemy_capture_square)
+    requested_move, taken_move, opt_enemy_capture_square = game.move(move)
+    player.handle_move_result(requested_move, taken_move,
+                              opt_enemy_capture_square is not None, opt_enemy_capture_square)
 
     # end turn
     game.end_turn()

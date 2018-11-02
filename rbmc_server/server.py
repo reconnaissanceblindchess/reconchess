@@ -59,8 +59,8 @@ def api_game_start_turn(game_id):
     pass
 
 
-@app.route('/api/game/<game_id>/was_ally_captured')
-def api_game_was_ally_captured(game_id):
+@app.route('/api/game/<game_id>/opponent_move_results')
+def api_game_opponent_move_results(game_id):
     pass
 
 
