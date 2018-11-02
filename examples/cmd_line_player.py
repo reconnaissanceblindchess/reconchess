@@ -18,8 +18,9 @@ class CmdLinePlayer(Player):
     def handle_turn_start(self, seconds_left: float):
         pass
 
-    def handle_my_piece_captured(self, my_piece_captured_square: Square):
-        print('One of your pieces was captured at {}!'.format(chess.SQUARE_NAMES[my_piece_captured_square]))
+    def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
+        if captured_my_piece:
+            print('One of your pieces was captured at {}!'.format(chess.SQUARE_NAMES[capture_square]))
 
     def choose_sense(self, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
         while True:
@@ -51,11 +52,11 @@ class CmdLinePlayer(Player):
                 print('Invalid UCI move, input like "a1a2"')
 
     def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
-                           enemy_captured_square: Optional[Square]):
+                           captured_opponent_piece: bool, capture_square: Optional[Square]):
         print('Requested move: {}'.format(requested_move))
         print('Taken move: {}'.format(taken_move))
-        if enemy_captured_square:
-            print('Captured a piece at: {}'.format(chess.SQUARE_NAMES[enemy_captured_square]))
+        if captured_opponent_piece:
+            print('Captured a piece at: {}'.format(chess.SQUARE_NAMES[capture_square]))
         self.board.push(taken_move)
 
     def handle_turn_end(self):

@@ -20,9 +20,10 @@ class TroutBot(Player):
     def handle_turn_start(self, seconds_left: float):
         self.my_piece_captured_square = None
 
-    def handle_my_piece_captured(self, my_piece_captured_square: Square):
-        self.board.remove_piece_at(my_piece_captured_square)
-        self.my_piece_captured_square = my_piece_captured_square
+    def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
+        if captured_my_piece:
+            self.board.remove_piece_at(capture_square)
+            self.my_piece_captured_square = capture_square
 
     def choose_sense(self, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
         # sense where our ally piece was captured
@@ -76,7 +77,7 @@ class TroutBot(Player):
         return random.choice(valid_moves)
 
     def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
-                           enemy_captured_square: Optional[Square]):
+                           captured_opponent_piece: bool, capture_square: Optional[Square]):
         piece = self.board.remove_piece_at(taken_move.from_square)
         self.board.set_piece_at(taken_move.to_square, piece)
 

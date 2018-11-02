@@ -18,7 +18,7 @@ class Player(object):
 
     1. handle_game_start()
     2. handle_turn_start()
-    3. handle_my_piece_captured()
+    3. handle_opponent_move_result()
     4. choose_sense()
     5. handle_sense_result()
     6. choose_move()
@@ -56,14 +56,14 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_my_piece_captured(self, my_piece_captured_square: Square):
+    def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
         """
-        Called *only if* one of your pieces was captured by the opponent from their move. If none of your pieces were
-        captured, this method is not called.
+        Called after Player::handle_turn_start() is invoked. Indicates what happened on the opponents turn.
 
         TODO provide example implementation
 
-        :param my_piece_captured_square: The square that your piece was captured on.
+        :param captured_my_piece: True if the opponent captured one of your pieces, False otherwise
+        :param capture_square: None if captured_my_piece is False, otherwise the square your piece was captured on
         :return: None
         """
         pass
@@ -111,7 +111,7 @@ class Player(object):
 
     @abstractmethod
     def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
-                           enemy_captured_square: Optional[Square]):
+                           captured_opponent_piece: bool, capture_square: Optional[Square]):
         """
         Called after Player::choose_move() is invoked. This method is used for processing the results of your move.
 
@@ -119,8 +119,8 @@ class Player(object):
 
         :param requested_move: The chess.Move you requested in Player::choose_move().
         :param taken_move: The chess.Move that was actually applied by the game.
-        :param enemy_captured_square: If your move resulted in a capture, the square where the capture occurred.
-        Otherwise None.
+        :param captured_opponent_piece: True if the move resulted in a capture, False otherwise
+        :param capture_square: None if not captured_piece, otherwise the square that the opponent piece was taken on
         :return: None
         """
         pass
