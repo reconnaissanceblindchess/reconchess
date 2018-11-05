@@ -130,7 +130,6 @@ def play_remote_game(name, game_id, player: Player):
 def play_turn(game: Game, player: Player):
     # start turn
     game.start_turn()
-    player.handle_turn_start(game.get_seconds_left())
 
     # ally captured
     opt_capture_square = game.opponent_move_results()
@@ -140,16 +139,15 @@ def play_turn(game: Game, player: Player):
     valid_moves = game.valid_moves()
 
     # sense
-    sense = player.choose_sense(valid_senses, valid_moves)
+    sense = player.choose_sense(game.get_seconds_left(), valid_senses, valid_moves)
     sense_result = game.sense(sense)
     player.handle_sense_result(sense_result)
 
     # move
-    move = player.choose_move(valid_moves)
+    move = player.choose_move(game.get_seconds_left(), valid_moves)
     requested_move, taken_move, opt_enemy_capture_square = game.move(move)
     player.handle_move_result(requested_move, taken_move,
                               opt_enemy_capture_square is not None, opt_enemy_capture_square)
 
     # end turn
     game.end_turn()
-    player.handle_turn_end()
