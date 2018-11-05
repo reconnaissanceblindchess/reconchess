@@ -17,13 +17,11 @@ class Player(object):
     The order in which each of the methods are called looks roughly like this:
 
     1. handle_game_start()
-    2. handle_turn_start()
-    3. handle_my_piece_captured()
+    3. handle_opponent_move_result()
     4. choose_sense()
     5. handle_sense_result()
     6. choose_move()
     7. handle_move_result()
-    8. handle_turn_end()
     9. handle_game_end()
 
     Note that the handle_game_start() and handle_game_end() methods are only called at the start and the end of the game
@@ -45,31 +43,20 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_turn_start(self, seconds_left: float):
+    def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
         """
-        Called when your turn starts. The intent of this function is to provide a place to handle time related things.
-        Games are timed, so each player only has a certain amount of seconds to make their decisions.
-
-        :param seconds_left: A float indicating the seconds you have left to play in the game.
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def handle_my_piece_captured(self, my_piece_captured_square: Square):
-        """
-        Called *only if* one of your pieces was captured by the opponent from their move. If none of your pieces were
-        captured, this method is not called.
+        Called after Player::handle_turn_start() is invoked. Indicates what happened on the opponents turn.
 
         TODO provide example implementation
 
-        :param my_piece_captured_square: The square that your piece was captured on.
+        :param captured_my_piece: True if the opponent captured one of your pieces, False otherwise
+        :param capture_square: None if captured_my_piece is False, otherwise the square your piece was captured on
         :return: None
         """
         pass
 
     @abstractmethod
-    def choose_sense(self, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
+    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
         """
         Called when you need to make a sensing action. The return value is the square at the center of the 3x3 sensing
         area. The returned square must be one of the squares in the `valid_senses` parameter.
@@ -78,6 +65,7 @@ class Player(object):
 
         TODO provide example implementation
 
+        :param seconds_left: The time in seconds you have left to use in the game.
         :param valid_senses: A `list` containing the valid squares to return.
         :param valid_moves: A `list` containing the valid moves that can be returned in Player::choose_move.
         :return: a Square that is the center of the 3x3 sensing area you want to get information about.
@@ -97,13 +85,14 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_move(self, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
         """
         Called when you need to make a moving action. The return value is the move that you want to take, and must be
         contained in the `valid_moves` parameter.
 
         TODO provide example implementation
 
+        :param seconds_left: The time in seconds you have left to use in the game.
         :param valid_moves: A `list` containing the valid moves you can make.
         :return: The chess.Move to make.
         """
@@ -111,29 +100,22 @@ class Player(object):
 
     @abstractmethod
     def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
-                           enemy_captured_square: Optional[Square]):
+                           captured_opponent_piece: bool, capture_square: Optional[Square]):
         """
         Called after Player::choose_move() is invoked. This method is used for processing the results of your move.
+
+        This method can be used to do post processing after your turn ends. Your opponent will be taking their turn
+        while this method runs.
+
+        Note that if this method takes a long time, your opponent may finish their turn before this method finishes.
+        In that case, this method will count against your time.
 
         TODO provide example implementation
 
         :param requested_move: The chess.Move you requested in Player::choose_move().
         :param taken_move: The chess.Move that was actually applied by the game.
-        :param enemy_captured_square: If your move resulted in a capture, the square where the capture occurred.
-        Otherwise None.
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def handle_turn_end(self):
-        """
-        Called when your turn ends. This method can be used to do post processing after your turn ends. Your opponent
-        will be taking their turn while this method runs.
-
-        Note that if this method takes a long time, your opponent may finish their turn before this method finishes.
-        In that case, this method will count against your time.
-
+        :param captured_opponent_piece: True if the move resulted in a capture, False otherwise
+        :param capture_square: None if not captured_piece, otherwise the square that the opponent piece was taken on
         :return: None
         """
         pass
