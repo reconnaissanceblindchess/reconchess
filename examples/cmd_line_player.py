@@ -27,7 +27,7 @@ class CmdLinePlayer(Player):
             else:
                 print('Invalid square, input like "a1"')
 
-    def handle_sense_result(self, sense_result: List[Tuple[Square, chess.Piece]]):
+    def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         sense_board = self.board.copy()
         for square, piece in sense_result:
             sense_board.set_piece_at(square, piece)

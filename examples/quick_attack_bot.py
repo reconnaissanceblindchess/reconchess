@@ -43,7 +43,7 @@ class QuickAttackBot(Player):
     def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
         return random.choice(valid_senses)
 
-    def handle_sense_result(self, sense_result: List[Tuple[Square, chess.Piece]]):
+    def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         pass
 
     def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
