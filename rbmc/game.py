@@ -61,6 +61,12 @@ class LocalGame(Game):
         self.turn = chess.WHITE
         self.board = chess.Board()
 
+    def valid_senses(self) -> List[Square]:
+        """
+        :return: List of squares that are in the inside 6x6 square in the board.
+        """
+        return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
+
 
 class RemoteGame(Game):
     """A pass through object, would implement the methods as making a request to the game server"""
