@@ -67,6 +67,50 @@ class LocalGame(Game):
         """
         return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
 
+    @staticmethod
+    def _revise_move(board, move):
+        from_square = move.from_square
+        to_square = move.to_square
+        piece = board.piece_at(from_square)
+        if piece == None:
+            return None
+        if piece.color != board.turn:
+            return None
+        piece_type = piece.piece_type
+        if piece_type == chess.PAWN and \
+                move.to_square in chess.SquareSet(chess.BB_BACKRANKS) \
+                and move.promotion == None:
+            move.promotion = chess.QUEEN
+        if move in board.generate_pseudo_legal_moves():
+            return move
+        if is_pseudo_legal_castle(board, move):
+            return move
+        maxDist = 0
+        maxMove = None
+        ray = chess.SquareSet(chess.BB_BETWEEN[from_square][to_square])
+        for sq in ray:
+            revMove = chess.Move(from_square, sq, move.promotion)
+            if revMove in board.generate_pseudo_legal_moves():
+                pawnCheck = not (piece_type == chess.PAWN and board.is_capture(revMove))
+                castleCheck = not (board.is_castling(move) and board.piece_at(sq) == None)
+                if pawnCheck and castleCheck:
+                    d = chess.square_distance(from_square, sq)
+                    if d > maxDist:
+                        maxDist = d
+                        maxMove = revMove
+        return maxMove
+
+    def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
+        result_move = LocalGame._revise_move(self.truth_board, requested_move)
+        capture_square = None
+        if self.truth_board.is_capture(result_move):
+            # TODO: handle en passant correctly
+            capture_square = result_move.to_square
+        if result_move is not None:
+            game.truth_board.push(move_result)
+        return (requested_move, result_move, capture_square)
+
+
 
 class RemoteGame(Game):
     """A pass through object, would implement the methods as making a request to the game server"""
