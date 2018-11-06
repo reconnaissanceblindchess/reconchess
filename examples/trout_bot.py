@@ -40,7 +40,7 @@ class TroutBot(Player):
         # sense at a random square
         return random.choice(valid_senses)
 
-    def handle_sense_result(self, sense_result: List[Tuple[Square, chess.Piece]]):
+    def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         for square, piece in sense_result:
             if piece is None:
                 self.board.remove_piece_at(square)
