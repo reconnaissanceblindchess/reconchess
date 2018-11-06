@@ -1,6 +1,7 @@
 import unittest
 from rbmc import LocalGame
 from chess import *
+import time
 
 
 class LocalGameTest(unittest.TestCase):
@@ -33,3 +34,23 @@ class LocalGameTest(unittest.TestCase):
 
         for square in outside_squares:
             self.assertNotIn(square, valid_senses)
+
+
+class LocalGameTimeTest(unittest.TestCase):
+    def test_time(self, seconds=1, turns=20):
+        delta = seconds / turns
+
+        times = [{WHITE: seconds, BLACK: seconds}]
+
+        game = LocalGame(seconds_per_player=seconds)
+        game.start()
+        for i in range(turns):
+            time.sleep(delta)
+            game.end_turn()
+            times.append(game.seconds_left_by_color.copy())
+
+        turn = WHITE
+        for i in range(1, len(times)):
+            self.assertAlmostEqual(times[i][turn], times[i - 1][turn] - delta, places=2)
+            self.assertAlmostEqual(times[i][not turn], times[i - 1][not turn], places=7)
+            turn = not turn
