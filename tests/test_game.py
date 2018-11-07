@@ -37,20 +37,24 @@ class LocalGameTest(unittest.TestCase):
 
 
 class LocalGameTimeTest(unittest.TestCase):
-    def test_time(self, seconds=1, turns=20):
-        delta = seconds / turns
-
-        times = [{WHITE: seconds, BLACK: seconds}]
+    def test_time(self, seconds=1, turns=20, phases=3):
+        delta = seconds / (turns * phases)
 
         game = LocalGame(seconds_per_player=seconds)
+
+        turn = True
+        time_by_color = game.seconds_left_by_color.copy()
+
         game.start()
         for i in range(turns):
-            time.sleep(delta)
-            game.end_turn()
-            times.append(game.seconds_left_by_color.copy())
+            for _ in range(phases):
+                start = game.get_seconds_left()
+                time.sleep(delta)
+                end = game.get_seconds_left()
 
-        turn = WHITE
-        for i in range(1, len(times)):
-            self.assertAlmostEqual(times[i][turn], times[i - 1][turn] - delta, places=2)
-            self.assertAlmostEqual(times[i][not turn], times[i - 1][not turn], places=7)
+                self.assertAlmostEqual(start - end, delta, places=2)
+
+            time_by_color[turn] = game.get_seconds_left()
             turn = not turn
+            game.end_turn()
+            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn])

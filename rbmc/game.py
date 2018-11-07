@@ -76,7 +76,11 @@ class LocalGame(Game):
         """
         :return: The amount of seconds left for the current player.
         """
-        return self.seconds_left_by_color[self.turn]
+        if self.current_turn_start_time:
+            elapsed_since_turn_start = (datetime.now() - self.current_turn_start_time).total_seconds()
+            return self.seconds_left_by_color[self.turn] - elapsed_since_turn_start
+        else:
+            return self.seconds_left_by_color[self.turn]
 
     def valid_senses(self) -> List[Square]:
         """
