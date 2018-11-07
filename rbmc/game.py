@@ -1,5 +1,6 @@
 import chess
 from abc import abstractmethod
+from datetime import datetime
 from .types import *
 from .player import Player
 
@@ -18,7 +19,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def start_turn(self):
+    def start(self):
         pass
 
     @abstractmethod
@@ -57,9 +58,29 @@ class Game(object):
 class LocalGame(Game):
     """Would implement all logic and use a chess.Board() object as the truth board"""
 
-    def __init__(self):
+    def __init__(self, seconds_per_player: float = 900):
         self.turn = chess.WHITE
         self.board = chess.Board()
+
+        self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
+        self.current_turn_start_time = None
+
+    def start(self):
+        """
+        Starts off the clock for the first player.
+        :return: None.
+        """
+        self.current_turn_start_time = datetime.now()
+
+    def get_seconds_left(self) -> float:
+        """
+        :return: The amount of seconds left for the current player.
+        """
+        if self.current_turn_start_time:
+            elapsed_since_turn_start = (datetime.now() - self.current_turn_start_time).total_seconds()
+            return self.seconds_left_by_color[self.turn] - elapsed_since_turn_start
+        else:
+            return self.seconds_left_by_color[self.turn]
 
     def valid_senses(self) -> List[Square]:
         """
@@ -77,6 +98,22 @@ class LocalGame(Game):
         for n in offsets:
             sense_result.append((square + n, self.board.piece_at(square + n)))
         return sense_result
+
+    def end_turn(self):
+        """
+        Used for bookkeeping. Does the following:
+
+        #. Updates the time used for the current player
+        #. Ends the turn for the current player
+        #. Starts the timer for the next player
+
+        :return: None
+        """
+        elapsed = datetime.now() - self.current_turn_start_time
+        self.seconds_left_by_color[self.turn] -= elapsed.total_seconds()
+
+        self.turn = not self.turn
+        self.current_turn_start_time = datetime.now()
 
 
 class RemoteGame(Game):
@@ -113,6 +150,7 @@ def play_local_game(white_player: Player, black_player: Player) \
 
     white_player.handle_game_start(chess.WHITE, game.board.copy())
     black_player.handle_game_start(chess.BLACK, game.board.copy())
+    game.start()
 
     while not game.is_over():
         play_turn(game, players[game.turn])
@@ -135,6 +173,7 @@ def play_remote_game(name, game_id, player: Player):
     color = game.get_player_color(name)
 
     player.handle_game_start(color, game.get_starting_board())
+    game.start()
 
     while not game.is_over():
         game.wait_for_turn(name)
@@ -145,9 +184,6 @@ def play_remote_game(name, game_id, player: Player):
 
 
 def play_turn(game: Game, player: Player):
-    # start turn
-    game.start_turn()
-
     # ally captured
     opt_capture_square = game.opponent_move_results()
     player.handle_opponent_move_result(opt_capture_square is not None, opt_capture_square)

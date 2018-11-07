@@ -1,6 +1,7 @@
 import unittest
 from rbmc import LocalGame
 from chess import *
+import time
 
 INSIDE_SQUARES = [
     B7, C7, D7, E7, F7, G7,
@@ -96,3 +97,27 @@ class LocalGameSenseTest(unittest.TestCase):
             sense_result = self.game.sense(sense_square)
             for square, piece in sense_result:
                 self.assertEqual(piece, self.game.board.piece_at(square))
+
+
+class LocalGameTimeTest(unittest.TestCase):
+    def test_time(self, seconds=1, turns=20, phases=3):
+        delta = seconds / (turns * phases)
+
+        game = LocalGame(seconds_per_player=seconds)
+
+        turn = True
+        time_by_color = game.seconds_left_by_color.copy()
+
+        game.start()
+        for i in range(turns):
+            for _ in range(phases):
+                start = game.get_seconds_left()
+                time.sleep(delta)
+                end = game.get_seconds_left()
+
+                self.assertAlmostEqual(start - end, delta, places=2)
+
+            time_by_color[turn] = game.get_seconds_left()
+            turn = not turn
+            game.end_turn()
+            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn])
