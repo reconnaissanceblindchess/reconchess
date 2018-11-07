@@ -26,7 +26,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def sense(self, square: Square) -> List[Tuple[Square, chess.Piece]]:
+    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
         pass
 
     @abstractmethod
@@ -66,6 +66,17 @@ class LocalGame(Game):
         :return: List of squares that are in the inside 6x6 square in the board.
         """
         return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
+
+    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
+        if square not in self.valid_senses():
+            raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(chess.SQUARE_NAMES[square],
+                                                                                      chess.SQUARE_NAMES[square]))
+
+        offsets = [7, 8, 9, -1, 0, 1, -9, -8, -7]
+        sense_result = []
+        for n in offsets:
+            sense_result.append((square + n, self.board.piece_at(square + n)))
+        return sense_result
 
 
 class RemoteGame(Game):
