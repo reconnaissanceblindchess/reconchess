@@ -33,3 +33,51 @@ class LocalGameTest(unittest.TestCase):
 
         for square in outside_squares:
             self.assertNotIn(square, valid_senses)
+
+
+class LocalGameMoveTest(unittest.TestCase):
+    def test_legal_castle(self):
+        pass
+
+    def test_queenside_castle_piece_between(self):
+        pass
+
+    def test_kingside_castle_piece_between(self):
+        pass
+
+    def test_queenside_castle_no_rights(self):
+        pass
+
+    def test_kingside_castle_no_rights(self):
+        pass
+
+    def test_castling_into_check(self):
+        pass
+
+    def test_castling_out_of_check(self):
+        pass
+
+    def test_en_passant(self):
+        # should make sure the correct square is returned for capture square
+        pass
+
+    def test_move_opponent_piece_is_illegal(self):
+        # test moving opponent pieces
+        pass
+
+    def test_move_no_piece_is_illegal(self):
+        # test a move from a square with no piece
+        pass
+
+    def test_sliding_pawn(self):
+        # mainly just the two move at the beginning
+        pass
+
+    def test_sliding_rook(self):
+        pass
+
+    def test_sliding_bishop(self):
+        pass
+
+    def test_sliding_queen(self):
+        pass
