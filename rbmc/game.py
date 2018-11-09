@@ -2,6 +2,7 @@ import chess
 from abc import abstractmethod
 from .types import *
 from .player import Player
+from .utilities import *
 
 
 class Game(object):
@@ -67,49 +68,40 @@ class LocalGame(Game):
         """
         return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
 
-    @staticmethod
-    def _revise_move(board, move):
-        from_square = move.from_square
-        to_square = move.to_square
-        piece = board.piece_at(from_square)
-        if piece == None:
-            return None
-        if piece.color != board.turn:
-            return None
-        piece_type = piece.piece_type
-        if piece_type == chess.PAWN and \
-                move.to_square in chess.SquareSet(chess.BB_BACKRANKS) \
-                and move.promotion == None:
-            move.promotion = chess.QUEEN
-        if move in board.generate_pseudo_legal_moves():
-            return move
-        if is_pseudo_legal_castle(board, move):
-            return move
-        maxDist = 0
-        maxMove = None
-        ray = chess.SquareSet(chess.BB_BETWEEN[from_square][to_square])
-        for sq in ray:
-            revMove = chess.Move(from_square, sq, move.promotion)
-            if revMove in board.generate_pseudo_legal_moves():
-                pawnCheck = not (piece_type == chess.PAWN and board.is_capture(revMove))
-                castleCheck = not (board.is_castling(move) and board.piece_at(sq) == None)
-                if pawnCheck and castleCheck:
-                    d = chess.square_distance(from_square, sq)
-                    if d > maxDist:
-                        maxDist = d
-                        maxMove = revMove
-        return maxMove
-
     def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
-        result_move = LocalGame._revise_move(self.truth_board, requested_move)
-        capture_square = None
-        if self.truth_board.is_capture(result_move):
-            # TODO: handle en passant correctly
-            capture_square = result_move.to_square
-        if result_move is not None:
-            game.truth_board.push(move_result)
-        return (requested_move, result_move, capture_square)
+        if requested_move not in self.valid_moves():
+            raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
 
+        # calculate taken move
+        taken_move = self._revise_move(requested_move)
+
+        # calculate capture square
+        opt_capture_square = capture_square_of_move(self.board, taken_move)
+
+        # apply move
+        self.board.push(taken_move)
+
+        return requested_move, taken_move, opt_capture_square
+
+    def _revise_move(self, move):
+        # add in a queen promotion if the move doesn't have one but could have one
+        move = add_pawn_queen_promotion(self.board, move)
+
+        # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
+        # include psuedo legal castles
+        if move in self.board.generate_pseudo_legal_moves() or is_psuedo_legal_castle(self.board, move):
+            return move
+
+        # note: if there are pieces in the way, we DONT capture them
+        if is_illegal_castle(self.board, move):
+            return chess.Move.null()
+
+        # if the piece is a sliding piece, slide it as far as it can go
+        piece = self.board.piece_at(move.from_square)
+        if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
+            move = slide_move(self.board, move)
+
+        return move
 
 
 class RemoteGame(Game):
