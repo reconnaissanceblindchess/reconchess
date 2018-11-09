@@ -3,6 +3,7 @@ from abc import abstractmethod
 from datetime import datetime
 from .types import *
 from .player import Player
+from .utilities import *
 
 
 class Game(object):
@@ -87,6 +88,12 @@ class LocalGame(Game):
         :return: List of squares that are in the inside 6x6 square in the board.
         """
         return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
+
+    def valid_moves(self) -> List[chess.Move]:
+        """
+        :return: List of moves that are possible with only knowledge of your pieces
+        """
+        return moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board) + [chess.Move.null()]
 
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
         if square not in self.valid_senses():

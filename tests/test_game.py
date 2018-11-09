@@ -2,6 +2,7 @@ import unittest
 from rbmc import LocalGame
 from chess import *
 import time
+import random
 
 INSIDE_SQUARES = [
     B7, C7, D7, E7, F7, G7,
@@ -121,3 +122,51 @@ class LocalGameTimeTest(unittest.TestCase):
             turn = not turn
             game.end_turn()
             self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn])
+
+
+class LocalGameValidMoveTest(unittest.TestCase):
+    STARTING_WHITE_PAWN_CAPTURES = [
+        Move(A2, B3),
+        Move(B2, A3), Move(B2, C3),
+        Move(C2, B3), Move(C2, D3),
+        Move(D2, C3), Move(D2, E3),
+        Move(E2, D3), Move(E2, F3),
+        Move(F2, E3), Move(F2, G3),
+        Move(G2, F3), Move(G2, H3),
+        Move(H2, G3),
+    ]
+    BLACK_STARTING_PAWN_CAPTURES = [
+        Move(A7, B6),
+        Move(B7, A6), Move(B7, C6),
+        Move(C7, B6), Move(C7, D6),
+        Move(D7, C6), Move(D7, E6),
+        Move(E7, D6), Move(E7, F6),
+        Move(F7, E6), Move(F7, G6),
+        Move(G7, F6), Move(G7, H6),
+        Move(H7, G6),
+    ]
+
+    def setUp(self):
+        self.game = LocalGame()
+
+    def test_starting_pawn_capture_moves(self):
+        valid_moves = self.game.valid_moves()
+        for move in self.STARTING_WHITE_PAWN_CAPTURES:
+            self.assertIn(move, valid_moves)
+        self.game.board.push(Move.null())
+        valid_moves = self.game.valid_moves()
+        for move in self.BLACK_STARTING_PAWN_CAPTURES:
+            self.assertIn(move, valid_moves)
+
+    def test_pass(self):
+        self.assertIn(Move.null(), self.game.valid_moves())
+
+    def test_superset_fuzz(self, max_turns=500):
+        turn = 1
+        while not self.game.board.is_game_over() and turn < max_turns:
+            truth_moves = set(self.game.board.generate_pseudo_legal_moves())
+            recon_moves = set(self.game.valid_moves())
+            self.assertTrue(recon_moves.issuperset(truth_moves))
+
+            self.game.board.push(random.sample(truth_moves, 1)[0])
+            turn += 1
