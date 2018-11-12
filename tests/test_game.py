@@ -121,7 +121,7 @@ class LocalGameTimeTest(unittest.TestCase):
             time_by_color[turn] = game.get_seconds_left()
             turn = not turn
             game.end_turn()
-            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn])
+            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
 
 
 class LocalGameValidMoveTest(unittest.TestCase):
@@ -173,20 +173,87 @@ class LocalGameValidMoveTest(unittest.TestCase):
 
 
 class LocalGameMoveTest(unittest.TestCase):
-    def test_legal_castle(self):
-        pass
+    def setUp(self):
+        self.game = LocalGame()
+
+    def test_legal_kingside_castle(self):
+        self.game.board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
+        self.game.board.set_castling_fen('KQkq')
+        req, taken, opt_capture = self.game.move(Move(E1, G1))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+        self.assertEqual(self.game.board.board_fen(), '8/8/8/8/8/8/8/R4RK1')
+
+    def test_legal_queenside_castle(self):
+        self.game.board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
+        self.game.board.set_castling_fen('KQkq')
+        req, taken, opt_capture = self.game.move(Move(E1, C1))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+        self.assertEqual(self.game.board.board_fen(), '8/8/8/8/8/8/8/2KR3R')
 
     def test_queenside_castle_piece_between(self):
-        pass
+        for fen in ['r1P1kbnr/pp1ppppp/8/8/8/8/PP1PPPPP/R1p1KBNR',
+                    'r2Pkbnr/pp1ppppp/8/8/8/8/PP1PPPPP/R2pKBNR',
+                    'rP2kbnr/pp1ppppp/8/8/8/8/PP1PPPPP/Rp2KBNR']:
+            self.game.board.set_board_fen(fen)
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            req, tak, opt_capture = self.game.move(Move(E1, C1))
+            self.assertEqual(tak, Move.null())
+
+            self.game.board.turn = BLACK
+            self.game.turn = BLACK
+            req, tak, opt_capture = self.game.move(Move(E8, C8))
+            self.assertEqual(tak, Move.null())
 
     def test_kingside_castle_piece_between(self):
-        pass
+        for fen in ['rnbqkP1r/ppppp1pp/8/8/8/8/PPPPP1PP/RNBQKp1R',
+                    'rnbqk1Pr/ppppp1pp/8/8/8/8/PPPPP1PP/RNBQK1pR']:
+            self.game.board.set_board_fen(fen)
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            req, tak, opt_capture = self.game.move(Move(E1, G1))
+            self.assertEqual(tak, Move.null())
+
+            self.game.board.turn = BLACK
+            self.game.turn = BLACK
+            req, tak, opt_capture = self.game.move(Move(E8, G8))
+            self.assertEqual(tak, Move.null())
 
     def test_queenside_castle_no_rights(self):
-        pass
+        self.game.board.set_board_fen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R')
+
+        self.game.board.turn = WHITE
+        self.game.turn = WHITE
+        for castling_fen in ['-', 'k', 'q', 'kq', 'Kk', 'Kq', 'Kkq']:
+            self.game.board.set_castling_fen(castling_fen)
+            with self.assertRaises(ValueError):
+                self.game.move(Move(E1, C1))
+
+        self.game.board.turn = BLACK
+        self.game.turn = BLACK
+        for castling_fen in ['-', 'K', 'Q', 'KQ', 'Kk', 'Qk', 'KQk']:
+            self.game.board.set_castling_fen(castling_fen)
+            with self.assertRaises(ValueError):
+                self.game.move(Move(E8, C8))
 
     def test_kingside_castle_no_rights(self):
-        pass
+        self.game.board.set_board_fen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R')
+
+        self.game.board.turn = WHITE
+        self.game.turn = WHITE
+        for castling_fen in ['-', 'k', 'q', 'kq', 'Qk', 'Qq', 'Qkq']:
+            self.game.board.set_castling_fen(castling_fen)
+            with self.assertRaises(ValueError):
+                self.game.move(Move(E1, G1))
+
+        self.game.board.turn = BLACK
+        self.game.turn = BLACK
+        for castling_fen in ['-', 'K', 'Q', 'KQ', 'Kq', 'Qq', 'KQq']:
+            self.game.board.set_castling_fen(castling_fen)
+            with self.assertRaises(ValueError):
+                self.game.move(Move(E8, G8))
 
     def test_castling_into_check(self):
         pass
@@ -194,27 +261,70 @@ class LocalGameMoveTest(unittest.TestCase):
     def test_castling_out_of_check(self):
         pass
 
-    def test_en_passant(self):
-        # should make sure the correct square is returned for capture square
-        pass
+    def test_en_passant_white(self):
+        # test that en passant captures result in the correct capture square
+        self.game.board.set_board_fen('rnbqkbnr/p1pppppp/8/8/1p6/8/PPPPPPPP/RNBQKBNR')
 
-    def test_move_opponent_piece_is_illegal(self):
+        req, taken, opt_capture = self.game.move(Move(A2, A4))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(B4, A3))
+        self.assertEqual(req, taken)
+        self.assertIsNotNone(opt_capture)
+        self.assertEqual(opt_capture, A4)
+
+    def test_en_passant_black(self):
+        # test that en passant captures result in the correct capture square
+        self.game.board.set_board_fen('rnbqkbnr/pppppppp/8/6P1/8/8/PPPPPP1P/RNBQKBNR')
+        self.game.turn = BLACK
+        self.game.board.turn = BLACK
+
+        req, taken, opt_capture = self.game.move(Move(F7, F5))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(G5, F6))
+        self.assertEqual(req, taken)
+        self.assertIsNotNone(opt_capture)
+        self.assertEqual(opt_capture, F5)
+
+    def test_move_opponent_piece(self):
         # test moving opponent pieces
-        pass
+        b = Board()
+        b.turn = BLACK
 
-    def test_move_no_piece_is_illegal(self):
+        for move in b.generate_pseudo_legal_moves():
+            with self.assertRaises(ValueError):
+                self.game.move(move)
+
+    def test_move_no_piece(self):
         # test a move from a square with no piece
+        for from_square in SquareSet(BB_RANK_3 | BB_RANK_4 | BB_RANK_5 | BB_RANK_6):
+            for to_square in SQUARES:
+                with self.assertRaises(ValueError):
+                    m = Move(from_square, to_square)
+                    self.game.move(m)
+
+    def test_sliding_straight(self):
         pass
 
-    def test_sliding_pawn(self):
-        # mainly just the two move at the beginning
+    def test_sliding_diagonal(self):
         pass
 
-    def test_sliding_rook(self):
-        pass
+    def test_legal_fuzz(self, max_turns=500):
+        board = Board()
 
-    def test_sliding_bishop(self):
-        pass
+        turn = 1
+        while not board.is_game_over() and turn < max_turns:
+            move = random.choice(list(board.generate_pseudo_legal_moves()))
 
-    def test_sliding_queen(self):
-        pass
+            req, taken, opt_square = self.game.move(move)
+            self.assertEqual(req, taken)
+            if board.is_capture(move):
+                self.assertIsNotNone(opt_square)
+
+            board.push(move)
+            self.assertEqual(self.game.board, board)
+
+            turn += 1

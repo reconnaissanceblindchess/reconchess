@@ -139,7 +139,7 @@ class LocalGame(Game):
         if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
             move = slide_move(self.board, move)
 
-        return move
+        return move if move in self.board.generate_pseudo_legal_moves() else chess.Move.null()
 
     def end_turn(self):
         """
