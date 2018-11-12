@@ -5,10 +5,9 @@ from .types import *
 def without_opponent_pieces(board: chess.Board) -> chess.Board:
     """Returns a copy of `board` with the opponent's pieces removed."""
     b = board.copy()
-    for square in chess.SQUARES:
-        piece = b.piece_at(square)
-        if piece is not None and piece.color != b.turn:
-            b.remove_piece_at(square)
+    for piece_type in chess.PIECE_TYPES:
+        for sq in b.pieces(piece_type, not board.turn):
+            b.remove_piece_at(sq)
     return b
 
 
