@@ -7,6 +7,17 @@ import random
 class CastlingTestCase(unittest.TestCase):
     def test_legal_castle(self):
         board = Board()
+
+        """     
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . . R 
+        """
         board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, C1)))
         self.assertFalse(is_illegal_castle(board, Move(E1, C1)))
@@ -20,15 +31,44 @@ class CastlingTestCase(unittest.TestCase):
 
     def test_queenside_castle_piece_between(self):
         board = Board()
-
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . p K . . R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/R2pK2R')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, C1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, C1)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . p . K . . R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/R1p1K2R')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, C1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, C1)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R p . . K . . R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/Rp2K2R')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, C1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, C1)))
@@ -36,18 +76,48 @@ class CastlingTestCase(unittest.TestCase):
     def test_kingside_castle_piece_between(self):
         board = Board()
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K p . R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/R3Kp1R')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, G1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, G1)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . p R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/R3K1pR')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, G1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, G1)))
 
     def test_castle_no_rights(self):
         board = Board()
-        board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . . R
+        """
+        board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         board.set_castling_fen('-')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, G1)))
         self.assertTrue(is_illegal_castle(board, Move(E1, G1)))
@@ -74,6 +144,16 @@ class CastlingTestCase(unittest.TestCase):
 
     def test_castling_into_check(self):
         board = Board()
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . q .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . K . . R
+        """
         board.set_board_fen('8/8/8/8/6q1/8/8/4K2R')
         self.assertFalse(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -84,6 +164,16 @@ class CastlingTestCase(unittest.TestCase):
 
     def test_castling_out_of_check(self):
         board = Board()
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        q . . . K . . R
+        """
         board.set_board_fen('8/8/8/8/8/8/8/q3K2R')
         self.assertTrue(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -94,6 +184,16 @@ class CastlingTestCase(unittest.TestCase):
 
     def test_castling_stay_in_check(self):
         board = Board()
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . q .
+        . . . . . . . .
+        . . . . K . . R
+        """
         board.set_board_fen('8/8/8/8/8/6q1/8/4K2R')
         self.assertTrue(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -108,20 +208,60 @@ class SlidingMoveTestCase(unittest.TestCase):
         """Tests a pawn moving forwards 1 and 2 spaces through enemy pawns"""
         board = Board()
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . p . . . .
+        . . . P . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/8/8/8/3p4/3P4/8')
         for to_square in [D2, D3, D4, D5, D6, D7, D8]:
             self.assertEqual(Move.null(), slide_move(board, Move(D2, to_square)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . . . P . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/8/8/3p4/8/3P4/8')
         self.assertEqual(Move(D2, D3), slide_move(board, Move(D2, D3)))
         self.assertEqual(Move(D2, D3), slide_move(board, Move(D2, D4)))
         self.assertEqual(Move(D2, D3), slide_move(board, Move(D2, D5)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . P . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/8/3p4/8/8/3P4/8')
         self.assertEqual(Move(D2, D3), slide_move(board, Move(D2, D3)))
         self.assertEqual(Move(D2, D4), slide_move(board, Move(D2, D4)))
         self.assertEqual(Move(D2, D4), slide_move(board, Move(D2, D5)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . P . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/3p4/8/8/8/3P4/8')
         self.assertEqual(Move(D2, D3), slide_move(board, Move(D2, D3)))
         self.assertEqual(Move(D2, D4), slide_move(board, Move(D2, D4)))
@@ -135,30 +275,80 @@ class SlidingMoveTestCase(unittest.TestCase):
         moves = [Move(D5, C5), Move(D5, B5), Move(D5, A5), Move(D5, D6), Move(D5, D7), Move(D5, D8), Move(D5, E5),
                  Move(D5, F5), Move(D5, G5), Move(D5, H5), Move(D5, D4), Move(D5, D3), Move(D5, D2), Move(D5, D1)]
 
+        # NOTE: In board diagrams for this function X = piece_type 
+        """
+        . . . . . . . .
+        . . . p . . . .
+        . . p X p . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/3p4/2pRp3/8/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C5), Move(D5, C5), Move(D5, C5), Move(D5, D6), Move(D5, D6), Move(D5, D6), Move(D5, E5),
                    Move(D5, E5), Move(D5, E5), Move(D5, E5), Move(D5, D4), Move(D5, D3), Move(D5, D2), Move(D5, D1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . p . X . p . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/3p4/8/1p1R1p2/8/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C5), Move(D5, B5), Move(D5, B5), Move(D5, D6), Move(D5, D7), Move(D5, D7), Move(D5, E5),
                    Move(D5, F5), Move(D5, F5), Move(D5, F5), Move(D5, D4), Move(D5, D3), Move(D5, D2), Move(D5, D1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . p . . . .
+        . . . . . . . .
+        . . . . . . . .
+        p . . X . . p .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('3p4/8/8/p2R2p1/8/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C5), Move(D5, B5), Move(D5, A5), Move(D5, D6), Move(D5, D7), Move(D5, D8), Move(D5, E5),
                    Move(D5, F5), Move(D5, G5), Move(D5, G5), Move(D5, D4), Move(D5, D3), Move(D5, D2), Move(D5, D1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/8/3R3p/8/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C5), Move(D5, B5), Move(D5, A5), Move(D5, D6), Move(D5, D7), Move(D5, D8), Move(D5, E5),
                    Move(D5, F5), Move(D5, G5), Move(D5, H5), Move(D5, D4), Move(D5, D3), Move(D5, D2), Move(D5, D1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . . 
+        """
         board.set_board_fen('8/8/8/3R4/8/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C5), Move(D5, B5), Move(D5, A5), Move(D5, D6), Move(D5, D7), Move(D5, D8), Move(D5, E5),
@@ -169,33 +359,94 @@ class SlidingMoveTestCase(unittest.TestCase):
         """Tests a rook moving through a ally piece"""
         board = Board()
 
+        # NOTE: In board diagrams for this function X = piece_type 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q K B N R
+        """
         moves = [Move(A1, A2), Move(A1, A3), Move(A1, A4), Move(A1, A5), Move(A1, A6), Move(A1, A7), Move(A1, A8),
                  Move(A1, B1), Move(A1, C1), Move(A1, D1), Move(A1, E1), Move(A1, F1), Move(A1, G1), Move(A1, H1)]
 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        X N B Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
                    Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P . . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        X N B Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
                    Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P . . . . . . .
+        . . N . . . . .
+        . P P P P P P P
+        X . B Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/2N5/1PPPPPPP/R1BQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
                    Move(A1, B1), Move(A1, B1), Move(A1, B1), Move(A1, B1), Move(A1, B1), Move(A1, B1), Move(A1, B1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P . . . . . . .
+        . . N P . . . .
+        . P P B P P P P
+        X . . Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/2NP4/1PPBPPPP/R2QKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
                    Move(A1, B1), Move(A1, C1), Move(A1, C1), Move(A1, C1), Move(A1, C1), Move(A1, C1), Move(A1, C1)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P . . . . . . .
+        . . N P P N . .
+        . P P B K P P P
+        X . . Q . B . R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/2NPPN2/1PPBKPPP/R2Q1B1R')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
@@ -209,12 +460,33 @@ class SlidingMoveTestCase(unittest.TestCase):
         moves = [Move(D5, C6), Move(D5, B7), Move(D5, A8), Move(D5, E6), Move(D5, F7), Move(D5, G8),
                  Move(D5, E4), Move(D5, F3), Move(D5, G2), Move(D5, C4), Move(D5, B3), Move(D5, A2)]
 
+        # NOTE: In board diagrams for this function X = piece_type 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . p . p . . .
+        . . . X . . . .
+        . . p . p . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/2p1p3/3B4/2p1p3/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, C6), Move(D5, C6), Move(D5, E6), Move(D5, E6), Move(D5, E6),
                    Move(D5, E4), Move(D5, E4), Move(D5, E4), Move(D5, C4), Move(D5, C4), Move(D5, C4)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . p . . . p . .
+        . . . . . . . .
+        . . . X . . . .
+        . . . . . . . .
+        . p . . . p . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/1p3p2/8/3B4/8/1p3p2/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, B7), Move(D5, B7), Move(D5, E6), Move(D5, F7), Move(D5, F7),
@@ -222,12 +494,33 @@ class SlidingMoveTestCase(unittest.TestCase):
 
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        p . . . . . p .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . .
+        . . . . . . . .
+        . . . . . . . .
+        p . . . . . p .
+        . . . . . . . .
+        """
         board.set_board_fen('p5p1/8/8/3B4/8/8/p5p1/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, B7), Move(D5, A8), Move(D5, E6), Move(D5, F7), Move(D5, G8),
                    Move(D5, E4), Move(D5, F3), Move(D5, G2), Move(D5, C4), Move(D5, B3), Move(D5, A2)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . p
+        """
         board.set_board_fen('8/8/8/3B4/8/8/8/7p')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, B7), Move(D5, A8), Move(D5, E6), Move(D5, F7), Move(D5, G8),
@@ -238,15 +531,47 @@ class SlidingMoveTestCase(unittest.TestCase):
         """Tests moving a bishop diagonally through allies and stopping before them"""
         board = Board()
 
+        # NOTE: In board diagrams for this function X = piece_type 
+
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q K B N R
+        """
         moves = [Move(D5, C6), Move(D5, B7), Move(D5, A8), Move(D5, E6), Move(D5, F7), Move(D5, G8),
                  Move(D5, E4), Move(D5, F3), Move(D5, G2), Move(D5, C4), Move(D5, B3), Move(D5, A2)]
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . P . P . . .
+        . . . R . . . .
+        . . P . P . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/8/2P1P3/3B4/2P1P3/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
                    Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . P . . . P . .
+        . . . . . . . .
+        . . . R . . . .
+        . . . . . . . .
+        . P . . . P . .
+        . . . . . . . .
+        . . . . . . . .
+        """
         board.set_board_fen('8/1P3P2/8/3B4/8/1P3P2/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, C6), Move(D5, C6), Move(D5, E6), Move(D5, E6), Move(D5, E6),
@@ -254,12 +579,32 @@ class SlidingMoveTestCase(unittest.TestCase):
 
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        P . . . . . P .
+        . . . . . . . .
+        . . . . . . . .
+        . . . R . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P . . . . . P .
+        . . . . . . . .
+        """
         board.set_board_fen('P5P1/8/8/3B4/8/8/P5P1/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, B7), Move(D5, B7), Move(D5, E6), Move(D5, F7), Move(D5, F7),
                    Move(D5, E4), Move(D5, F3), Move(D5, F3), Move(D5, C4), Move(D5, B3), Move(D5, B3)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . R . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . P
+        """
         board.set_board_fen('8/8/8/3B4/8/8/8/7P')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
         results = [Move(D5, C6), Move(D5, B7), Move(D5, A8), Move(D5, E6), Move(D5, F7), Move(D5, G8),
@@ -280,6 +625,16 @@ class SlidingMoveTestCase(unittest.TestCase):
 class CaptureSquareTestCase(unittest.TestCase):
     def test_white_en_passant(self):
         board = Board()
+        """
+        r n b q k b n r
+        . p p p p p p p
+        . . . . . . . .
+        p P . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P . P P P P P P
+        R N B Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/pppppppp/8/1P6/8/8/P1PPPPPP/RNBQKBNR')
         board.turn = BLACK
         board.push(Move(A7, A5))
@@ -287,6 +642,16 @@ class CaptureSquareTestCase(unittest.TestCase):
 
     def test_black_en_passant(self):
         board = Board()
+        """
+        r n b q k b n r
+        p . p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P p . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        R N B Q K B N R
+        """
         board.set_board_fen('rnbqkbnr/p1pppppp/8/8/1p6/8/PPPPPPPP/RNBQKBNR')
         board.turn = WHITE
         board.push(Move(A2, A4))
@@ -338,6 +703,16 @@ class NoOpponentsPiecesTestCase(unittest.TestCase):
 class PawnCaptureMovesTestCase(unittest.TestCase):
     def setUp(self):
         self.board = Board()
+        """
+        r n b q . b n r
+        . . . k . P . P
+        . p p P p . p .
+        p . . p . p . p
+        P P P . P . P .
+        . . . . . . . .
+        . . . . . . . .
+        R N B Q K B N R
+        """
         self.board.set_board_fen('rnbq1bnr/3k1P1P/1ppPp1p1/p2p1p1p/PPP1P1P1/8/8/RNBQKBNR')
 
     def test_white_moves(self):
