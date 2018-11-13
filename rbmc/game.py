@@ -106,6 +106,40 @@ class LocalGame(Game):
             sense_result.append((square + n, self.board.piece_at(square + n)))
         return sense_result
 
+    def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
+        # add in a queen promotion if the move doesn't have one but could have one
+        move = add_pawn_queen_promotion(self.board, requested_move)
+        if move not in self.valid_moves():
+            raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
+
+        # calculate taken move
+        taken_move = self._revise_move(move)
+
+        # calculate capture square
+        opt_capture_square = capture_square_of_move(self.board, taken_move)
+
+        # apply move
+        self.board.push(taken_move)
+
+        return requested_move, taken_move, opt_capture_square
+
+    def _revise_move(self, move):
+        # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
+        # include psuedo legal castles
+        if move in self.board.generate_pseudo_legal_moves() or is_psuedo_legal_castle(self.board, move):
+            return move
+
+        # note: if there are pieces in the way, we DONT capture them
+        if is_illegal_castle(self.board, move):
+            return chess.Move.null()
+
+        # if the piece is a sliding piece, slide it as far as it can go
+        piece = self.board.piece_at(move.from_square)
+        if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
+            move = slide_move(self.board, move)
+
+        return move if move in self.board.generate_pseudo_legal_moves() else chess.Move.null()
+
     def end_turn(self):
         """
         Used for bookkeeping. Does the following:
