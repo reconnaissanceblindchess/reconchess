@@ -510,7 +510,6 @@ class SlidingMoveTestCase(unittest.TestCase):
                    Move(D5, E4), Move(D5, F3), Move(D5, G2), Move(D5, C4), Move(D5, B3), Move(D5, A2)]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
-
         """
         . . . . . . . .
         . . . . . . . .

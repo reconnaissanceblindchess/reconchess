@@ -6,8 +6,8 @@ BACK_RANKS = list(chess.SquareSet(chess.BB_BACKRANKS))
 
 def add_pawn_queen_promotion(board: chess.Board, move: chess.Move) -> chess.Move:
     piece = board.piece_at(move.from_square)
-    if piece.piece_type == chess.PAWN and move.to_square in BACK_RANKS and move.promotion is None:
-        move.promotion = chess.QUEEN
+    if piece is not None and piece.piece_type == chess.PAWN and move.to_square in BACK_RANKS and move.promotion is None:
+        move = chess.Move(move.from_square, move.to_square, chess.QUEEN)
     return move
 
 

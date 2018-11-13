@@ -256,10 +256,64 @@ class LocalGameMoveTest(unittest.TestCase):
                 self.game.move(Move(E8, G8))
 
     def test_castling_into_check(self):
-        pass
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . q .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . K . . R
+        """
+        self.game.board.set_board_fen('8/8/8/8/6q1/8/8/4K2R')
+        self.assertFalse(self.game.board.is_check())
+        move = Move(E1, G1)
+        req, taken, opt_capture = self.game.move(move)
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+        self.game.board.turn = WHITE
+        self.assertTrue(self.game.board.is_check())
 
     def test_castling_out_of_check(self):
-        pass
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        q . . . K . . R
+        """
+        self.game.board.set_board_fen('8/8/8/8/8/8/8/q3K2R')
+        self.assertTrue(self.game.board.is_check())
+        move = Move(E1, G1)
+        req, taken, opt_capture = self.game.move(move)
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+        self.game.board.turn = WHITE
+        self.assertFalse(self.game.board.is_check())
+
+    def test_castling_stay_in_check(self):
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . q .
+        . . . . . . . .
+        . . . . K . . R
+        """
+        self.game.board.set_board_fen('8/8/8/8/8/6q1/8/4K2R')
+        self.assertTrue(self.game.board.is_check())
+        move = Move(E1, G1)
+        req, taken, opt_capture = self.game.move(move)
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+        self.game.board.turn = WHITE
+        self.assertTrue(self.game.board.is_check())
 
     def test_en_passant_white(self):
         # test that en passant captures result in the correct capture square
@@ -306,11 +360,142 @@ class LocalGameMoveTest(unittest.TestCase):
                     m = Move(from_square, to_square)
                     self.game.move(m)
 
-    def test_sliding_straight(self):
-        pass
+    def test_move_illegal(self):
+        for from_square in SquareSet(BB_RANK_1 | BB_RANK_2):
+            for to_square in SQUARES:
+                move = Move(from_square, to_square)
+                if move not in self.game.valid_moves():
+                    with self.assertRaises(ValueError):
+                        self.game.move(move)
 
-    def test_sliding_diagonal(self):
-        pass
+    def test_sliding_straight_capture(self):
+        """
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . p . R . p . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
+
+        result_by_move = {
+            Move(D5, C5): (Move(D5, C5), None),
+            Move(D5, B5): (Move(D5, B5), B5),
+            Move(D5, A5): (Move(D5, B5), B5),
+            Move(D5, D6): (Move(D5, D6), None),
+            Move(D5, D7): (Move(D5, D7), D7),
+            Move(D5, D8): (Move(D5, D7), D7),
+            Move(D5, E5): (Move(D5, E5), None),
+            Move(D5, F5): (Move(D5, F5), F5),
+            Move(D5, G5): (Move(D5, F5), F5),
+            Move(D5, H5): (Move(D5, F5), F5),
+            Move(D5, D4): (Move(D5, D4), None),
+            Move(D5, D3): (Move(D5, D3), None),
+            Move(D5, D2): (Move(D5, D2), None),
+            Move(D5, D1): (Move(D5, D1), None),
+        }
+        for expected_req, (expected_taken, expected_capture) in result_by_move.items():
+            self.game.board.set_board_fen('8/3p4/8/1p1R1p2/8/8/8/8')
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            req, taken, opt_capture = self.game.move(expected_req)
+            self.assertEqual(req, expected_req)
+            self.assertEqual(taken, expected_taken)
+            self.assertEqual(opt_capture, expected_capture)
+
+    def test_sliding_straight_into_ally(self):
+        """
+        . . . . . . . .
+        . . . p . . . .
+        . . . . . . . .
+        . p . R . p . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . P . . . .
+        . . . . . . . .
+        """
+        for move in [Move(D5, D2), Move(D5, D1)]:
+            self.game.board.set_board_fen('8/3p4/8/1p1R1p2/8/8/3P4/8')
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            with self.assertRaises(ValueError):
+                req, taken, opt_capture = self.game.move(move)
+
+    def test_sliding_diagonal_capture(self):
+        """
+        p . . . . . p .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . .
+        . . . . . . . .
+        . . . . . . . .
+        p . . . . . p .
+        . . . . . . . .
+        """
+        result_by_move = {
+            Move(D5, C6): (Move(D5, C6), None),
+            Move(D5, B7): (Move(D5, B7), None),
+            Move(D5, A8): (Move(D5, A8), A8),
+            Move(D5, E6): (Move(D5, E6), None),
+            Move(D5, F7): (Move(D5, F7), None),
+            Move(D5, G8): (Move(D5, G8), G8),
+            Move(D5, E4): (Move(D5, E4), None),
+            Move(D5, F3): (Move(D5, F3), None),
+            Move(D5, G2): (Move(D5, G2), G2),
+            Move(D5, H1): (Move(D5, G2), G2),
+            Move(D5, C4): (Move(D5, C4), None),
+            Move(D5, B3): (Move(D5, B3), None),
+            Move(D5, A2): (Move(D5, A2), A2),
+        }
+
+        for expected_req, (expected_taken, expected_capture) in result_by_move.items():
+            self.game.board.set_board_fen('p5p1/8/8/3B4/8/8/p5p1/8')
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            req, taken, opt_capture = self.game.move(expected_req)
+            self.assertEqual(req, expected_req)
+            self.assertEqual(taken, expected_taken)
+            self.assertEqual(opt_capture, expected_capture)
+
+    def test_sliding_diagonal_into_ally(self):
+        """
+        p . . . . . p .
+        . . . . . . . .
+        . . . . . . . .
+        . . . X . . . .
+        . . . . . . . .
+        . . . . . . . .
+        p . . . . . P .
+        . . . . . . . .
+        """
+        for move in [Move(D5, G2), Move(D5, H1)]:
+            self.game.board.set_board_fen('p5p1/8/8/3B4/8/8/p5P1/8')
+            self.game.board.turn = WHITE
+            self.game.turn = WHITE
+            with self.assertRaises(ValueError):
+                req, taken, opt_capture = self.game.move(move)
+
+    def test_pawn_auto_promotion(self):
+        """
+        . . . . . . . .
+        . . . P . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
+        self.game.board.set_board_fen('8/3P4/8/8/8/8/8/8')
+        req, taken, opt_capture = self.game.move(Move(D7, D8))
+        self.assertEqual(Move(D7, D8), req)
+        self.assertNotEqual(req, taken)
+        self.assertEqual(req.to_square, taken.to_square)
+        self.assertEqual(req.from_square, taken.from_square)
+        self.assertIsNone(req.promotion)
+        self.assertEqual(taken.promotion, QUEEN)
 
     def test_legal_fuzz(self, max_turns=500):
         board = Board()

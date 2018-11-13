@@ -107,11 +107,13 @@ class LocalGame(Game):
         return sense_result
 
     def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
-        if requested_move not in self.valid_moves():
+        # add in a queen promotion if the move doesn't have one but could have one
+        move = add_pawn_queen_promotion(self.board, requested_move)
+        if move not in self.valid_moves():
             raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
 
         # calculate taken move
-        taken_move = self._revise_move(requested_move)
+        taken_move = self._revise_move(move)
 
         # calculate capture square
         opt_capture_square = capture_square_of_move(self.board, taken_move)
@@ -122,9 +124,6 @@ class LocalGame(Game):
         return requested_move, taken_move, opt_capture_square
 
     def _revise_move(self, move):
-        # add in a queen promotion if the move doesn't have one but could have one
-        move = add_pawn_queen_promotion(self.board, move)
-
         # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
         # include psuedo legal castles
         if move in self.board.generate_pseudo_legal_moves() or is_psuedo_legal_castle(self.board, move):
