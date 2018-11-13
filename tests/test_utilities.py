@@ -6,18 +6,17 @@ import random
 
 class CastlingTestCase(unittest.TestCase):
     def test_legal_castle(self):
-        board = Board()
-
-        """     
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        R . . . K . . R 
         """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . . R
+        """
+        board = Board()
         board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, C1)))
         self.assertFalse(is_illegal_castle(board, Move(E1, C1)))
@@ -105,8 +104,6 @@ class CastlingTestCase(unittest.TestCase):
         self.assertTrue(is_illegal_castle(board, Move(E1, G1)))
 
     def test_castle_no_rights(self):
-        board = Board()
-
         """
         . . . . . . . .
         . . . . . . . .
@@ -117,6 +114,8 @@ class CastlingTestCase(unittest.TestCase):
         . . . . . . . .
         R . . . K . . R
         """
+        board = Board()
+
         board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         board.set_castling_fen('-')
         self.assertFalse(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -143,7 +142,6 @@ class CastlingTestCase(unittest.TestCase):
         self.assertFalse(is_illegal_castle(board, Move(E1, C1)))
 
     def test_castling_into_check(self):
-        board = Board()
         """
         . . . . . . . .
         . . . . . . . .
@@ -154,6 +152,7 @@ class CastlingTestCase(unittest.TestCase):
         . . . . . . . .
         . . . . K . . R
         """
+        board = Board()
         board.set_board_fen('8/8/8/8/6q1/8/8/4K2R')
         self.assertFalse(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -163,7 +162,6 @@ class CastlingTestCase(unittest.TestCase):
         self.assertTrue(board.is_check())
 
     def test_castling_out_of_check(self):
-        board = Board()
         """
         . . . . . . . .
         . . . . . . . .
@@ -174,6 +172,7 @@ class CastlingTestCase(unittest.TestCase):
         . . . . . . . .
         q . . . K . . R
         """
+        board = Board()
         board.set_board_fen('8/8/8/8/8/8/8/q3K2R')
         self.assertTrue(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -183,7 +182,6 @@ class CastlingTestCase(unittest.TestCase):
         self.assertFalse(board.is_check())
 
     def test_castling_stay_in_check(self):
-        board = Board()
         """
         . . . . . . . .
         . . . . . . . .
@@ -194,6 +192,7 @@ class CastlingTestCase(unittest.TestCase):
         . . . . . . . .
         . . . . K . . R
         """
+        board = Board()
         board.set_board_fen('8/8/8/8/8/6q1/8/4K2R')
         self.assertTrue(board.is_check())
         self.assertTrue(is_psuedo_legal_castle(board, Move(E1, G1)))
@@ -623,7 +622,6 @@ class SlidingMoveTestCase(unittest.TestCase):
 
 class CaptureSquareTestCase(unittest.TestCase):
     def test_white_en_passant(self):
-        board = Board()
         """
         r n b q k b n r
         . p p p p p p p
@@ -634,13 +632,13 @@ class CaptureSquareTestCase(unittest.TestCase):
         P . P P P P P P
         R N B Q K B N R
         """
+        board = Board()
         board.set_board_fen('rnbqkbnr/pppppppp/8/1P6/8/8/P1PPPPPP/RNBQKBNR')
         board.turn = BLACK
         board.push(Move(A7, A5))
         self.assertEqual(capture_square_of_move(board, Move(B5, A6)), A5)
 
     def test_black_en_passant(self):
-        board = Board()
         """
         r n b q k b n r
         p . p p p p p p
@@ -651,6 +649,7 @@ class CaptureSquareTestCase(unittest.TestCase):
         . P P P P P P P
         R N B Q K B N R
         """
+        board = Board()
         board.set_board_fen('rnbqkbnr/p1pppppp/8/8/1p6/8/PPPPPPPP/RNBQKBNR')
         board.turn = WHITE
         board.push(Move(A2, A4))
@@ -701,7 +700,6 @@ class NoOpponentsPiecesTestCase(unittest.TestCase):
 
 class PawnCaptureMovesTestCase(unittest.TestCase):
     def setUp(self):
-        self.board = Board()
         """
         r n b q . b n r
         . . . k . P . P
@@ -712,6 +710,7 @@ class PawnCaptureMovesTestCase(unittest.TestCase):
         . . . . . . . .
         R N B Q K B N R
         """
+        self.board = Board()
         self.board.set_board_fen('rnbq1bnr/3k1P1P/1ppPp1p1/p2p1p1p/PPP1P1P1/8/8/RNBQKBNR')
 
     def test_white_moves(self):

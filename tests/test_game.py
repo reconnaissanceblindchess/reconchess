@@ -177,6 +177,16 @@ class LocalGameMoveTest(unittest.TestCase):
         self.game = LocalGame()
 
     def test_legal_kingside_castle(self):
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . . R
+        """
         self.game.board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         self.game.board.set_castling_fen('KQkq')
         req, taken, opt_capture = self.game.move(Move(E1, G1))
@@ -185,6 +195,16 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertEqual(self.game.board.board_fen(), '8/8/8/8/8/8/8/R4RK1')
 
     def test_legal_queenside_castle(self):
+        """
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        R . . . K . . R
+        """
         self.game.board.set_board_fen('8/8/8/8/8/8/8/R3K2R')
         self.game.board.set_castling_fen('KQkq')
         req, taken, opt_capture = self.game.move(Move(E1, C1))
@@ -193,6 +213,17 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertEqual(self.game.board.board_fen(), '8/8/8/8/8/8/8/2KR3R')
 
     def test_queenside_castle_piece_between(self):
+        """
+        r . P . k b n r     r . . P k b n r     r P . . k b n r
+        p p . p p p p p     p p . p p p p p     p p . p p p p p
+        . . . . . . . .     . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .     . . . . . . . .
+        P P . P P P P P     P P . P P P P P     P P . P P P P P
+        R . p . K B N R     R . . p K B N R     R p . . K B N R
+        """
+
         for fen in ['r1P1kbnr/pp1ppppp/8/8/8/8/PP1PPPPP/R1p1KBNR',
                     'r2Pkbnr/pp1ppppp/8/8/8/8/PP1PPPPP/R2pKBNR',
                     'rP2kbnr/pp1ppppp/8/8/8/8/PP1PPPPP/Rp2KBNR']:
@@ -208,6 +239,17 @@ class LocalGameMoveTest(unittest.TestCase):
             self.assertEqual(tak, Move.null())
 
     def test_kingside_castle_piece_between(self):
+        """
+        r n b q k P . r     r n b q k . P r
+        p p p p p . p p     p p p p p . p p
+        . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .
+        . . . . . . . .     . . . . . . . .
+        P P P P P . P P     P P P P P . P P
+        R N B Q K p . R     R N B Q K . p R
+        :return:
+        """
         for fen in ['rnbqkP1r/ppppp1pp/8/8/8/8/PPPPP1PP/RNBQKp1R',
                     'rnbqk1Pr/ppppp1pp/8/8/8/8/PPPPP1PP/RNBQK1pR']:
             self.game.board.set_board_fen(fen)
@@ -222,6 +264,16 @@ class LocalGameMoveTest(unittest.TestCase):
             self.assertEqual(tak, Move.null())
 
     def test_queenside_castle_no_rights(self):
+        """
+        r . . . k . . r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R . . . K . . R
+        """
         self.game.board.set_board_fen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R')
 
         self.game.board.turn = WHITE
@@ -239,6 +291,16 @@ class LocalGameMoveTest(unittest.TestCase):
                 self.game.move(Move(E8, C8))
 
     def test_kingside_castle_no_rights(self):
+        """
+        r . . . k . . r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R . . . K . . R
+        """
         self.game.board.set_board_fen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R')
 
         self.game.board.turn = WHITE
@@ -316,6 +378,16 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertTrue(self.game.board.is_check())
 
     def test_en_passant_white(self):
+        """
+        r n b q k b n r
+        p . p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        P p . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        R N B Q K B N R
+        """
         # test that en passant captures result in the correct capture square
         self.game.board.set_board_fen('rnbqkbnr/p1pppppp/8/8/1p6/8/PPPPPPPP/RNBQKBNR')
 
@@ -329,6 +401,16 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertEqual(opt_capture, A4)
 
     def test_en_passant_black(self):
+        """
+        r n b q k b n r
+        p p p p p . p p
+        . . . . . . . .
+        . . . . . p P .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P . P
+        R N B Q K B N R
+        """
         # test that en passant captures result in the correct capture square
         self.game.board.set_board_fen('rnbqkbnr/pppppppp/8/6P1/8/8/PPPPPP1P/RNBQKBNR')
         self.game.turn = BLACK
