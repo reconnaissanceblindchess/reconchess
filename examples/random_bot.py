@@ -17,13 +17,13 @@ class RandomBot(Player):
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         pass
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
-        return random.choice(valid_moves)
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
+        return random.choice(valid_moves + [None])
 
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
+                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
         pass

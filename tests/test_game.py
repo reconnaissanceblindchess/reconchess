@@ -153,13 +153,14 @@ class LocalGameValidMoveTest(unittest.TestCase):
         valid_moves = self.game.valid_moves()
         for move in self.STARTING_WHITE_PAWN_CAPTURES:
             self.assertIn(move, valid_moves)
-        self.game.board.push(Move.null())
+        self.game.board.turn = BLACK
         valid_moves = self.game.valid_moves()
         for move in self.BLACK_STARTING_PAWN_CAPTURES:
             self.assertIn(move, valid_moves)
 
     def test_pass(self):
-        self.assertIn(Move.null(), self.game.valid_moves())
+        self.assertNotIn(None, self.game.valid_moves())
+        self.assertNotIn(Move.null(), self.game.valid_moves())
 
     def test_superset_fuzz(self, max_turns=500):
         turn = 1
@@ -231,12 +232,12 @@ class LocalGameMoveTest(unittest.TestCase):
             self.game.board.turn = WHITE
             self.game.turn = WHITE
             req, tak, opt_capture = self.game.move(Move(E1, C1))
-            self.assertEqual(tak, Move.null())
+            self.assertEqual(tak, None)
 
             self.game.board.turn = BLACK
             self.game.turn = BLACK
             req, tak, opt_capture = self.game.move(Move(E8, C8))
-            self.assertEqual(tak, Move.null())
+            self.assertEqual(tak, None)
 
     def test_kingside_castle_piece_between(self):
         """
@@ -256,12 +257,12 @@ class LocalGameMoveTest(unittest.TestCase):
             self.game.board.turn = WHITE
             self.game.turn = WHITE
             req, tak, opt_capture = self.game.move(Move(E1, G1))
-            self.assertEqual(tak, Move.null())
+            self.assertEqual(tak, None)
 
             self.game.board.turn = BLACK
             self.game.turn = BLACK
             req, tak, opt_capture = self.game.move(Move(E8, G8))
-            self.assertEqual(tak, Move.null())
+            self.assertEqual(tak, None)
 
     def test_queenside_castle_no_rights(self):
         """
@@ -579,19 +580,38 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertIsNone(req.promotion)
         self.assertEqual(taken.promotion, QUEEN)
 
+    def test_pass(self):
+        req, taken, opt_capture = self.game.move(None)
+        self.assertEqual(req, None)
+        self.assertEqual(taken, None)
+        self.assertIsNone(opt_capture)
+
+        self.game.board.turn = BLACK
+        req, taken, opt_capture = self.game.move(None)
+        self.assertEqual(req, None)
+        self.assertEqual(taken, None)
+        self.assertIsNone(opt_capture)
+
+        self.game.board.turn = WHITE
+        self.game.board.remove_piece_at(0)
+        req, taken, opt_capture = self.game.move(None)
+        self.assertEqual(req, None)
+        self.assertEqual(taken, None)
+        self.assertIsNone(opt_capture)
+
     def test_legal_fuzz(self, max_turns=500):
         board = Board()
 
         turn = 1
         while not board.is_game_over() and turn < max_turns:
-            move = random.choice(list(board.generate_pseudo_legal_moves()))
+            move = random.choice(list(board.generate_pseudo_legal_moves()) + [None])
 
             req, taken, opt_square = self.game.move(move)
             self.assertEqual(req, taken)
-            if board.is_capture(move):
+            if move is not None and board.is_capture(move):
                 self.assertIsNotNone(opt_square)
 
-            board.push(move)
+            board.push(move if move is not None else Move.null())
             self.assertEqual(self.game.board, board)
 
             turn += 1

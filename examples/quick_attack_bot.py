@@ -46,20 +46,20 @@ class QuickAttackBot(Player):
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         pass
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
         while self.move_sequence[0] not in valid_moves:
             self.move_sequence.pop()
 
         if len(self.move_sequence) == 0:
-            # just make a random move
-            return random.choice(valid_moves)
+            # pass... we failed so give up
+            return None
         else:
             return self.move_sequence.pop()
 
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
+                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
         pass

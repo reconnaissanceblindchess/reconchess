@@ -106,13 +106,13 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
         """
         The method to implement your movement strategy. The chosen movement action should be returned from this function.
         I.e. the value returned is the move to make. The returned move must be one of the moves in the `valid_moves`
         parameter.
 
-        The pass move is legal, and is provided in `valid_moves` as :code:`chess.Move.null()`.
+        The pass move is legal, and is executed by returning `None` from this method.
 
         Called after :meth:`handle_sense_result()`.
 
@@ -125,7 +125,7 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         """
         Provides the result of the movement action. The `requested_move` is the move returned from :meth:`choose_move()`,
@@ -148,7 +148,7 @@ class Player(object):
         this method completes, then time will be counted against you.
 
         :param requested_move: The :class:`chess.Move` you requested in :meth:`choose_move()`.
-        :param taken_move: The :class:`chess.Move` that was actually applied by the game.
+        :param taken_move: The :class:`chess.Move` that was actually applied by the game if it was a valid move, otherwise `None`.
         :param captured_opponent_piece: If `taken_move` resulted in a capture, then `True`, otherwise `False`.
         :param capture_square: If a capture occurred, then the square that the opponent piece was taken on, otherwise `None`.
         :return: None
@@ -156,8 +156,8 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
+                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
         """
         Provides the results of the game when it ends. You can use this for post processing the results of the game.
 

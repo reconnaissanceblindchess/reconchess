@@ -32,7 +32,8 @@ class Game(object):
         pass
 
     @abstractmethod
-    def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
+    def move(self, requested_move: Optional[chess.Move]) \
+            -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
         pass
 
     @abstractmethod
@@ -93,7 +94,7 @@ class LocalGame(Game):
         """
         :return: List of moves that are possible with only knowledge of your pieces
         """
-        return moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board) + [chess.Move.null()]
+        return moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board)
 
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
         if square not in self.valid_senses():
@@ -106,20 +107,28 @@ class LocalGame(Game):
             sense_result.append((square + n, self.board.piece_at(square + n)))
         return sense_result
 
-    def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
-        # add in a queen promotion if the move doesn't have one but could have one
-        move = add_pawn_queen_promotion(self.board, requested_move)
-        if move not in self.valid_moves():
-            raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
+    def move(self, requested_move: Optional[chess.Move]) \
+            -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
+        if requested_move is None:
+            # pass move
+            taken_move = None
 
-        # calculate taken move
-        taken_move = self._revise_move(move)
+            # doesn't capture anything
+            opt_capture_square = None
+        else:
+            # add in a queen promotion if the move doesn't have one but could have one
+            move = add_pawn_queen_promotion(self.board, requested_move)
+            if move not in self.valid_moves():
+                raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
 
-        # calculate capture square
-        opt_capture_square = capture_square_of_move(self.board, taken_move)
+            # calculate taken move
+            taken_move = self._revise_move(move)
+
+            # calculate capture square
+            opt_capture_square = capture_square_of_move(self.board, taken_move)
 
         # apply move
-        self.board.push(taken_move)
+        self.board.push(taken_move if taken_move is not None else chess.Move.null())
 
         return requested_move, taken_move, opt_capture_square
 
@@ -131,14 +140,14 @@ class LocalGame(Game):
 
         # note: if there are pieces in the way, we DONT capture them
         if is_illegal_castle(self.board, move):
-            return chess.Move.null()
+            return None
 
         # if the piece is a sliding piece, slide it as far as it can go
         piece = self.board.piece_at(move.from_square)
         if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
             move = slide_move(self.board, move)
 
-        return move if move in self.board.generate_pseudo_legal_moves() else chess.Move.null()
+        return move if move in self.board.generate_pseudo_legal_moves() else None
 
     def end_turn(self):
         """

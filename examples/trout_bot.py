@@ -42,12 +42,9 @@ class TroutBot(Player):
 
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         for square, piece in sense_result:
-            if piece is None:
-                self.board.remove_piece_at(square)
-            else:
-                self.board.set_piece_at(square, piece)
+            self.board.set_piece_at(square, piece)
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
         # try to take the king if we know where it might be
         enemy_king_positions = self.board.pieces(chess.KING, not self.color)
         if enemy_king_positions:
@@ -73,11 +70,11 @@ class TroutBot(Player):
         # just make a random move
         return random.choice(valid_moves)
 
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
-        piece = self.board.remove_piece_at(taken_move.from_square)
-        self.board.set_piece_at(taken_move.to_square, piece)
+        if taken_move is not None:
+            self.board.push(taken_move)
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
+                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
         pass

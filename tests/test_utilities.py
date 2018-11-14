@@ -219,7 +219,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('8/8/8/8/8/3p4/3P4/8')
         for to_square in [D2, D3, D4, D5, D6, D7, D8]:
-            self.assertEqual(Move.null(), slide_move(board, Move(D2, to_square)))
+            self.assertEqual(None, slide_move(board, Move(D2, to_square)))
 
         """
         . . . . . . . .
@@ -384,8 +384,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
-        results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+        results = [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -401,7 +400,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+                   None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -556,8 +555,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('8/8/2P1P3/3B4/2P1P3/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
-        results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+        results = [None, None, None, None, None, None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -621,6 +619,12 @@ class SlidingMoveTestCase(unittest.TestCase):
 
 
 class CaptureSquareTestCase(unittest.TestCase):
+    def test_pass(self):
+        board = Board()
+        self.assertEqual(capture_square_of_move(board, None), None)
+        board.turn = BLACK
+        self.assertEqual(capture_square_of_move(board, None), None)
+
     def test_white_en_passant(self):
         """
         r n b q k b n r
@@ -728,3 +732,103 @@ class PawnCaptureMovesTestCase(unittest.TestCase):
         expected = {Move(A5, B4), Move(B6, C5), Move(C6, B5), Move(D5, C4), Move(D5, E4),
                     Move(F5, E4), Move(F5, G4), Move(H5, G4)}
         self.assertSetEqual(moves, expected)
+
+
+class AddPawnQueenPromotionTestCase(unittest.TestCase):
+    def test_white_pawn(self):
+        """
+        . n b q k b n r
+        P p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        R N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('1nbqkbnr/Pppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR')
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A7, A8)), Move(A7, A8, promotion=chess.QUEEN))
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A7, B8)), Move(A7, B8, promotion=chess.QUEEN))
+
+    def test_black_pawn(self):
+        """
+        r n b q k b n r
+        p p p . p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P p P P P P
+        R N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('rnbqkbnr/ppp1pppp/8/8/8/8/PPPpPPPP/RNBQKBNR')
+        self.assertEqual(add_pawn_queen_promotion(board, Move(D2, D1)), Move(D2, D1, promotion=chess.QUEEN))
+        self.assertEqual(add_pawn_queen_promotion(board, Move(D2, C1)), Move(D2, C1, promotion=chess.QUEEN))
+        self.assertEqual(add_pawn_queen_promotion(board, Move(D2, E1)), Move(D2, E1, promotion=chess.QUEEN))
+
+    def test_non_pawn(self):
+        """
+        r n b q k b n r
+        R p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        . N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('rnbqkbnr/Rppppppp/8/8/8/8/1PPPPPPP/1NBQKBNR')
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A7, A8)), Move(A7, A8))
+
+    def test_non_backrack(self):
+        """
+        r n b q k b n r
+        p p p p p p p p
+        P . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        R N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('rnbqkbnr/pppppppp/P7/8/8/8/1PPPPPPP/RNBQKBNR')
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A6, A7)), Move(A6, A7))
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A6, B7)), Move(A6, B7))
+
+    def test_no_piece(self):
+        """
+        r n b q k b n r
+        . p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('rnbqkbnr/1ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A7, A8)), Move(A7, A8))
+        self.assertEqual(add_pawn_queen_promotion(board, Move(A7, B8)), Move(A7, B8))
+
+    def test_already_has_promotion(self):
+        """
+        . n b q k b n r
+        P p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . P P P P P P P
+        R N B Q K B N R
+        """
+        board = Board()
+        board.set_board_fen('1nbqkbnr/Pppppppp/8/8/8/8/1PPPPPPP/RNBQKBNR')
+
+        for piece_type in chess.PIECE_TYPES[1:-1]:
+            self.assertEqual(add_pawn_queen_promotion(board, Move(A7, A8, promotion=piece_type)),
+                             Move(A7, A8, promotion=piece_type))
