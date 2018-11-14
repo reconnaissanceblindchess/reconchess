@@ -5,15 +5,6 @@ import random
 
 
 class CastlingTestCase(unittest.TestCase):
-    def test_pass(self):
-        board = Board()
-        self.assertFalse(is_psuedo_legal_castle(board, Move.null()))
-        self.assertFalse(is_illegal_castle(board, Move.null()))
-
-        board.remove_piece_at(0)
-        self.assertFalse(is_psuedo_legal_castle(board, Move.null()))
-        self.assertFalse(is_illegal_castle(board, Move.null()))
-
     def test_legal_castle(self):
         """
         . . . . . . . .
@@ -212,13 +203,6 @@ class CastlingTestCase(unittest.TestCase):
 
 
 class SlidingMoveTestCase(unittest.TestCase):
-    def test_pass(self):
-        board = Board()
-        self.assertEqual(slide_move(board, Move.null()), Move.null())
-
-        board.remove_piece_at(0)
-        self.assertEqual(slide_move(board, Move.null()), Move.null())
-
     def test_sliding_pawn(self):
         """Tests a pawn moving forwards 1 and 2 spaces through enemy pawns"""
         board = Board()
@@ -235,7 +219,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('8/8/8/8/8/3p4/3P4/8')
         for to_square in [D2, D3, D4, D5, D6, D7, D8]:
-            self.assertEqual(Move.null(), slide_move(board, Move(D2, to_square)))
+            self.assertEqual(None, slide_move(board, Move(D2, to_square)))
 
         """
         . . . . . . . .
@@ -400,8 +384,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
-        results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+        results = [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -417,7 +400,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         board.set_board_fen('rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR')
         board.set_piece_at(A1, Piece(piece_type, WHITE))
         results = [Move(A1, A2), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3), Move(A1, A3),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+                   None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -572,8 +555,7 @@ class SlidingMoveTestCase(unittest.TestCase):
         """
         board.set_board_fen('8/8/2P1P3/3B4/2P1P3/8/8/8')
         board.set_piece_at(D5, Piece(piece_type, WHITE))
-        results = [Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null(),
-                   Move.null(), Move.null(), Move.null(), Move.null(), Move.null(), Move.null()]
+        results = [None, None, None, None, None, None, None, None, None, None, None, None]
         self.assertEqual(results, list(map(lambda m: slide_move(board, m), moves)))
 
         """
@@ -639,9 +621,9 @@ class SlidingMoveTestCase(unittest.TestCase):
 class CaptureSquareTestCase(unittest.TestCase):
     def test_pass(self):
         board = Board()
-        self.assertEqual(capture_square_of_move(board, Move.null()), None)
+        self.assertEqual(capture_square_of_move(board, None), None)
         board.turn = BLACK
-        self.assertEqual(capture_square_of_move(board, Move.null()), None)
+        self.assertEqual(capture_square_of_move(board, None), None)
 
     def test_white_en_passant(self):
         """
@@ -753,24 +735,6 @@ class PawnCaptureMovesTestCase(unittest.TestCase):
 
 
 class AddPawnQueenPromotionTestCase(unittest.TestCase):
-    def test_pass(self):
-        """
-        r n b q k b n r
-        p p p p p p p p
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        P P P P P P P P
-        R N B Q K B N R
-        """
-        board = Board()
-        self.assertEqual(add_pawn_queen_promotion(board, Move.null()), Move.null())
-        board.turn = BLACK
-        self.assertEqual(add_pawn_queen_promotion(board, Move.null()), Move.null())
-        board.set_piece_at(0, chess.Piece(chess.PAWN, chess.BLACK))
-        self.assertEqual(add_pawn_queen_promotion(board, Move.null()), Move.null())
-
     def test_white_pawn(self):
         """
         . n b q k b n r

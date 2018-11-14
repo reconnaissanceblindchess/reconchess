@@ -5,9 +5,6 @@ BACK_RANKS = list(chess.SquareSet(chess.BB_BACKRANKS))
 
 
 def add_pawn_queen_promotion(board: chess.Board, move: chess.Move) -> chess.Move:
-    if move == chess.Move.null():
-        return move
-
     piece = board.piece_at(move.from_square)
     if piece is not None and piece.piece_type == chess.PAWN and move.to_square in BACK_RANKS and move.promotion is None:
         move = chess.Move(move.from_square, move.to_square, chess.QUEEN)
@@ -40,7 +37,7 @@ def is_illegal_castle(board: chess.Board, move: chess.Move) -> bool:
     return False
 
 
-def slide_move(board: chess.Board, move: chess.Move) -> chess.Move:
+def slide_move(board: chess.Board, move: chess.Move) -> Optional[chess.Move]:
     psuedo_legal_moves = list(board.generate_pseudo_legal_moves())
     squares = list(chess.SquareSet(chess.BB_BETWEEN[move.from_square][move.to_square])) + [move.to_square]
     squares = sorted(squares, key=lambda s: chess.square_distance(s, move.from_square), reverse=True)
@@ -48,12 +45,12 @@ def slide_move(board: chess.Board, move: chess.Move) -> chess.Move:
         revised = chess.Move(move.from_square, slide_square, move.promotion)
         if revised in psuedo_legal_moves:
             return revised
-    return chess.Move.null()
+    return None
 
 
-def capture_square_of_move(board: chess.Board, move: chess.Move) -> Optional[Square]:
+def capture_square_of_move(board: chess.Board, move: Optional[chess.Move]) -> Optional[Square]:
     capture_square = None
-    if move != chess.Move.null() and board.is_capture(move):
+    if move is not None and board.is_capture(move):
         if board.is_en_passant(move):
             # taken from :func:`chess.Board.push()`
             down = -8 if board.turn == chess.WHITE else 8
