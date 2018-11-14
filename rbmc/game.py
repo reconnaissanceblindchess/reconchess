@@ -86,9 +86,9 @@ class LocalGame(Game):
 
     def valid_senses(self) -> List[Square]:
         """
-        :return: List of squares that are in the inside 6x6 square in the board.
+        :return: List of all squares on the board.
         """
-        return [i for i in chess.SQUARES if not (i % 8 == 0 or i % 8 == 7 or i < 8 or i >= 56)]
+        return chess.SQUARES
 
     def valid_moves(self) -> List[chess.Move]:
         """
@@ -98,13 +98,15 @@ class LocalGame(Game):
 
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
         if square not in self.valid_senses():
-            raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(chess.SQUARE_NAMES[square],
-                                                                                      chess.SQUARE_NAMES[square]))
+            raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(square, square))
 
-        offsets = [7, 8, 9, -1, 0, 1, -9, -8, -7]
+        rank, file = chess.square_rank(square), chess.square_file(square)
         sense_result = []
-        for n in offsets:
-            sense_result.append((square + n, self.board.piece_at(square + n)))
+        for delta_rank in [1, 0, -1]:
+            for delta_file in [-1, 0, 1]:
+                if 0 <= rank + delta_rank <= 7 and 0 <= file + delta_file <= 7:
+                    sense_square = chess.square(file + delta_file, rank + delta_rank)
+                    sense_result.append((sense_square, self.board.piece_at(sense_square)))
         return sense_result
 
     def move(self, requested_move: Optional[chess.Move]) \
