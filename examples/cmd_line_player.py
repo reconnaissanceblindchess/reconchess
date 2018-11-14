@@ -35,7 +35,7 @@ class CmdLinePlayer(Player):
         print('Sense result:')
         print(sense_board)
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
         while True:
             print('Move phase. Valid moves are: {}'.format(valid_moves))
             move_uci = input('Where to move (input moves as UCI)?').lower()
@@ -48,14 +48,16 @@ class CmdLinePlayer(Player):
             except ValueError:
                 print('Invalid UCI move, input like "a1a2"')
 
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         print('Requested move: {}'.format(requested_move))
         print('Taken move: {}'.format(taken_move))
         if captured_opponent_piece:
             print('Captured a piece at: {}'.format(chess.SQUARE_NAMES[capture_square]))
-        self.board.push(taken_move)
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+        if taken_move is not None:
+            self.board.push(taken_move)
+
+    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
+                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
         pass
