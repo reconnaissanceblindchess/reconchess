@@ -5,6 +5,9 @@ BACK_RANKS = list(chess.SquareSet(chess.BB_BACKRANKS))
 
 
 def add_pawn_queen_promotion(board: chess.Board, move: chess.Move) -> chess.Move:
+    if move == chess.Move.null():
+        return move
+
     piece = board.piece_at(move.from_square)
     if piece is not None and piece.piece_type == chess.PAWN and move.to_square in BACK_RANKS and move.promotion is None:
         move = chess.Move(move.from_square, move.to_square, chess.QUEEN)
@@ -50,7 +53,7 @@ def slide_move(board: chess.Board, move: chess.Move) -> chess.Move:
 
 def capture_square_of_move(board: chess.Board, move: chess.Move) -> Optional[Square]:
     capture_square = None
-    if board.is_capture(move):
+    if move != chess.Move.null() and board.is_capture(move):
         if board.is_en_passant(move):
             # taken from :func:`chess.Board.push()`
             down = -8 if board.turn == chess.WHITE else 8

@@ -579,16 +579,35 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertIsNone(req.promotion)
         self.assertEqual(taken.promotion, QUEEN)
 
+    def test_pass(self):
+        req, taken, opt_capture = self.game.move(Move.null())
+        self.assertEqual(req, Move.null())
+        self.assertEqual(taken, Move.null())
+        self.assertIsNone(opt_capture)
+
+        self.game.board.turn = BLACK
+        req, taken, opt_capture = self.game.move(Move.null())
+        self.assertEqual(req, Move.null())
+        self.assertEqual(taken, Move.null())
+        self.assertIsNone(opt_capture)
+
+        self.game.board.turn = WHITE
+        self.game.board.remove_piece_at(0)
+        req, taken, opt_capture = self.game.move(Move.null())
+        self.assertEqual(req, Move.null())
+        self.assertEqual(taken, Move.null())
+        self.assertIsNone(opt_capture)
+
     def test_legal_fuzz(self, max_turns=500):
         board = Board()
 
         turn = 1
         while not board.is_game_over() and turn < max_turns:
-            move = random.choice(list(board.generate_pseudo_legal_moves()))
+            move = random.choice(list(board.generate_pseudo_legal_moves()) + [Move.null()])
 
             req, taken, opt_square = self.game.move(move)
             self.assertEqual(req, taken)
-            if board.is_capture(move):
+            if move != Move.null() and board.is_capture(move):
                 self.assertIsNotNone(opt_square)
 
             board.push(move)

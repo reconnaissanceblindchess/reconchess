@@ -107,16 +107,23 @@ class LocalGame(Game):
         return sense_result
 
     def move(self, requested_move: chess.Move) -> Tuple[chess.Move, chess.Move, Optional[Square]]:
-        # add in a queen promotion if the move doesn't have one but could have one
-        move = add_pawn_queen_promotion(self.board, requested_move)
-        if move not in self.valid_moves():
-            raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
+        if requested_move == chess.Move.null():
+            # pass move
+            taken_move = chess.Move.null()
 
-        # calculate taken move
-        taken_move = self._revise_move(move)
+            # doesn't capture anything
+            opt_capture_square = None
+        else:
+            # add in a queen promotion if the move doesn't have one but could have one
+            move = add_pawn_queen_promotion(self.board, requested_move)
+            if move not in self.valid_moves():
+                raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
 
-        # calculate capture square
-        opt_capture_square = capture_square_of_move(self.board, taken_move)
+            # calculate taken move
+            taken_move = self._revise_move(move)
+
+            # calculate capture square
+            opt_capture_square = capture_square_of_move(self.board, taken_move)
 
         # apply move
         self.board.push(taken_move)
