@@ -622,3 +622,46 @@ class LocalGameMoveTest(unittest.TestCase):
             self.assertEqual(self.game.board, board)
 
             turn += 1
+
+
+class OpponentMoveResultsTestCase(unittest.TestCase):
+    def test_no_capture(self):
+        game = LocalGame()
+        game.start()
+        _, _, result1 = game.move(Move(A2, A4))
+        self.assertIsNone(result1)
+        self.assertEqual(result1, game.opponent_move_results())
+        game.end_turn()
+        self.assertEqual(result1, game.opponent_move_results())
+        game.sense(E5)
+        self.assertEqual(result1, game.opponent_move_results())
+        _, _, result2 = game.move(Move(F7, F5))
+        self.assertIsNone(result2)
+        self.assertEqual(result2, game.opponent_move_results())
+
+    def test_capture(self):
+        """
+        r n b q k b n r
+        p p p . . p p p
+        . . . . . . . .
+        . . . p p . . .
+        . . . P P . . .
+        . . . . . . . .
+        P P P . . P P P
+        R N B Q K B N R
+        """
+        game = LocalGame()
+        game.board.set_board_fen('rnbqkbnr/ppp2ppp/8/3pp3/3PP3/8/PPP2PPP/RNBQKBNR')
+        game.start()
+
+        _, _, result1 = game.move(Move(D4, E5))
+        self.assertEqual(result1, E5)
+        self.assertEqual(result1, game.opponent_move_results())
+        game.end_turn()
+
+        self.assertEqual(result1, game.opponent_move_results())
+        game.sense(E5)
+        self.assertEqual(result1, game.opponent_move_results())
+        _, _, result2 = game.move(Move(D5, E4))
+        self.assertEqual(result2, E4)
+        self.assertEqual(result2, game.opponent_move_results())

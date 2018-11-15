@@ -67,6 +67,8 @@ class LocalGame(Game):
         self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
         self.current_turn_start_time = None
 
+        self.move_results = None
+
     def start(self):
         """
         Starts off the clock for the first player.
@@ -95,6 +97,9 @@ class LocalGame(Game):
         :return: List of moves that are possible with only knowledge of your pieces
         """
         return moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board)
+
+    def opponent_move_results(self) -> Optional[Square]:
+        return self.move_results
 
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
         if square not in self.valid_senses():
@@ -131,6 +136,9 @@ class LocalGame(Game):
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
+
+        # store results of move for notifying other player
+        self.move_results = opt_capture_square
 
         return requested_move, taken_move, opt_capture_square
 
