@@ -14,6 +14,12 @@ class GameHistory(object):
             self.history[move_number][color] = {}
         return self.history[move_number][color]
 
+    def store_opponent_move_results(self, move_number: int, color: Color,
+            opt_capture_square: Optional[Square]):
+        self.__get_history_item_for(move_number, color)["opponent_move_results"] = {
+            "opt_capture_square": opt_capture_square 
+        }
+
     def store_sense(self, move_number: int, color: Color, square: Square,
                 sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         self.__get_history_item_for(move_number, color)["sense"] = {
