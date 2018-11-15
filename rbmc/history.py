@@ -31,7 +31,9 @@ class GameHistory(object):
         }
 
     def get_sense_history_for(self, color: Color) -> List[Square]:
-        pass
+        return [self.history[move_number][color]["sense"]["square"] for
+            move_number in sorted(self.history.keys())]
 
     def get_move_history_for(self, color: Color) -> List[chess.Move]:
-        pass
+        return [self.history[move_number][color]["move"]["requested_move"] for
+            move_number in sorted(self.history.keys())]
