@@ -41,7 +41,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def is_over(self):
+    def is_over(self) -> bool:
         pass
 
     @abstractmethod
@@ -174,6 +174,11 @@ class LocalGame(Game):
 
         self.turn = not self.turn
         self.current_turn_start_time = datetime.now()
+
+    def is_over(self) -> bool:
+        no_time_left = self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0
+        king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
+        return no_time_left or king_captured
 
 
 class RemoteGame(Game):

@@ -665,3 +665,59 @@ class OpponentMoveResultsTestCase(unittest.TestCase):
         _, _, result2 = game.move(Move(D5, E4))
         self.assertEqual(result2, E4)
         self.assertEqual(result2, game.opponent_move_results())
+
+
+class IsOverTestCase(unittest.TestCase):
+    def test_not_over(self):
+        game = LocalGame()
+        game.start()
+        self.assertFalse(game.is_over())
+
+    def test_no_time_both(self):
+        game = LocalGame(seconds_per_player=0)
+        game.start()
+        self.assertTrue(game.is_over())
+
+    def test_no_time_white(self):
+        game = LocalGame()
+        game.seconds_left_by_color[WHITE] = 0
+        game.start()
+        self.assertTrue(game.is_over())
+
+    def test_no_time_black(self):
+        game = LocalGame()
+        game.seconds_left_by_color[WHITE] = 0
+        game.start()
+        self.assertTrue(game.is_over())
+
+    def test_white_king_captured(self):
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q . B N R
+        """
+        game = LocalGame()
+        game.board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR')
+        game.start()
+        self.assertTrue(game.is_over())
+
+    def test_black_king_captured(self):
+        """
+        r n b q . b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q K B N R
+        """
+        game = LocalGame()
+        game.board.set_board_fen('rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
+        game.start()
+        self.assertTrue(game.is_over())
