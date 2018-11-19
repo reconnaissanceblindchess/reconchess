@@ -44,13 +44,13 @@ def api_game_is_over(game_id):
     pass
 
 
-@app.route('/api/game/<game_id>/valid_senses')
-def api_game_valid_senses(game_id):
+@app.route('/api/game/<game_id>/sense_actions')
+def api_game_sense_actions(game_id):
     pass
 
 
-@app.route('/api/game/<game_id>/valid_moves')
-def api_game_valid_moves(game_id):
+@app.route('/api/game/<game_id>/move_actions')
+def api_game_move_actions(game_id):
     pass
 
 

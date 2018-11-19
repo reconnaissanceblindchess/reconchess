@@ -83,11 +83,11 @@ class LocalGameSenseTest(unittest.TestCase):
     def setUp(self):
         self.game = LocalGame()
 
-    def test_valid_senses_contents(self):
-        valid_senses = self.game.valid_senses()
+    def test_senses_actions_content(self):
+        sense_actions = self.game.sense_actions()
 
         for square in SQUARES:
-            self.assertIn(square, valid_senses)
+            self.assertIn(square, sense_actions)
 
     def test_sense_invalid(self):
         for square in [-1, 65, 66, 1023730, -2]:
@@ -131,7 +131,7 @@ class LocalGameTimeTest(unittest.TestCase):
             self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
 
 
-class LocalGameValidMoveTest(unittest.TestCase):
+class LocalGameMoveActionsTest(unittest.TestCase):
     STARTING_WHITE_PAWN_CAPTURES = [
         Move(A2, B3),
         Move(B2, A3), Move(B2, C3),
@@ -157,23 +157,23 @@ class LocalGameValidMoveTest(unittest.TestCase):
         self.game = LocalGame()
 
     def test_starting_pawn_capture_moves(self):
-        valid_moves = self.game.valid_moves()
+        move_actions = self.game.move_actions()
         for move in self.STARTING_WHITE_PAWN_CAPTURES:
-            self.assertIn(move, valid_moves)
+            self.assertIn(move, move_actions)
         self.game.board.turn = BLACK
-        valid_moves = self.game.valid_moves()
+        move_actions = self.game.move_actions()
         for move in self.BLACK_STARTING_PAWN_CAPTURES:
-            self.assertIn(move, valid_moves)
+            self.assertIn(move, move_actions)
 
     def test_pass(self):
-        self.assertNotIn(None, self.game.valid_moves())
-        self.assertNotIn(Move.null(), self.game.valid_moves())
+        self.assertNotIn(None, self.game.move_actions())
+        self.assertNotIn(Move.null(), self.game.move_actions())
 
     def test_superset_fuzz(self, max_turns=500):
         turn = 1
         while not self.game.board.is_game_over() and turn < max_turns:
             truth_moves = set(self.game.board.generate_pseudo_legal_moves())
-            recon_moves = set(self.game.valid_moves())
+            recon_moves = set(self.game.move_actions())
             self.assertTrue(recon_moves.issuperset(truth_moves))
 
             self.game.board.push(random.sample(truth_moves, 1)[0])
@@ -454,7 +454,7 @@ class LocalGameMoveTest(unittest.TestCase):
         for from_square in SquareSet(BB_RANK_1 | BB_RANK_2):
             for to_square in SQUARES:
                 move = Move(from_square, to_square)
-                if move not in self.game.valid_moves():
+                if move not in self.game.move_actions():
                     with self.assertRaises(ValueError):
                         self.game.move(move)
 
