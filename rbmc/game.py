@@ -4,6 +4,7 @@ from datetime import datetime
 from .types import *
 from .player import Player
 from .utilities import *
+from .history import GameHistory
 
 
 class Game(object):
@@ -49,13 +50,8 @@ class Game(object):
         pass
 
     @abstractmethod
-    def get_sense_history_for(self, color: Color) -> List[Square]:
+    def get_game_history() -> GameHistory
         pass
-
-    @abstractmethod
-    def get_move_history_for(self, color: Color) -> List[chess.Move]:
-        pass
-
 
 class LocalGame(Game):
     """Would implement all logic and use a chess.Board() object as the truth board"""
