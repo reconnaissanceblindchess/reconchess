@@ -187,6 +187,22 @@ class LocalGame(Game):
         king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
         return no_time_left or king_captured
 
+    def get_winner_color(self) -> Optional[Color]:
+        if not self.is_over():
+            return None
+
+        if self.seconds_left_by_color[chess.WHITE] <= 0:
+            return chess.BLACK
+        elif self.seconds_left_by_color[chess.BLACK] <= 0:
+            return chess.WHITE
+
+        if self.board.king(chess.WHITE) is None:
+            return chess.BLACK
+        elif self.board.king(chess.BLACK) is None:
+            return chess.WHITE
+
+        return None
+
 
 class RemoteGame(Game):
     """A pass through object, would implement the methods as making a request to the game server"""

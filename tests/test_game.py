@@ -667,7 +667,7 @@ class OpponentMoveResultsTestCase(unittest.TestCase):
         self.assertEqual(result2, game.opponent_move_results())
 
 
-class IsOverTestCase(unittest.TestCase):
+class IsOverTest(unittest.TestCase):
     def test_not_over(self):
         game = LocalGame()
         game.start()
@@ -686,7 +686,7 @@ class IsOverTestCase(unittest.TestCase):
 
     def test_no_time_black(self):
         game = LocalGame()
-        game.seconds_left_by_color[WHITE] = 0
+        game.seconds_left_by_color[BLACK] = 0
         game.start()
         self.assertTrue(game.is_over())
 
@@ -722,7 +722,57 @@ class IsOverTestCase(unittest.TestCase):
         game.start()
         self.assertTrue(game.is_over())
 
-class getGameHistoryTestCase(unittest.TestCase):
+class WinnerColorTest(unittest.TestCase):
+    def test_not_over(self):
+        game = LocalGame()
+        game.start()
+        self.assertIsNone(game.get_winner_color())
+
+    def test_no_time_white(self):
+        game = LocalGame()
+        game.seconds_left_by_color[WHITE] = 0
+        game.start()
+        self.assertEqual(BLACK, game.get_winner_color())
+
+    def test_no_time_black(self):
+        game = LocalGame()
+        game.seconds_left_by_color[BLACK] = 0
+        game.start()
+        self.assertEqual(WHITE, game.get_winner_color())
+
+    def test_white_king_captured(self):
+        """
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q . B N R
+        """
+        game = LocalGame()
+        game.board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR')
+        game.start()
+        self.assertEqual(BLACK, game.get_winner_color())
+
+    def test_black_king_captured(self):
+        """
+        r n b q . b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        P P P P P P P P
+        R N B Q K B N R
+        """
+        game = LocalGame()
+        game.board.set_board_fen('rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
+        game.start()
+        self.assertEqual(WHITE, game.get_winner_color())
+
+class GetGameHistoryTestCase(unittest.TestCase):
     def test_no_history_until_game_over(self):
         g = LocalGame()
         g.sense(E2)
