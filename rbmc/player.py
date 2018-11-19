@@ -5,6 +5,7 @@ import inspect
 from abc import abstractmethod
 import chess
 from .types import *
+from .history import GameHistory
 
 
 class Player(object):
@@ -156,7 +157,7 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]):
         """
         Provides the results of the game when it ends. You can use this for post processing the results of the game.
 
