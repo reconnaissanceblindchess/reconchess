@@ -142,7 +142,7 @@ class LocalGame(Game):
             self.__game_history.store_move(self.board.fullmove_number, self.turn, 
                                         requested_move, taken_move, opt_capture_square)
             self.__game_history.store_opponent_move_results(self.board.fullmove_number, 
-                                        not self.color, opt_capture_square)
+                                        not self.turn, opt_capture_square)
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
