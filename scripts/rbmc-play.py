@@ -4,7 +4,7 @@ import argparse
 import random
 import contextlib
 import chess
-from rbmc import Player, Color, Square, play_local_game, load_player
+from rbmc import Player, Color, Square, play_local_game, load_player, GameHistory
 
 # block output from pygame
 with contextlib.redirect_stdout(None):
@@ -254,8 +254,7 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[chess.Move],
-                        opponent_senses: List[Square], opponent_moves: List[chess.Move]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]):
         if winner_color:
             print('{} won!'.format(chess.COLOR_NAMES[winner_color]))
         else:

@@ -156,16 +156,13 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
-                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]]):
         """
         Provides the results of the game when it ends. You can use this for post processing the results of the game.
 
         :param winner_color: If the game was a draw, then `None`, otherwise, the color of the player who won the game.
-        :param senses: A `list` of the senses *you* made during the game.
-        :param moves: A `list` of the :class:`chess.Move`: *you* made during the game.
-        :param opponent_senses: A `list` of the senses the *opponent* made during the game.
-        :param opponent_moves: A `list` of the :class:`chess.Move` the *opponent* made during the game.
+        :param game_history: GameHistory object for the game, from which you can get a list of sense and move actions 
+            each side has taken over the course of the game.
         :return: None
         """
         pass

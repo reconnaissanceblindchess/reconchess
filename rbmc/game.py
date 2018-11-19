@@ -237,15 +237,12 @@ def play_local_game(white_player: Player, black_player: Player) \
         play_turn(game, players[game.turn])
 
     winner_color = game.get_winner_color()
-    white_senses = game.get_sense_history_for(chess.WHITE)
-    white_moves = game.get_move_history_for(chess.WHITE)
-    black_senses = game.get_sense_history_for(chess.BLACK)
-    black_moves = game.get_move_history_for(chess.BLACK)
+    game_history = game.get_game_history()
 
-    white_player.handle_game_end(winner_color, white_senses, white_moves, black_senses, black_moves)
-    black_player.handle_game_end(winner_color, black_senses, black_moves, white_senses, white_moves)
+    white_player.handle_game_end(winner_color, game_history)
+    black_player.handle_game_end(winner_color, game_history)
 
-    return winner_color, white_senses, white_moves, black_senses, black_moves
+    return winner_color, game_history
 
 
 def play_remote_game(name, game_id, player: Player):
@@ -260,8 +257,7 @@ def play_remote_game(name, game_id, player: Player):
         game.wait_for_turn(name)
         play_turn(game, player)
 
-    player.handle_game_end(game.get_winner_color(), game.get_sense_history_for(color), game.get_move_history_for(color),
-                           game.get_sense_history_for(not color), game.get_move_history_for(not color))
+    player.handle_game_end(game.get_winner_color(), game.get_game_history())
 
 
 def play_turn(game: Game, player: Player):
