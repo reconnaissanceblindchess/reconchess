@@ -24,5 +24,5 @@ class RandomBot(Player):
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
         pass

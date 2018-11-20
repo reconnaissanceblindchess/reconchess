@@ -75,5 +75,5 @@ class TroutBot(Player):
         if taken_move is not None:
             self.board.push(taken_move)
 
-    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
         pass

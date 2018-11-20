@@ -254,7 +254,7 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def handle_game_end(self, winner_color: Optional[Color], game_history: Optional[GameHistory]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
         if winner_color:
             print('{} won!'.format(chess.COLOR_NAMES[winner_color]))
         else:

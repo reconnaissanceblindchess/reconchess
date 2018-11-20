@@ -56,12 +56,11 @@ class Game(object):
 class LocalGame(Game):
     """Would implement all logic and use a chess.Board() object as the truth board"""
 
-    def __init__(self, seconds_per_player: float = 900, store_game_history: bool = True):
+    def __init__(self, seconds_per_player: float = 900):
         self.turn = chess.WHITE
         self.board = chess.Board()
 
-        self.store_game_history = store_game_history
-        self.__game_history = GameHistory() if self.store_game_history else None
+        self.__game_history = GameHistory()
         self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
         self.current_turn_start_time = None
 
@@ -111,8 +110,7 @@ class LocalGame(Game):
                     sense_square = chess.square(file + delta_file, rank + delta_rank)
                     sense_result.append((sense_square, self.board.piece_at(sense_square)))
         
-        if self.store_game_history:
-            self.__game_history.store_sense(self.board.fullmove_number, self.turn, square, sense_result)
+        self.__game_history.store_sense(self.board.fullmove_number, self.turn, square, sense_result)
 
         return sense_result
 
@@ -138,11 +136,10 @@ class LocalGame(Game):
 
         # store move information before the move is pushed, as pushing a move
         # will change the turn over to the opponent
-        if self.store_game_history:
-            self.__game_history.store_move(self.board.fullmove_number, self.turn, 
-                                        requested_move, taken_move, opt_capture_square)
-            self.__game_history.store_opponent_move_results(self.board.fullmove_number, 
-                                        not self.turn, opt_capture_square)
+        self.__game_history.store_move(self.board.fullmove_number, self.turn, 
+                                    requested_move, taken_move, opt_capture_square)
+        self.__game_history.store_opponent_move_results(self.board.fullmove_number, 
+                                    not self.turn, opt_capture_square)
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
@@ -186,10 +183,7 @@ class LocalGame(Game):
         self.current_turn_start_time = datetime.now()
 
     def get_game_history(self) -> Optional[GameHistory]:
-        if not self.is_over() or not self.store_game_history:
-            return None
-        else:
-            return self.__game_history
+        return self.__game_history if self.is_over() else None
 
     def is_over(self) -> bool:
         no_time_left = self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0
