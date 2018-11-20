@@ -110,7 +110,7 @@ class LocalGame(Game):
                     sense_square = chess.square(file + delta_file, rank + delta_rank)
                     sense_result.append((sense_square, self.board.piece_at(sense_square)))
         
-        self.__game_history.store_sense(self.board.fullmove_number, self.turn, square, sense_result)
+        self.__game_history.store_sense(self.turn, square, sense_result)
 
         return sense_result
 
@@ -136,10 +136,8 @@ class LocalGame(Game):
 
         # store move information before the move is pushed, as pushing a move
         # will change the turn over to the opponent
-        self.__game_history.store_move(self.board.fullmove_number, self.turn, 
-                                    requested_move, taken_move, opt_capture_square)
-        self.__game_history.store_opponent_move_results(self.board.fullmove_number, 
-                                    not self.turn, opt_capture_square)
+        self.__game_history.store_move(self.turn, requested_move, taken_move, opt_capture_square)
+        self.__game_history.store_opponent_move_results(not self.turn, opt_capture_square)
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
