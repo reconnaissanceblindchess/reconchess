@@ -50,7 +50,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def get_game_history(self) -> GameHistory:
+    def get_game_history(self) -> Optional[GameHistory]:
         pass
 
 class LocalGame(Game):
@@ -185,7 +185,7 @@ class LocalGame(Game):
         self.turn = not self.turn
         self.current_turn_start_time = datetime.now()
 
-    def get_game_history(self) -> GameHistory:
+    def get_game_history(self) -> Optional[GameHistory]:
         if not self.is_over() or not self.store_game_history:
             return None
         else:
