@@ -27,7 +27,6 @@ class GameHistoryTest(unittest.TestCase):
                 if idx in range(0, len(self.moves[color])):
                     requested_move, taken_move, opt_capture_square = g.move(self.moves[color][idx])
                     self.game_history.store_move(color, requested_move, taken_move, opt_capture_square)
-                    self.game_history.store_opponent_move_results(not color, opt_capture_square)
 
     def test_sense_history(self):
         for color in self.colors:
