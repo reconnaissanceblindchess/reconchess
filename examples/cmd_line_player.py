@@ -19,7 +19,7 @@ class CmdLinePlayer(Player):
         if captured_my_piece:
             print('One of your pieces was captured at {}!'.format(chess.SQUARE_NAMES[capture_square]))
 
-    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
+    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
         while True:
             square_name = input('Sense phase, where to sense (input senses as [a-h][1-8])?').lower()
             if square_name in chess.SQUARE_NAMES:
@@ -35,13 +35,13 @@ class CmdLinePlayer(Player):
         print('Sense result:')
         print(sense_board)
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
         while True:
-            print('Move phase. Valid moves are: {}'.format(valid_moves))
+            print('Move phase. Valid moves are: {}'.format(move_actions))
             move_uci = input('Where to move (input moves as UCI)?').lower()
             try:
                 move = chess.Move.from_uci(move_uci)
-                if move in valid_moves:
+                if move in move_actions:
                     return move
                 else:
                     print('Invalid move chosen.')

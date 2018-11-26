@@ -9,11 +9,11 @@ from .history import GameHistory
 
 class Game(object):
     @abstractmethod
-    def valid_senses(self) -> List[Square]:
+    def sense_actions(self) -> List[Square]:
         pass
 
     @abstractmethod
-    def valid_moves(self) -> List[chess.Move]:
+    def move_actions(self) -> List[chess.Move]:
         pass
 
     @abstractmethod
@@ -83,13 +83,13 @@ class LocalGame(Game):
         else:
             return self.seconds_left_by_color[self.turn]
 
-    def valid_senses(self) -> List[Square]:
+    def sense_actions(self) -> List[Square]:
         """
         :return: List of all squares on the board.
         """
         return chess.SQUARES
 
-    def valid_moves(self) -> List[chess.Move]:
+    def move_actions(self) -> List[chess.Move]:
         """
         :return: List of moves that are possible with only knowledge of your pieces
         """
@@ -99,7 +99,7 @@ class LocalGame(Game):
         return self.move_results
 
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
-        if square not in self.valid_senses():
+        if square not in self.sense_actions():
             raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(square, square))
 
         rank, file = chess.square_rank(square), chess.square_file(square)
@@ -125,8 +125,8 @@ class LocalGame(Game):
         else:
             # add in a queen promotion if the move doesn't have one but could have one
             move = add_pawn_queen_promotion(self.board, requested_move)
-            if move not in self.valid_moves():
-                raise ValueError('Requested move {} was not in valid_moves()'.format(requested_move))
+            if move not in self.move_actions():
+                raise ValueError('Requested move {} was not in move_actions()'.format(requested_move))
 
             # calculate taken move
             taken_move = self._revise_move(move)
@@ -272,16 +272,16 @@ def play_turn(game: Game, player: Player):
     opt_capture_square = game.opponent_move_results()
     player.handle_opponent_move_result(opt_capture_square is not None, opt_capture_square)
 
-    valid_senses = game.valid_senses()
-    valid_moves = game.valid_moves()
+    sense_actions = game.sense_actions()
+    move_actions = game.move_actions()
 
     # sense
-    sense = player.choose_sense(game.get_seconds_left(), valid_senses, valid_moves)
+    sense = player.choose_sense(game.get_seconds_left(), sense_actions, move_actions)
     sense_result = game.sense(sense)
     player.handle_sense_result(sense_result)
 
     # move
-    move = player.choose_move(game.get_seconds_left(), valid_moves)
+    move = player.choose_move(game.get_seconds_left(), move_actions)
     requested_move, taken_move, opt_enemy_capture_square = game.move(move)
     player.handle_move_result(requested_move, taken_move,
                               opt_enemy_capture_square is not None, opt_enemy_capture_square)

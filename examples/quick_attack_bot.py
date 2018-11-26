@@ -40,14 +40,14 @@ class QuickAttackBot(Player):
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
-        return random.choice(valid_senses)
+    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+        return random.choice(sense_actions)
 
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         pass
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
-        while self.move_sequence[0] not in valid_moves:
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+        while self.move_sequence[0] not in move_actions:
             self.move_sequence.pop()
 
         if len(self.move_sequence) == 0:

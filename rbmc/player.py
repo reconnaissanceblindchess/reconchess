@@ -62,13 +62,13 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
+    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
         """
         The method to implement your sensing strategy. The chosen sensing action should be returned from this function.
         I.e. the value returned is the square at the center of the 3x3 sensing area you want to sense. The returned
-        square must be one of the squares in the `valid_senses` parameter.
+        square must be one of the squares in the `sense_actions` parameter.
 
-        Valid moves are provided through `valid_moves` in case you want to sense based on a potential move.
+        Move actions are provided through `move_actions` in case you want to sense based on a potential move.
 
         Called after :meth:`handle_opponent_move_result()`.
 
@@ -76,8 +76,8 @@ class Player(object):
         TODO Link to chess.Square
 
         :param seconds_left: The time in seconds you have left to use in the game.
-        :param valid_senses: A :class:`list` containing the valid squares to sense over.
-        :param valid_moves: A :class:`list` containing the valid moves that can be returned in :meth:`choose_move()`.
+        :param sense_actions: A :class:`list` containing the valid squares to sense over.
+        :param move_actions: A :class:`list` containing the valid moves that can be returned in :meth:`choose_move()`.
         :return: a Square that is the center of the 3x3 sensing area you want to get information about.
         """
         pass
@@ -107,10 +107,10 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
         """
         The method to implement your movement strategy. The chosen movement action should be returned from this function.
-        I.e. the value returned is the move to make. The returned move must be one of the moves in the `valid_moves`
+        I.e. the value returned is the move to make. The returned move must be one of the moves in the `move_actions`
         parameter.
 
         The pass move is legal, and is executed by returning `None` from this method.
@@ -120,7 +120,7 @@ class Player(object):
         TODO provide example implementation
 
         :param seconds_left: The time in seconds you have left to use in the game.
-        :param valid_moves: A `list` containing the valid :class:`chess.Move` you can choose.
+        :param move_actions: A `list` containing the valid :class:`chess.Move` you can choose.
         :return: The :class:`chess.Move` to make.
         """
         pass

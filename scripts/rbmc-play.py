@@ -168,11 +168,11 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def choose_sense(self, seconds_left: float, valid_senses: List[Square], valid_moves: List[chess.Move]) -> Square:
+    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
         while True:
             if self.window.mouse_on_board():
                 square = self.window.coords_to_square(*pygame.mouse.get_pos())
-                if square in valid_senses:
+                if square in sense_actions:
                     sense_area = self._squares_in_sense_around(square)
                 else:
                     sense_area = []
@@ -184,7 +184,7 @@ class UIPlayer(Player):
 
             if self.window.left_pressed() and self.window.mouse_on_board():
                 square = self.window.coords_to_square(*pygame.mouse.get_pos())
-                if square in valid_senses:
+                if square in sense_actions:
                     return square
 
     def _squares_in_sense_around(self, center):
@@ -203,16 +203,16 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def choose_move(self, seconds_left: float, valid_moves: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> chess.Move:
         selected_square = None
         floating_piece = None
 
         while True:
             if selected_square is not None:
-                to_squares = [move.to_square for move in valid_moves if move.from_square == selected_square]
+                to_squares = [move.to_square for move in move_actions if move.from_square == selected_square]
             elif self.window.mouse_on_board():
                 square = self.window.coords_to_square(*pygame.mouse.get_pos())
-                to_squares = [move.to_square for move in valid_moves if move.from_square == square]
+                to_squares = [move.to_square for move in move_actions if move.from_square == square]
             else:
                 to_squares = []
 
@@ -237,9 +237,9 @@ class UIPlayer(Player):
                     to_square = self.window.coords_to_square(*pygame.mouse.get_pos())
                     move = chess.Move(selected_square, to_square)
                     promotion_move = chess.Move(selected_square, to_square, promotion=chess.QUEEN)
-                    if move in valid_moves:
+                    if move in move_actions:
                         return move
-                    elif promotion_move in valid_moves:
+                    elif promotion_move in move_actions:
                         return promotion_move
                     else:
                         selected_square = None
