@@ -722,6 +722,7 @@ class IsOverTest(unittest.TestCase):
         game.start()
         self.assertTrue(game.is_over())
 
+
 class WinnerColorTest(unittest.TestCase):
     def test_not_over(self):
         game = LocalGame()
@@ -771,6 +772,7 @@ class WinnerColorTest(unittest.TestCase):
         game.board.set_board_fen('rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         game.start()
         self.assertEqual(WHITE, game.get_winner_color())
+
 
 class GetGameHistoryTestCase(unittest.TestCase):
     def test_no_history_until_game_over(self):
