@@ -1,8 +1,5 @@
-import chess
 from abc import abstractmethod
 from datetime import datetime
-from .types import *
-from .player import Player
 from .utilities import *
 from .history import GameHistory
 
@@ -53,6 +50,7 @@ class Game(object):
     def get_game_history(self) -> Optional[GameHistory]:
         pass
 
+
 class LocalGame(Game):
     """Would implement all logic and use a chess.Board() object as the truth board"""
 
@@ -87,7 +85,7 @@ class LocalGame(Game):
         """
         :return: List of all squares on the board.
         """
-        return chess.SQUARES
+        return list(chess.SQUARES)
 
     def move_actions(self) -> List[chess.Move]:
         """
@@ -109,7 +107,7 @@ class LocalGame(Game):
                 if 0 <= rank + delta_rank <= 7 and 0 <= file + delta_file <= 7:
                     sense_square = chess.square(file + delta_file, rank + delta_rank)
                     sense_result.append((sense_square, self.board.piece_at(sense_square)))
-        
+
         self.__game_history.store_sense(self.turn, square, sense_result)
 
         return sense_result
@@ -228,63 +226,3 @@ class RemoteGame(Game):
         issues.
         """
         pass
-
-
-def play_local_game(white_player: Player, black_player: Player) \
-        -> Tuple[Optional[Color], List[Square], List[chess.Move], List[Square], List[chess.Move]]:
-    players = [black_player, white_player]
-
-    game = LocalGame()
-
-    white_player.handle_game_start(chess.WHITE, game.board.copy())
-    black_player.handle_game_start(chess.BLACK, game.board.copy())
-    game.start()
-
-    while not game.is_over():
-        play_turn(game, players[game.turn])
-
-    winner_color = game.get_winner_color()
-    game_history = game.get_game_history()
-
-    white_player.handle_game_end(winner_color, game_history)
-    black_player.handle_game_end(winner_color, game_history)
-
-    return winner_color, game_history
-
-
-def play_remote_game(name, game_id, player: Player):
-    game = RemoteGame(game_id)
-
-    color = game.get_player_color(name)
-
-    player.handle_game_start(color, game.get_starting_board())
-    game.start()
-
-    while not game.is_over():
-        game.wait_for_turn(name)
-        play_turn(game, player)
-
-    player.handle_game_end(game.get_winner_color(), game.get_game_history())
-
-
-def play_turn(game: Game, player: Player):
-    # ally captured
-    opt_capture_square = game.opponent_move_results()
-    player.handle_opponent_move_result(opt_capture_square is not None, opt_capture_square)
-
-    sense_actions = game.sense_actions()
-    move_actions = game.move_actions()
-
-    # sense
-    sense = player.choose_sense(game.get_seconds_left(), sense_actions, move_actions)
-    sense_result = game.sense(sense)
-    player.handle_sense_result(sense_result)
-
-    # move
-    move = player.choose_move(game.get_seconds_left(), move_actions)
-    requested_move, taken_move, opt_enemy_capture_square = game.move(move)
-    player.handle_move_result(requested_move, taken_move,
-                              opt_enemy_capture_square is not None, opt_enemy_capture_square)
-
-    # end turn
-    game.end_turn()
