@@ -721,3 +721,22 @@ class IsOverTestCase(unittest.TestCase):
         game.board.set_board_fen('rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         game.start()
         self.assertTrue(game.is_over())
+
+class getGameHistoryTestCase(unittest.TestCase):
+    def test_no_history_until_game_over(self):
+        g = LocalGame()
+        g.sense(E2)
+        self.assertEqual(g.get_game_history(), None)
+        g.move(Move(E2,E4))
+        self.assertEqual(g.get_game_history(), None)
+        g.sense(A8)
+        g.move(Move(E7,E5))
+        self.assertEqual(g.get_game_history(), None)
+        g.sense(E2)
+        g.move(Move(F1,B5))
+        g.sense(A8)
+        g.move(Move(D7,D5))
+        g.sense(E8)
+        g.move(Move(B5,E8))
+        self.assertTrue(g.is_over())
+        self.assertNotEqual(g.get_game_history(), None)

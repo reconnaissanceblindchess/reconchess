@@ -4,6 +4,7 @@ from datetime import datetime
 from .types import *
 from .player import Player
 from .utilities import *
+from .history import GameHistory
 
 
 class Game(object):
@@ -49,13 +50,8 @@ class Game(object):
         pass
 
     @abstractmethod
-    def get_sense_history_for(self, color: Color) -> List[Square]:
+    def get_game_history(self) -> Optional[GameHistory]:
         pass
-
-    @abstractmethod
-    def get_move_history_for(self, color: Color) -> List[chess.Move]:
-        pass
-
 
 class LocalGame(Game):
     """Would implement all logic and use a chess.Board() object as the truth board"""
@@ -64,6 +60,7 @@ class LocalGame(Game):
         self.turn = chess.WHITE
         self.board = chess.Board()
 
+        self.__game_history = GameHistory()
         self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
         self.current_turn_start_time = None
 
@@ -112,6 +109,9 @@ class LocalGame(Game):
                 if 0 <= rank + delta_rank <= 7 and 0 <= file + delta_file <= 7:
                     sense_square = chess.square(file + delta_file, rank + delta_rank)
                     sense_result.append((sense_square, self.board.piece_at(sense_square)))
+        
+        self.__game_history.store_sense(self.turn, square, sense_result)
+
         return sense_result
 
     def move(self, requested_move: Optional[chess.Move]) \
@@ -133,6 +133,10 @@ class LocalGame(Game):
 
             # calculate capture square
             opt_capture_square = capture_square_of_move(self.board, taken_move)
+
+        # store move information before the move is pushed, as pushing a move
+        # will change the turn over to the opponent
+        self.__game_history.store_move(self.turn, requested_move, taken_move, opt_capture_square)
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
@@ -174,6 +178,9 @@ class LocalGame(Game):
 
         self.turn = not self.turn
         self.current_turn_start_time = datetime.now()
+
+    def get_game_history(self) -> Optional[GameHistory]:
+        return self.__game_history if self.is_over() else None
 
     def is_over(self) -> bool:
         no_time_left = self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0
@@ -221,15 +228,12 @@ def play_local_game(white_player: Player, black_player: Player) \
         play_turn(game, players[game.turn])
 
     winner_color = game.get_winner_color()
-    white_senses = game.get_sense_history_for(chess.WHITE)
-    white_moves = game.get_move_history_for(chess.WHITE)
-    black_senses = game.get_sense_history_for(chess.BLACK)
-    black_moves = game.get_move_history_for(chess.BLACK)
+    game_history = game.get_game_history()
 
-    white_player.handle_game_end(winner_color, white_senses, white_moves, black_senses, black_moves)
-    black_player.handle_game_end(winner_color, black_senses, black_moves, white_senses, white_moves)
+    white_player.handle_game_end(winner_color, game_history)
+    black_player.handle_game_end(winner_color, game_history)
 
-    return winner_color, white_senses, white_moves, black_senses, black_moves
+    return winner_color, game_history
 
 
 def play_remote_game(name, game_id, player: Player):
@@ -244,8 +248,7 @@ def play_remote_game(name, game_id, player: Player):
         game.wait_for_turn(name)
         play_turn(game, player)
 
-    player.handle_game_end(game.get_winner_color(), game.get_sense_history_for(color), game.get_move_history_for(color),
-                           game.get_sense_history_for(not color), game.get_move_history_for(not color))
+    player.handle_game_end(game.get_winner_color(), game.get_game_history())
 
 
 def play_turn(game: Game, player: Player):

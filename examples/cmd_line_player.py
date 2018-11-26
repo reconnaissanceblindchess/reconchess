@@ -1,6 +1,6 @@
 import chess
 from typing import List, Tuple, Optional
-from rbmc import Player, Square, Color
+from rbmc import Player, Square, Color, GameHistory
 
 
 class CmdLinePlayer(Player):
@@ -58,6 +58,5 @@ class CmdLinePlayer(Player):
         if taken_move is not None:
             self.board.push(taken_move)
 
-    def handle_game_end(self, winner_color: Optional[Color], senses: List[Square], moves: List[Optional[chess.Move]],
-                        opponent_senses: List[Square], opponent_moves: List[Optional[chess.Move]]):
+    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
         pass
