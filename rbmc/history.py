@@ -1,29 +1,284 @@
 import chess
 from .types import *
+from typing import Callable, TypeVar
+import csv
+
+T = TypeVar('T')
+
+
+class Turn(object):
+    def __init__(self, color: Color, turn_number: int):
+        self.color = color
+        self.turn_number = turn_number
+
+    @property
+    def next(self):
+        return Turn(not self.color, self.turn_number + (0 if self.color == chess.WHITE else 1))
+
+    @property
+    def previous(self):
+        return Turn(not self.color, self.turn_number - (1 if self.color == chess.WHITE else 0))
+
+    def __eq__(self, other):
+        if not isinstance(other, Turn):
+            return NotImplemented
+
+        return self.color == other.color and self.turn_number == other.turn_number
+
+    def __lt__(self, other):
+        if not isinstance(other, Turn):
+            return NotImplemented
+
+        if self.turn_number < other.turn_number:
+            return True
+        elif self.turn_number > other.turn_number:
+            return False
+        else:
+            return self.color == chess.WHITE and other.color == chess.BLACK
+
+    def __str__(self):
+        return 'Turn({}, {})'.format(chess.COLOR_NAMES[self.color], self.turn_number)
 
 
 class GameHistory(object):
-
     def __init__(self):
-        self.senses = {chess.WHITE: [], chess.BLACK: []}
-        self.sense_results = {chess.WHITE: [], chess.BLACK: []}
-        self.requested_moves = {chess.WHITE: [], chess.BLACK: []}
-        self.taken_moves = {chess.WHITE: [], chess.BLACK: []}
-        self.capture_squares = {chess.WHITE: [], chess.BLACK: []}
+        self._senses = {chess.WHITE: [], chess.BLACK: []}
+        self._sense_results = {chess.WHITE: [], chess.BLACK: []}
+        self._requested_moves = {chess.WHITE: [], chess.BLACK: []}
+        self._taken_moves = {chess.WHITE: [], chess.BLACK: []}
+        self._capture_squares = {chess.WHITE: [], chess.BLACK: []}
+        self._fens_before_move = {chess.WHITE: [], chess.BLACK: []}
+        self._fens_after_move = {chess.WHITE: [], chess.BLACK: []}
+
+    def save(self, filename):
+        serializer = GameHistorySerializer(self)
+        with open(filename, 'w', newline='') as fp:
+            serializer.write(fp)
+
+    @classmethod
+    def from_file(cls, filename):
+        history = cls()
+        serializer = GameHistorySerializer(history)
+        with open(filename, newline='') as fp:
+            serializer.read(fp)
+        return history
 
     def store_sense(self, color: Color, square: Square,
-                sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
-        self.senses[color].append(square)
-        self.sense_results[color].append(sense_result)        
+                    sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
+        self._senses[color].append(square)
+        self._sense_results[color].append(sense_result)
 
-    def store_move(self, color: Color, requested_move: chess.Move, 
-                taken_move: chess.Move, opt_capture_square: Square):
-        self.requested_moves[color].append(requested_move)
-        self.taken_moves[color].append(taken_move)
-        self.capture_squares[color].append(opt_capture_square)
+    def store_move(self, color: Color, requested_move: Optional[chess.Move],
+                   taken_move: Optional[chess.Move], opt_capture_square: Optional[Square]):
+        self._requested_moves[color].append(requested_move)
+        self._taken_moves[color].append(taken_move)
+        self._capture_squares[color].append(opt_capture_square)
 
-    def get_sense_history_for(self, color: Color) -> List[Square]:
-        return self.senses[color]
+    def store_fen_before_move(self, color: Color, fen: str):
+        self._fens_before_move[color].append(fen)
 
-    def get_move_history_for(self, color: Color) -> List[chess.Move]:
-        return self.requested_moves[color]
+    def store_fen_after_move(self, color: Color, fen: str):
+        self._fens_after_move[color].append(fen)
+
+    def turns(self, player=None) -> List[Turn]:
+        if len(self._fens_after_move[chess.WHITE]) == 0:
+            return []
+        result = [Turn(chess.WHITE, 0)]
+        while not self.is_last_turn(result[-1]):
+            result.append(result[-1].next)
+        if player is not None:
+            result = list(filter(lambda t: t.color == player, result))
+        return result
+
+    def _first_turn(self):
+        return Turn(chess.WHITE, 0)
+
+    def _last_turn(self):
+        num_white_turns = len(self._fens_after_move[chess.WHITE])
+        num_black_turns = len(self._fens_after_move[chess.BLACK])
+        if num_white_turns > num_black_turns:
+            return Turn(chess.WHITE, num_white_turns - 1)
+        else:
+            return Turn(chess.BLACK, num_black_turns - 1)
+
+    def is_first_turn(self, turn: Turn):
+        return turn == self._first_turn()
+
+    def is_last_turn(self, turn: Turn):
+        return turn == self._last_turn()
+
+    def num_turns(self, player=None) -> int:
+        return len(self.turns(player=player))
+
+    def _validate_turn(self, turn: Turn):
+        if turn not in self.turns():
+            raise ValueError('{} did not happen in this game.'.format(turn))
+
+    def sense(self, turn: Turn) -> Square:
+        self._validate_turn(turn)
+        return self._senses[turn.color][turn.turn_number]
+
+    def sense_result(self, turn: Turn) -> List[Tuple[Square, Optional[chess.Piece]]]:
+        self._validate_turn(turn)
+        return self._sense_results[turn.color][turn.turn_number]
+
+    def requested_move(self, turn: Turn) -> Optional[chess.Move]:
+        self._validate_turn(turn)
+        return self._requested_moves[turn.color][turn.turn_number]
+
+    def taken_move(self, turn: Turn) -> Optional[chess.Move]:
+        self._validate_turn(turn)
+        return self._taken_moves[turn.color][turn.turn_number]
+
+    def capture_square(self, turn: Turn) -> Optional[chess.Move]:
+        self._validate_turn(turn)
+        return self._capture_squares[turn.color][turn.turn_number]
+
+    def move_result(self, turn: Turn) -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
+        self._validate_turn(turn)
+        return self.requested_move(turn), self.taken_move(turn), self.capture_square(turn)
+
+    def truth_fen_before_move(self, turn: Turn) -> str:
+        self._validate_turn(turn)
+        return self._fens_before_move[turn.color][turn.turn_number]
+
+    def truth_board_before_move(self, turn: Turn) -> chess.Board:
+        self._validate_turn(turn)
+        return chess.Board(self._fens_before_move[turn.color][turn.turn_number])
+
+    def truth_fen_after_move(self, turn: Turn) -> str:
+        self._validate_turn(turn)
+        return self._fens_after_move[turn.color][turn.turn_number]
+
+    def truth_board_after_move(self, turn: Turn) -> chess.Board:
+        self._validate_turn(turn)
+        return chess.Board(self._fens_after_move[turn.color][turn.turn_number])
+
+    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: List[Turn]) -> List[T]:
+        if get_turn_data_fn not in [self.sense, self.sense_result, self.requested_move, self.taken_move,
+                                    self.capture_square, self.move_result, self.truth_board_before_move,
+                                    self.truth_board_after_move, self.truth_fen_before_move, self.truth_fen_after_move]:
+            raise ValueError('get_turn_data_fn must be one of the history getter functions')
+        return list(map(get_turn_data_fn, turns))
+
+    def __eq__(self, other):
+        if not isinstance(other, GameHistory):
+            return NotImplemented
+
+        senses_equal = self._senses == other._senses and self._sense_results == other._sense_results
+        moves_equal = self._requested_moves == other._requested_moves and self._taken_moves == other._taken_moves and self._capture_squares == other._capture_squares
+        fens_equal = self._fens_before_move == other._fens_before_move and self._fens_after_move == other._fens_after_move
+
+        return senses_equal and moves_equal and fens_equal
+
+
+class GameHistorySerializer:
+    def __init__(self, history: GameHistory):
+        self.history = history
+
+        self.fieldnames = ['turn', 'color', 'sense', 'sense_result_squares', 'sense_result_pieces', 'requested_move',
+                           'taken_move', 'capture_square', 'fen_before_move', 'fen_after_move']
+        self.fns_by_field = {
+            'turn': (lambda turn: turn.turn_number, self._serialize_turn_number, self._deserialize_turn_number),
+            'color': (lambda turn: turn.color, self._serialize_color, self._deserialize_color),
+            'sense': (self.history.sense, self._serialize_opt_square, self._deserialize_opt_square),
+            'sense_result_squares': (self._get_sense_result_squares, self._serialize_sense_result_squares,
+                                     self._deserialize_sense_result_squares),
+            'sense_result_pieces': (self._get_sense_result_pieces, self._serialize_sense_result_pieces,
+                                    self._deserialize_sense_result_pieces),
+            'requested_move': (self.history.requested_move, self._serialize_opt_move, self._deserialize_opt_move),
+            'taken_move': (self.history.taken_move, self._serialize_opt_move, self._deserialize_opt_move),
+            'capture_square': (self.history.capture_square, self._serialize_opt_square, self._deserialize_opt_square),
+            'fen_before_move': (self.history.truth_fen_before_move, str, str),
+            'fen_after_move': (self.history.truth_fen_after_move, str, str),
+        }
+
+    def write(self, fp):
+        writer = csv.DictWriter(fp, delimiter='\t', fieldnames=self.fieldnames)
+        writer.writeheader()
+        for turn in self.history.turns():
+            writer.writerow({field: self._serialize_field(field, turn) for field in self.fieldnames})
+
+    def _serialize_field(self, field: str, turn: Turn):
+        value = self.fns_by_field[field][0](turn)
+        return self.fns_by_field[field][1](value)
+
+    def read(self, fp):
+        reader = csv.DictReader(fp, delimiter='\t')
+        for row in reader:
+            self._deserialize_row(row)
+            self.history.store_sense(row['color'], row['sense'],
+                                     list(zip(row['sense_result_squares'], row['sense_result_pieces'])))
+            self.history.store_move(row['color'], row['requested_move'], row['taken_move'], row['capture_square'])
+            self.history.store_fen_before_move(row['color'], row['fen_before_move'])
+            self.history.store_fen_after_move(row['color'], row['fen_after_move'])
+
+    def _deserialize_row(self, row):
+        for field in row:
+            row[field] = self.fns_by_field[field][2](row[field])
+
+    def _get_sense_result_squares(self, turn: Turn) -> List[Square]:
+        sense_result = self.history.sense_result(turn)
+        squares, pieces = zip(*sense_result)
+        return squares
+
+    def _get_sense_result_pieces(self, turn: Turn) -> List[Optional[chess.Piece]]:
+        sense_result = self.history.sense_result(turn)
+        squares, pieces = zip(*sense_result)
+        return pieces
+
+    @staticmethod
+    def _serialize_turn_number(turn_number: int) -> str:
+        return str(turn_number)
+
+    @staticmethod
+    def _deserialize_turn_number(turn_number: str) -> int:
+        return int(turn_number)
+
+    @staticmethod
+    def _serialize_color(color: Color) -> str:
+        return chess.COLOR_NAMES[color]
+
+    @staticmethod
+    def _deserialize_color(color: str) -> Color:
+        return bool(chess.COLOR_NAMES.index(color))
+
+    @staticmethod
+    def _serialize_opt_square(square: Optional[Square]) -> str:
+        return chess.SQUARE_NAMES[square] if square is not None else 'None'
+
+    @staticmethod
+    def _deserialize_opt_square(square: str) -> Optional[Square]:
+        return None if square == 'None' else chess.SQUARE_NAMES.index(square)
+
+    @staticmethod
+    def _serialize_opt_move(move: Optional[chess.Move]) -> str:
+        return move.uci() if move is not None else 'None'
+
+    @staticmethod
+    def _deserialize_opt_move(move: str) -> Optional[chess.Move]:
+        return None if move == 'None' else chess.Move.from_uci(move)
+
+    @staticmethod
+    def _serialize_opt_piece(piece: Optional[chess.Piece]) -> str:
+        return piece.symbol() if piece is not None else '.'
+
+    @staticmethod
+    def _deserialize_opt_piece(piece: str) -> Optional[chess.Piece]:
+        return None if piece == '.' else chess.Piece.from_symbol(piece)
+
+    @staticmethod
+    def _serialize_sense_result_squares(sense_result_squares: List[Square]) -> str:
+        return ','.join(map(GameHistorySerializer._serialize_opt_square, sense_result_squares))
+
+    @staticmethod
+    def _deserialize_sense_result_squares(sense_result_squares: str) -> List[Square]:
+        return list(map(GameHistorySerializer._deserialize_opt_square, sense_result_squares.split(',')))
+
+    @staticmethod
+    def _serialize_sense_result_pieces(sense_result_pieces: List[Optional[chess.Piece]]) -> str:
+        return ','.join(map(GameHistorySerializer._serialize_opt_piece, sense_result_pieces))
+
+    @staticmethod
+    def _deserialize_sense_result_pieces(sense_result_pieces: str) -> List[Optional[chess.Piece]]:
+        return list(map(GameHistorySerializer._deserialize_opt_piece, sense_result_pieces.split(',')))
