@@ -1,6 +1,6 @@
 import chess
 from .types import *
-from typing import Callable, TypeVar, Iterable
+from typing import Callable, TypeVar, Iterable, Mapping
 import csv
 
 T = TypeVar('T')
@@ -124,48 +124,47 @@ class GameHistory(object):
         else:
             return Turn(chess.BLACK, num_black_turns - 1)
 
-    def _validate_turn(self, turn: Turn):
-        if turn not in self.turns():
+    def _validate_turn(self, turn: Turn, collection: Mapping[Color, List[T]]):
+        if turn.turn_number < 0 or turn.turn_number >= len(collection[turn.color]):
             raise ValueError('{} did not happen in this game.'.format(turn))
 
     def sense(self, turn: Turn) -> Square:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._senses)
         return self._senses[turn.color][turn.turn_number]
 
     def sense_result(self, turn: Turn) -> List[Tuple[Square, Optional[chess.Piece]]]:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._sense_results)
         return self._sense_results[turn.color][turn.turn_number]
 
     def requested_move(self, turn: Turn) -> Optional[chess.Move]:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._requested_moves)
         return self._requested_moves[turn.color][turn.turn_number]
 
     def taken_move(self, turn: Turn) -> Optional[chess.Move]:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._taken_moves)
         return self._taken_moves[turn.color][turn.turn_number]
 
     def capture_square(self, turn: Turn) -> Optional[chess.Move]:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._capture_squares)
         return self._capture_squares[turn.color][turn.turn_number]
 
     def move_result(self, turn: Turn) -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
-        self._validate_turn(turn)
         return self.requested_move(turn), self.taken_move(turn), self.capture_square(turn)
 
     def truth_fen_before_move(self, turn: Turn) -> str:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._fens_before_move)
         return self._fens_before_move[turn.color][turn.turn_number]
 
     def truth_board_before_move(self, turn: Turn) -> chess.Board:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._fens_before_move)
         return chess.Board(self._fens_before_move[turn.color][turn.turn_number])
 
     def truth_fen_after_move(self, turn: Turn) -> str:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._fens_after_move)
         return self._fens_after_move[turn.color][turn.turn_number]
 
     def truth_board_after_move(self, turn: Turn) -> chess.Board:
-        self._validate_turn(turn)
+        self._validate_turn(turn, self._fens_after_move)
         return chess.Board(self._fens_after_move[turn.color][turn.turn_number])
 
     def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> List[T]:
