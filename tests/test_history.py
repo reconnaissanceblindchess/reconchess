@@ -44,9 +44,9 @@ class TurnNeighborsTestCase(unittest.TestCase):
 class HistoryEmptyTurnsTestCase(unittest.TestCase):
     def test_empty_turns(self):
         history = GameHistory()
-        self.assertEqual(history.turns(), [])
-        self.assertEqual(history.turns(WHITE), [])
-        self.assertEqual(history.turns(BLACK), [])
+        self.assertEqual(list(history.turns()), [])
+        self.assertEqual(list(history.turns(WHITE)), [])
+        self.assertEqual(list(history.turns(BLACK)), [])
 
     def test_empty_num_turns(self):
         history = GameHistory()
@@ -114,7 +114,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         self.assertTrue(self.history.is_last_turn(Turn(BLACK, 3)))
 
     def test_all_turns(self):
-        self.assertEqual(self.history.turns(), [
+        self.assertEqual(list(self.history.turns()), [
             Turn(WHITE, 0), Turn(BLACK, 0),
             Turn(WHITE, 1), Turn(BLACK, 1),
             Turn(WHITE, 2), Turn(BLACK, 2),
@@ -126,7 +126,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         self.history.store_fen_before_move(BLACK, 'h1')
         self.history.store_fen_after_move(BLACK, 'h2')
 
-        self.assertEqual(self.history.turns(), [
+        self.assertEqual(list(self.history.turns()), [
             Turn(WHITE, 0), Turn(BLACK, 0),
             Turn(WHITE, 1), Turn(BLACK, 1),
             Turn(WHITE, 2), Turn(BLACK, 2),
@@ -134,7 +134,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         ])
 
     def test_white_turns(self):
-        self.assertEqual(self.history.turns(player=WHITE), [
+        self.assertEqual(list(self.history.turns(player=WHITE)), [
             Turn(WHITE, 0),
             Turn(WHITE, 1),
             Turn(WHITE, 2),
@@ -146,7 +146,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         self.history.store_fen_before_move(BLACK, 'h1')
         self.history.store_fen_after_move(BLACK, 'h2')
 
-        self.assertEqual(self.history.turns(player=WHITE), [
+        self.assertEqual(list(self.history.turns(player=WHITE)), [
             Turn(WHITE, 0),
             Turn(WHITE, 1),
             Turn(WHITE, 2),
@@ -154,7 +154,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         ])
 
     def test_black_turns(self):
-        self.assertEqual(self.history.turns(player=BLACK), [
+        self.assertEqual(list(self.history.turns(player=BLACK)), [
             Turn(BLACK, 0),
             Turn(BLACK, 1),
             Turn(BLACK, 2),
@@ -165,7 +165,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         self.history.store_fen_before_move(BLACK, 'h1')
         self.history.store_fen_after_move(BLACK, 'h2')
 
-        self.assertEqual(self.history.turns(player=BLACK), [
+        self.assertEqual(list(self.history.turns(player=BLACK)), [
             Turn(BLACK, 0),
             Turn(BLACK, 1),
             Turn(BLACK, 2),
@@ -177,7 +177,7 @@ class HistoryTurnsTestCase(unittest.TestCase):
         self.history.store_fen_before_move(WHITE, 'h1')
         self.history.store_fen_after_move(WHITE, 'h2')
 
-        self.assertEqual(self.history.turns(player=BLACK), [
+        self.assertEqual(list(self.history.turns(player=BLACK)), [
             Turn(BLACK, 0),
             Turn(BLACK, 1),
             Turn(BLACK, 2),

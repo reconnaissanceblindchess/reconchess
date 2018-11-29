@@ -1,6 +1,6 @@
 import chess
 from .types import *
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Iterable
 import csv
 
 T = TypeVar('T')
@@ -38,6 +38,9 @@ class Turn(object):
 
     def __str__(self):
         return 'Turn({}, {})'.format(chess.COLOR_NAMES[self.color], self.turn_number)
+
+    def __repr__(self):
+        return str(self)
 
 
 class GameHistory(object):
@@ -80,35 +83,46 @@ class GameHistory(object):
     def store_fen_after_move(self, color: Color, fen: str):
         self._fens_after_move[color].append(fen)
 
-    def turns(self, player=None) -> List[Turn]:
-        if len(self._fens_after_move[chess.WHITE]) == 0:
-            return []
-        result = [Turn(chess.WHITE, 0)]
-        while not self.is_last_turn(result[-1]):
-            result.append(result[-1].next)
-        if player is not None:
-            result = list(filter(lambda t: t.color == player, result))
-        return result
+    def is_empty(self) -> bool:
+        return len(self._senses[chess.WHITE]) == 0
 
-    def _first_turn(self):
-        return Turn(chess.WHITE, 0)
+    def num_turns(self, player=None) -> int:
+        return len(list(self.turns(player=player)))
 
-    def _last_turn(self):
-        num_white_turns = len(self._fens_after_move[chess.WHITE])
-        num_black_turns = len(self._fens_after_move[chess.BLACK])
-        if num_white_turns > num_black_turns:
-            return Turn(chess.WHITE, num_white_turns - 1)
-        else:
-            return Turn(chess.BLACK, num_black_turns - 1)
+    def turns(self, player=None) -> Iterable[Turn]:
+        if self.is_empty():
+            return
+
+        turn = Turn(player if player is not None else chess.WHITE, 0)
+        while True:
+            if player is None or turn.color == player:
+                yield turn
+            if self.is_last_turn(turn):
+                return
+            turn = turn.next
 
     def is_first_turn(self, turn: Turn):
         return turn == self._first_turn()
 
+    def _first_turn(self) -> Optional[Turn]:
+        if self.is_empty():
+            return None
+
+        return Turn(chess.WHITE, 0)
+
     def is_last_turn(self, turn: Turn):
         return turn == self._last_turn()
 
-    def num_turns(self, player=None) -> int:
-        return len(self.turns(player=player))
+    def _last_turn(self) -> Optional[Turn]:
+        if self.is_empty():
+            return None
+
+        num_white_turns = len(self._senses[chess.WHITE])
+        num_black_turns = len(self._senses[chess.BLACK])
+        if num_white_turns > num_black_turns:
+            return Turn(chess.WHITE, num_white_turns - 1)
+        else:
+            return Turn(chess.BLACK, num_black_turns - 1)
 
     def _validate_turn(self, turn: Turn):
         if turn not in self.turns():
@@ -154,7 +168,7 @@ class GameHistory(object):
         self._validate_turn(turn)
         return chess.Board(self._fens_after_move[turn.color][turn.turn_number])
 
-    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: List[Turn]) -> List[T]:
+    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> List[T]:
         if get_turn_data_fn not in [self.sense, self.sense_result, self.requested_move, self.taken_move,
                                     self.capture_square, self.move_result, self.truth_board_before_move,
                                     self.truth_board_after_move, self.truth_fen_before_move, self.truth_fen_after_move]:
