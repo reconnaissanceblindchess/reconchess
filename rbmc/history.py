@@ -1,7 +1,7 @@
 import chess
 from .types import *
 from typing import Callable, TypeVar, Iterable, Mapping
-import csv
+import json
 
 T = TypeVar('T')
 
@@ -54,16 +54,28 @@ class GameHistory(object):
         self._fens_after_move = {chess.WHITE: [], chess.BLACK: []}
 
     def save(self, filename):
-        serializer = GameHistorySerializer(self)
         with open(filename, 'w', newline='') as fp:
-            serializer.write(fp)
+            json.dump(self, fp, cls=GameHistoryEncoder)
 
     @classmethod
     def from_file(cls, filename):
-        history = cls()
-        serializer = GameHistorySerializer(history)
         with open(filename, newline='') as fp:
-            serializer.read(fp)
+            obj = json.load(fp, cls=GameHistoryDecoder)
+        if 'type' not in obj or obj['type'] != 'GameHistory':
+            raise ValueError('No GameHistory object found in {}'.format(filename))
+        history = cls()
+        history._senses = obj['senses']
+        history._sense_results = obj['sense_results']
+        history._requested_moves = obj['requested_moves']
+        history._taken_moves = obj['taken_moves']
+        history._capture_squares = obj['capture_squares']
+        history._fens_before_move = obj['fens_before_move']
+        history._fens_after_move = obj['fens_after_move']
+
+        for color, sense_results in history._sense_results.items():
+            for result in sense_results:
+                for i in range(len(result)):
+                    result[i] = tuple(result[i])
         return history
 
     def store_sense(self, color: Color, square: Square,
@@ -188,113 +200,42 @@ class GameHistory(object):
         return senses_equal and moves_equal and fens_equal
 
 
-class GameHistorySerializer:
-    def __init__(self, history: GameHistory):
-        self.history = history
+class GameHistoryEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, GameHistory):
+            return {
+                'type': 'GameHistory',
+                'senses': o._senses,
+                'sense_results': o._sense_results,
+                'requested_moves': o._requested_moves,
+                'taken_moves': o._taken_moves,
+                'capture_squares': o._capture_squares,
+                'fens_before_move': o._fens_before_move,
+                'fens_after_move': o._fens_after_move,
+            }
+        elif isinstance(o, chess.Piece):
+            return {
+                'type': 'Piece',
+                'value': o.symbol(),
+            }
+        elif isinstance(o, chess.Move):
+            return {
+                'type': 'Move',
+                'value': o.uci(),
+            }
+        return super().default(o)
 
-        self.fieldnames = ['turn', 'color', 'sense', 'sense_result_squares', 'sense_result_pieces', 'requested_move',
-                           'taken_move', 'capture_square', 'fen_before_move', 'fen_after_move']
-        self.fns_by_field = {
-            'turn': (lambda turn: turn.turn_number, self._serialize_turn_number, self._deserialize_turn_number),
-            'color': (lambda turn: turn.color, self._serialize_color, self._deserialize_color),
-            'sense': (self.history.sense, self._serialize_opt_square, self._deserialize_opt_square),
-            'sense_result_squares': (self._get_sense_result_squares, self._serialize_sense_result_squares,
-                                     self._deserialize_sense_result_squares),
-            'sense_result_pieces': (self._get_sense_result_pieces, self._serialize_sense_result_pieces,
-                                    self._deserialize_sense_result_pieces),
-            'requested_move': (self.history.requested_move, self._serialize_opt_move, self._deserialize_opt_move),
-            'taken_move': (self.history.taken_move, self._serialize_opt_move, self._deserialize_opt_move),
-            'capture_square': (self.history.capture_square, self._serialize_opt_square, self._deserialize_opt_square),
-            'fen_before_move': (self.history.truth_fen_before_move, str, str),
-            'fen_after_move': (self.history.truth_fen_after_move, str, str),
-        }
 
-    def write(self, fp):
-        writer = csv.DictWriter(fp, delimiter='\t', fieldnames=self.fieldnames)
-        writer.writeheader()
-        for turn in self.history.turns():
-            writer.writerow({field: self._serialize_field(field, turn) for field in self.fieldnames})
+class GameHistoryDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.object_hook, *args, **kwargs)
 
-    def _serialize_field(self, field: str, turn: Turn):
-        value = self.fns_by_field[field][0](turn)
-        return self.fns_by_field[field][1](value)
-
-    def read(self, fp):
-        reader = csv.DictReader(fp, delimiter='\t')
-        for row in reader:
-            self._deserialize_row(row)
-            self.history.store_sense(row['color'], row['sense'],
-                                     list(zip(row['sense_result_squares'], row['sense_result_pieces'])))
-            self.history.store_move(row['color'], row['requested_move'], row['taken_move'], row['capture_square'])
-            self.history.store_fen_before_move(row['color'], row['fen_before_move'])
-            self.history.store_fen_after_move(row['color'], row['fen_after_move'])
-
-    def _deserialize_row(self, row):
-        for field in row:
-            row[field] = self.fns_by_field[field][2](row[field])
-
-    def _get_sense_result_squares(self, turn: Turn) -> List[Square]:
-        sense_result = self.history.sense_result(turn)
-        squares, pieces = zip(*sense_result)
-        return squares
-
-    def _get_sense_result_pieces(self, turn: Turn) -> List[Optional[chess.Piece]]:
-        sense_result = self.history.sense_result(turn)
-        squares, pieces = zip(*sense_result)
-        return pieces
-
-    @staticmethod
-    def _serialize_turn_number(turn_number: int) -> str:
-        return str(turn_number)
-
-    @staticmethod
-    def _deserialize_turn_number(turn_number: str) -> int:
-        return int(turn_number)
-
-    @staticmethod
-    def _serialize_color(color: Color) -> str:
-        return chess.COLOR_NAMES[color]
-
-    @staticmethod
-    def _deserialize_color(color: str) -> Color:
-        return bool(chess.COLOR_NAMES.index(color))
-
-    @staticmethod
-    def _serialize_opt_square(square: Optional[Square]) -> str:
-        return chess.SQUARE_NAMES[square] if square is not None else 'None'
-
-    @staticmethod
-    def _deserialize_opt_square(square: str) -> Optional[Square]:
-        return None if square == 'None' else chess.SQUARE_NAMES.index(square)
-
-    @staticmethod
-    def _serialize_opt_move(move: Optional[chess.Move]) -> str:
-        return move.uci() if move is not None else 'None'
-
-    @staticmethod
-    def _deserialize_opt_move(move: str) -> Optional[chess.Move]:
-        return None if move == 'None' else chess.Move.from_uci(move)
-
-    @staticmethod
-    def _serialize_opt_piece(piece: Optional[chess.Piece]) -> str:
-        return piece.symbol() if piece is not None else '.'
-
-    @staticmethod
-    def _deserialize_opt_piece(piece: str) -> Optional[chess.Piece]:
-        return None if piece == '.' else chess.Piece.from_symbol(piece)
-
-    @staticmethod
-    def _serialize_sense_result_squares(sense_result_squares: List[Square]) -> str:
-        return ','.join(map(GameHistorySerializer._serialize_opt_square, sense_result_squares))
-
-    @staticmethod
-    def _deserialize_sense_result_squares(sense_result_squares: str) -> List[Square]:
-        return list(map(GameHistorySerializer._deserialize_opt_square, sense_result_squares.split(',')))
-
-    @staticmethod
-    def _serialize_sense_result_pieces(sense_result_pieces: List[Optional[chess.Piece]]) -> str:
-        return ','.join(map(GameHistorySerializer._serialize_opt_piece, sense_result_pieces))
-
-    @staticmethod
-    def _deserialize_sense_result_pieces(sense_result_pieces: str) -> List[Optional[chess.Piece]]:
-        return list(map(GameHistorySerializer._deserialize_opt_piece, sense_result_pieces.split(',')))
+    def object_hook(self, obj):
+        if 'type' in obj:
+            if obj['type'] == 'Piece':
+                return chess.Piece.from_symbol(obj['value'])
+            elif obj['type'] == 'Move':
+                return chess.Move.from_uci(obj['value'])
+        elif 'true' in obj and 'false' in obj and len(obj) == 2:
+            return {True: obj['true'], False: obj['false']}
+        return obj
