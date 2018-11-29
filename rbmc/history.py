@@ -86,43 +86,46 @@ class GameHistory(object):
     def is_empty(self) -> bool:
         return len(self._senses[chess.WHITE]) == 0
 
-    def num_turns(self, player=None) -> int:
-        return len(list(self.turns(player=player)))
+    def num_turns(self, color: Color = None) -> int:
+        return len(list(self.turns(color=color)))
 
-    def turns(self, player=None) -> Iterable[Turn]:
+    def turns(self, color: Color = None) -> Iterable[Turn]:
         if self.is_empty():
             return
 
-        turn = Turn(player if player is not None else chess.WHITE, 0)
+        turn = Turn(color if color is not None else chess.WHITE, 0)
         while True:
-            if player is None or turn.color == player:
+            if color is None or turn.color == color:
                 yield turn
             if self.is_last_turn(turn):
                 return
             turn = turn.next
 
     def is_first_turn(self, turn: Turn):
-        return turn == self._first_turn()
+        return turn == self.first_turn()
 
-    def _first_turn(self) -> Optional[Turn]:
+    def first_turn(self, color: Color = None) -> Turn:
         if self.is_empty():
-            return None
+            raise ValueError('GameHistory is empty')
 
-        return Turn(chess.WHITE, 0)
+        return Turn(color if color is not None else chess.WHITE, 0)
 
     def is_last_turn(self, turn: Turn):
-        return turn == self._last_turn()
+        return turn == self.last_turn()
 
-    def _last_turn(self) -> Optional[Turn]:
+    def last_turn(self, color: Color = None) -> Turn:
         if self.is_empty():
-            return None
+            raise ValueError('GameHistory is empty')
 
-        num_white_turns = len(self._senses[chess.WHITE])
-        num_black_turns = len(self._senses[chess.BLACK])
-        if num_white_turns > num_black_turns:
-            return Turn(chess.WHITE, num_white_turns - 1)
+        if color is not None:
+            return Turn(color, len(self._senses[color]) - 1)
         else:
-            return Turn(chess.BLACK, num_black_turns - 1)
+            num_white_turns = len(self._senses[chess.WHITE])
+            num_black_turns = len(self._senses[chess.BLACK])
+            if num_white_turns > num_black_turns:
+                return Turn(chess.WHITE, num_white_turns - 1)
+            else:
+                return Turn(chess.BLACK, num_black_turns - 1)
 
     def _validate_turn(self, turn: Turn, collection: Mapping[Color, List[T]]):
         if turn.turn_number < 0 or turn.turn_number >= len(collection[turn.color]):
