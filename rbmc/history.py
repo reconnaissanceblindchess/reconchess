@@ -143,6 +143,9 @@ class GameHistory(object):
         if turn.turn_number < 0 or turn.turn_number >= len(collection[turn.color]):
             raise ValueError('{} did not happen in this game.'.format(turn))
 
+    def has_sense(self, turn: Turn) -> bool:
+        return 0 <= turn.turn_number < len(self._senses[turn.color])
+
     def sense(self, turn: Turn) -> Square:
         self._validate_turn(turn, self._senses)
         return self._senses[turn.color][turn.turn_number]
@@ -150,6 +153,9 @@ class GameHistory(object):
     def sense_result(self, turn: Turn) -> List[Tuple[Square, Optional[chess.Piece]]]:
         self._validate_turn(turn, self._sense_results)
         return self._sense_results[turn.color][turn.turn_number]
+
+    def has_move(self, turn: Turn) -> bool:
+        return 0 <= turn.turn_number < len(self._requested_moves[turn.color])
 
     def requested_move(self, turn: Turn) -> Optional[chess.Move]:
         self._validate_turn(turn, self._requested_moves)

@@ -360,6 +360,15 @@ class HistoryGettersTestCase(unittest.TestCase):
         self.history.store_fen_before_move(WHITE, 'r1bqkbnr/pppppppp/3N4/8/8/3n4/PPPPPPPP/R1BQKBNR w KQkq -')
         self.history.store_fen_after_move(WHITE, 'r1bqNbnr/pppppppp/8/8/8/3n4/PPPPPPPP/R1BQKBNR w KQkq -')
 
+    def test_has_sense(self):
+        self.assertTrue(self.history.has_sense(Turn(WHITE, 0)))
+        self.assertTrue(self.history.has_sense(Turn(BLACK, 0)))
+        self.assertTrue(self.history.has_sense(Turn(WHITE, 1)))
+        self.assertTrue(self.history.has_sense(Turn(BLACK, 1)))
+        self.assertTrue(self.history.has_sense(Turn(WHITE, 2)))
+        self.assertTrue(self.history.has_sense(Turn(BLACK, 2)))
+        self.assertTrue(self.history.has_sense(Turn(WHITE, 3)))
+
     def test_sense(self):
         self.assertEqual(self.history.sense(Turn(WHITE, 0)), E7)
         self.assertEqual(self.history.sense(Turn(BLACK, 0)), E2)
@@ -370,6 +379,9 @@ class HistoryGettersTestCase(unittest.TestCase):
         self.assertEqual(self.history.sense(Turn(WHITE, 3)), H7)
 
     def test_invalid_sense(self):
+        self.assertFalse(self.history.has_sense(Turn(WHITE, -1)))
+        self.assertFalse(self.history.has_sense(Turn(WHITE, 4)))
+        self.assertFalse(self.history.has_sense(Turn(BLACK, 3)))
         with self.assertRaises(ValueError):
             self.history.sense(Turn(WHITE, -1))
         with self.assertRaises(ValueError):
@@ -394,6 +406,15 @@ class HistoryGettersTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.history.sense_result(Turn(BLACK, 3))
 
+    def test_has_move(self):
+        self.assertTrue(self.history.has_move(Turn(WHITE, 0)))
+        self.assertTrue(self.history.has_move(Turn(BLACK, 0)))
+        self.assertTrue(self.history.has_move(Turn(WHITE, 1)))
+        self.assertTrue(self.history.has_move(Turn(BLACK, 1)))
+        self.assertTrue(self.history.has_move(Turn(WHITE, 2)))
+        self.assertTrue(self.history.has_move(Turn(BLACK, 2)))
+        self.assertTrue(self.history.has_move(Turn(WHITE, 3)))
+
     def test_requested_move(self):
         self.assertEqual(self.history.requested_move(Turn(WHITE, 0)), Move(B1, C3))
         self.assertEqual(self.history.requested_move(Turn(BLACK, 0)), Move(B8, C6))
@@ -404,6 +425,9 @@ class HistoryGettersTestCase(unittest.TestCase):
         self.assertEqual(self.history.requested_move(Turn(WHITE, 3)), Move(D6, E8))
 
     def test_invalid_requested_move(self):
+        self.assertFalse(self.history.has_move(Turn(WHITE, -1)))
+        self.assertFalse(self.history.has_move(Turn(WHITE, 4)))
+        self.assertFalse(self.history.has_move(Turn(BLACK, 3)))
         with self.assertRaises(ValueError):
             self.history.requested_move(Turn(WHITE, -1))
         with self.assertRaises(ValueError):
