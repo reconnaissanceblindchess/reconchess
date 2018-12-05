@@ -47,6 +47,10 @@ class Game(object):
         pass
 
     @abstractmethod
+    def get_win_reason(self) -> Optional[WinReason]:
+        pass
+
+    @abstractmethod
     def get_game_history(self) -> Optional[GameHistory]:
         pass
 
@@ -201,6 +205,17 @@ class LocalGame(Game):
             return chess.BLACK
         elif self.board.king(chess.BLACK) is None:
             return chess.WHITE
+
+        return None
+
+    def get_win_reason(self) -> Optional[WinReason]:
+        if not self.is_over():
+            return None
+
+        if self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0:
+            return WinReason.TIMEOUT
+        elif self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None:
+            return WinReason.KING_CAPTURE
 
         return None
 

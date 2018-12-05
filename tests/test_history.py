@@ -575,7 +575,7 @@ class HistorySaveTestCase(unittest.TestCase):
         self.assertEqual(history, restored_history)
 
     def test_fuzz(self):
-        winner_color, history = play_local_game(RandomBot(), RandomBot())
+        winner_color, win_reason, history = play_local_game(RandomBot(), RandomBot())
 
         with tempfile.TemporaryDirectory() as d:
             history.save(os.path.join(d, 'history.tsv'))

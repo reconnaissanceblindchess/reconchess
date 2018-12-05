@@ -1,10 +1,8 @@
-from typing import Optional, List, Tuple
 import pkg_resources
 import argparse
 import random
 import contextlib
-import chess
-from rbmc import Player, Color, Square, play_local_game, load_player, GameHistory
+from rbmc import *
 
 # block output from pygame
 with contextlib.redirect_stdout(None):
@@ -254,9 +252,10 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
+    def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
+                        game_history: GameHistory):
         if winner_color:
-            print('{} won!'.format(chess.COLOR_NAMES[winner_color]))
+            print('{} won because of {}!'.format(chess.COLOR_NAMES[winner_color], win_reason))
         else:
             print('Draw!')
 

@@ -157,11 +157,13 @@ class Player(object):
         pass
 
     @abstractmethod
-    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
+    def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
+                        game_history: GameHistory):
         """
         Provides the results of the game when it ends. You can use this for post processing the results of the game.
 
         :param winner_color: If the game was a draw, then `None`, otherwise, the color of the player who won the game.
+        :param win_reason: If the game was a draw, then `None`, otherwise the reason the game ended specified as :class:`WinReason`
         :param game_history: GameHistory object for the game, from which you can get a list of sense and move actions 
             each side has taken over the course of the game.
         :return: None
