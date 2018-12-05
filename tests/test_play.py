@@ -283,7 +283,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
         self.winner_color, self.history = play_local_game(self.white_player, self.black_player)
 
     def test_white_call_order(self):
-        turns = len(self.history.senses[WHITE])
+        turns = self.history.num_turns(WHITE)
         turn_order = ['handle_opponent_move_result', 'choose_sense', 'handle_sense_result',
                       'choose_move', 'handle_move_result']
 
@@ -291,7 +291,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
         self.assertEqual(self.white_player.call_order, expected_order)
 
     def test_black_call_order(self):
-        turns = len(self.history.senses[BLACK])
+        turns = self.history.num_turns(BLACK)
         turn_order = ['handle_opponent_move_result', 'choose_sense', 'handle_sense_result',
                       'choose_move', 'handle_move_result']
 
