@@ -1,7 +1,5 @@
-import chess
 import random
-from typing import List, Tuple, Optional
-from rbmc import Player, Square, Color, GameHistory
+from rbmc import *
 
 
 class RandomBot(Player):
@@ -24,5 +22,6 @@ class RandomBot(Player):
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def handle_game_end(self, winner_color: Optional[Color], game_history: GameHistory):
+    def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
+                        game_history: GameHistory):
         pass

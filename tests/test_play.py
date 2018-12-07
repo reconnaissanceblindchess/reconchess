@@ -107,7 +107,8 @@ class TestPlayer(Player):
         self.params_by_function['handle_move_result'].append(clean_locals(locals()))
         self.call_order.append('handle_move_result')
 
-    def handle_game_end(self, winner_color: Optional[Color], history: GameHistory):
+    def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
+                        history: GameHistory):
         self.params_by_function['handle_game_end'].append(clean_locals(locals()))
         self.call_order.append('handle_game_end')
 
@@ -280,7 +281,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
     def setUp(self):
         self.white_player = TestPlayer([], [])
         self.black_player = TestPlayer([], [])
-        self.winner_color, self.history = play_local_game(self.white_player, self.black_player)
+        self.winner_color, self.win_reason, self.history = play_local_game(self.white_player, self.black_player)
 
     def test_white_call_order(self):
         turns = self.history.num_turns(WHITE)
@@ -306,6 +307,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
 
         self.assertEqual(self.white_player.params_by_function['handle_game_end'], [{
             'winner_color': self.winner_color,
+            'win_reason': self.win_reason,
             'history': self.history,
         }])
 
@@ -317,5 +319,6 @@ class PlayLocalGameTestCase(unittest.TestCase):
 
         self.assertEqual(self.black_player.params_by_function['handle_game_end'], [{
             'winner_color': self.winner_color,
+            'win_reason': self.win_reason,
             'history': self.history,
         }])

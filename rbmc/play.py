@@ -5,7 +5,8 @@ from .game import Game, LocalGame, RemoteGame
 from .history import GameHistory
 
 
-def play_local_game(white_player: Player, black_player: Player) -> Tuple[Optional[Color], GameHistory]:
+def play_local_game(white_player: Player, black_player: Player) -> Tuple[
+    Optional[Color], Optional[WinReason], GameHistory]:
     players = [black_player, white_player]
 
     game = LocalGame()
@@ -18,12 +19,13 @@ def play_local_game(white_player: Player, black_player: Player) -> Tuple[Optiona
         play_turn(game, players[game.turn])
 
     winner_color = game.get_winner_color()
+    win_reason = game.get_win_reason()
     game_history = game.get_game_history()
 
-    white_player.handle_game_end(winner_color, game_history)
-    black_player.handle_game_end(winner_color, game_history)
+    white_player.handle_game_end(winner_color, win_reason, game_history)
+    black_player.handle_game_end(winner_color, win_reason, game_history)
 
-    return winner_color, game_history
+    return winner_color, win_reason, game_history
 
 
 def play_remote_game(name, game_id, player: Player):

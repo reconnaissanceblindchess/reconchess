@@ -1,5 +1,5 @@
 import unittest
-from rbmc import LocalGame
+from rbmc import LocalGame, WinReason
 from chess import *
 import time
 import random
@@ -723,23 +723,26 @@ class IsOverTest(unittest.TestCase):
         self.assertTrue(game.is_over())
 
 
-class WinnerColorTest(unittest.TestCase):
+class WinnerInfoTestCase(unittest.TestCase):
     def test_not_over(self):
         game = LocalGame()
         game.start()
         self.assertIsNone(game.get_winner_color())
+        self.assertIsNone(game.get_win_reason())
 
     def test_no_time_white(self):
         game = LocalGame()
         game.seconds_left_by_color[WHITE] = 0
         game.start()
         self.assertEqual(BLACK, game.get_winner_color())
+        self.assertEqual(WinReason.TIMEOUT, game.get_win_reason())
 
     def test_no_time_black(self):
         game = LocalGame()
         game.seconds_left_by_color[BLACK] = 0
         game.start()
         self.assertEqual(WHITE, game.get_winner_color())
+        self.assertEqual(WinReason.TIMEOUT, game.get_win_reason())
 
     def test_white_king_captured(self):
         """
@@ -756,6 +759,7 @@ class WinnerColorTest(unittest.TestCase):
         game.board.set_board_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR')
         game.start()
         self.assertEqual(BLACK, game.get_winner_color())
+        self.assertEqual(WinReason.KING_CAPTURE, game.get_win_reason())
 
     def test_black_king_captured(self):
         """
@@ -772,6 +776,7 @@ class WinnerColorTest(unittest.TestCase):
         game.board.set_board_fen('rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
         game.start()
         self.assertEqual(WHITE, game.get_winner_color())
+        self.assertEqual(WinReason.KING_CAPTURE, game.get_win_reason())
 
 
 class GetGameHistoryTestCase(unittest.TestCase):
@@ -779,16 +784,16 @@ class GetGameHistoryTestCase(unittest.TestCase):
         g = LocalGame()
         g.sense(E2)
         self.assertEqual(g.get_game_history(), None)
-        g.move(Move(E2,E4))
+        g.move(Move(E2, E4))
         self.assertEqual(g.get_game_history(), None)
         g.sense(A8)
-        g.move(Move(E7,E5))
+        g.move(Move(E7, E5))
         self.assertEqual(g.get_game_history(), None)
         g.sense(E2)
-        g.move(Move(F1,B5))
+        g.move(Move(F1, B5))
         g.sense(A8)
-        g.move(Move(D7,D5))
+        g.move(Move(D7, D5))
         g.sense(E8)
-        g.move(Move(B5,E8))
+        g.move(Move(B5, E8))
         self.assertTrue(g.is_over())
         self.assertNotEqual(g.get_game_history(), None)
