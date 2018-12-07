@@ -63,6 +63,8 @@ class LocalGame(Game):
         self.board = chess.Board()
 
         self.__game_history = GameHistory()
+
+        self._is_finished = False
         self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
         self.current_turn_start_time = None
 
@@ -75,11 +77,19 @@ class LocalGame(Game):
         """
         self.current_turn_start_time = datetime.now()
 
+    def end(self):
+        """
+        Ends the game.
+        :return: None.
+        """
+        self.seconds_left_by_color[self.turn] = self.get_seconds_left()
+        self._is_finished = True
+
     def get_seconds_left(self) -> float:
         """
         :return: The amount of seconds left for the current player.
         """
-        if self.current_turn_start_time:
+        if not self._is_finished and self.current_turn_start_time:
             elapsed_since_turn_start = (datetime.now() - self.current_turn_start_time).total_seconds()
             return self.seconds_left_by_color[self.turn] - elapsed_since_turn_start
         else:
@@ -188,6 +198,9 @@ class LocalGame(Game):
         return self.__game_history if self.is_over() else None
 
     def is_over(self) -> bool:
+        if self._is_finished:
+            return True
+
         no_time_left = self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0
         king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
         return no_time_left or king_captured

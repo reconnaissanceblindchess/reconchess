@@ -18,6 +18,7 @@ def play_local_game(white_player: Player, black_player: Player) -> Tuple[
     while not game.is_over():
         play_turn(game, players[game.turn])
 
+    game.end()
     winner_color = game.get_winner_color()
     win_reason = game.get_win_reason()
     game_history = game.get_game_history()

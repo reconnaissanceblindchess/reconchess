@@ -129,6 +129,10 @@ class LocalGameTimeTest(unittest.TestCase):
             turn = not turn
             game.end_turn()
             self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
+        game.end()
+        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
+        time.sleep(delta)
+        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
 
 
 class LocalGameMoveActionsTest(unittest.TestCase):
@@ -673,6 +677,13 @@ class IsOverTest(unittest.TestCase):
         game.start()
         self.assertFalse(game.is_over())
 
+    def test_forced_over(self):
+        game = LocalGame()
+        game.start()
+        self.assertFalse(game.is_over())
+        game.end()
+        self.assertTrue(game.is_over())
+
     def test_no_time_both(self):
         game = LocalGame(seconds_per_player=0)
         game.start()
@@ -727,6 +738,13 @@ class WinnerInfoTestCase(unittest.TestCase):
     def test_not_over(self):
         game = LocalGame()
         game.start()
+        self.assertIsNone(game.get_winner_color())
+        self.assertIsNone(game.get_win_reason())
+
+    def test_forced_over(self):
+        game = LocalGame()
+        game.start()
+        game.end()
         self.assertIsNone(game.get_winner_color())
         self.assertIsNone(game.get_win_reason())
 
