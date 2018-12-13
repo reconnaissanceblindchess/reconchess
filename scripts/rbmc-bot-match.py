@@ -11,7 +11,7 @@ args = parser.parse_args()
 white_bot_name, white_player_cls = load_player(args.white_bot_path)
 black_bot_name, black_player_cls = load_player(args.black_bot_path)
 
-winner_color, history = play_local_game(white_player_cls(), black_player_cls())
+winner_color, win_reason, history = play_local_game(white_player_cls(), black_player_cls())
 
 winner = 'Draw' if winner_color is None else chess.COLOR_NAMES[winner_color]
 timestamp = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
