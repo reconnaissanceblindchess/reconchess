@@ -13,8 +13,6 @@ class Player(object):
     Base class of a player of Recon Chess. Implementation of a player is done by sub classing this class, and
     implementing each of the methods detailed below. For examples see `examples`.
 
-    TODO link to examples
-
     The order in which each of the methods are called looks roughly like this:
 
     #. :meth:`handle_game_start()`
@@ -41,7 +39,6 @@ class Player(object):
 
         :param color: The color that you are playing as. Either :data:`chess.WHITE` or :data:`chess.BLACK`.
         :param board: The initial board of the game. See :class:`chess.Board`.
-        :return: None
         """
         pass
 
@@ -52,12 +49,15 @@ class Player(object):
 
         Called at the start of your turn.
 
-        TODO provide example implementation
-        TODO link to chess.Square
+        Example implementation: ::
+
+            def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
+                if captured_my_piece:
+                    self.board.remove_piece_at(capture_square)
 
         :param captured_my_piece: If the opponent captured one of your pieces, then `True`, otherwise `False`.
-        :param capture_square: If a capture occurred, then the square your piece was captured on, otherwise `None`.
-        :return: None
+        :param capture_square: If a capture occurred, then the :class:`Square` your piece was captured on,
+            otherwise `None`.
         """
         pass
 
@@ -72,13 +72,16 @@ class Player(object):
 
         Called after :meth:`handle_opponent_move_result()`.
 
-        TODO provide example implementation
-        TODO Link to chess.Square
+        Example implementation: ::
+
+            def choose_sense(self, seconds_left: float, sense_actions: List[Square],
+                             move_actions: List[chess.Move]) -> Square:
+                return random.choice(sense_actions)
 
         :param seconds_left: The time in seconds you have left to use in the game.
         :param sense_actions: A :class:`list` containing the valid squares to sense over.
         :param move_actions: A :class:`list` containing the valid moves that can be returned in :meth:`choose_move()`.
-        :return: a Square that is the center of the 3x3 sensing area you want to get information about.
+        :return: a :class:`Square` that is the center of the 3x3 sensing area you want to get information about.
         """
         pass
 
@@ -99,10 +102,7 @@ class Player(object):
                     else:
                         self.board.set_piece_at(square, piece)
 
-        TODO Link to chess.Square
-
-        :param sense_result: The result of the sense. A `list` of Squares and an optional :class:`chess.Piece`.
-        :return: None
+        :param sense_result: The result of the sense. A `list` of :class:`Square` and an optional :class:`chess.Piece`.
         """
         pass
 
@@ -117,7 +117,10 @@ class Player(object):
 
         Called after :meth:`handle_sense_result()`.
 
-        TODO provide example implementation
+        Example implementation: ::
+
+            def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+                return random.choice(move_actions)
 
         :param seconds_left: The time in seconds you have left to use in the game.
         :param move_actions: A `list` containing the valid :class:`chess.Move` you can choose.
@@ -139,20 +142,19 @@ class Player(object):
 
                 def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move,
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
-                    piece = self.board.remove_piece_at(taken_move.from_square)
-                    self.board.set_piece_at(taken_move.to_square, piece)
-
-        TODO Link to chess.Square
+                    if taken_move is not None:
+                        self.board.push(taken_move)
 
         Note: In the case of playing games on a server, this method is invoked during your opponents turn. This means
         in most cases this method will not use your play time. However if the opponent finishes their turn before
         this method completes, then time will be counted against you.
 
         :param requested_move: The :class:`chess.Move` you requested in :meth:`choose_move()`.
-        :param taken_move: The :class:`chess.Move` that was actually applied by the game if it was a valid move, otherwise `None`.
+        :param taken_move: The :class:`chess.Move` that was actually applied by the game if it was a valid move,
+            otherwise `None`.
         :param captured_opponent_piece: If `taken_move` resulted in a capture, then `True`, otherwise `False`.
-        :param capture_square: If a capture occurred, then the square that the opponent piece was taken on, otherwise `None`.
-        :return: None
+        :param capture_square: If a capture occurred, then the :class:`Square` that the opponent piece was taken on,
+            otherwise `None`.
         """
         pass
 
@@ -163,10 +165,10 @@ class Player(object):
         Provides the results of the game when it ends. You can use this for post processing the results of the game.
 
         :param winner_color: If the game was a draw, then `None`, otherwise, the color of the player who won the game.
-        :param win_reason: If the game was a draw, then `None`, otherwise the reason the game ended specified as :class:`WinReason`
-        :param game_history: GameHistory object for the game, from which you can get a list of sense and move actions 
+        :param win_reason: If the game was a draw, then `None`, otherwise the reason the game ended specified as
+            :class:`WinReason`
+        :param game_history: :class:`GameHistory` object for the game, from which you can get the actions
             each side has taken over the course of the game.
-        :return: None
         """
         pass
 
@@ -176,14 +178,13 @@ def load_player(source_path: str) -> Tuple[str, Type[Player]]:
     Loads a subclass of the Player class that is contained in a python source file. There must only be *1* such
     subclass in the file.
 
-    ex.
-    ```python
-    name, cls = load_player('my_player.py')
-    player = cls()
-    ```
+    Example: ::
+
+        name, cls = load_player('my_player.py')
+        player = cls()
 
     :param source_path: the path to the source file to load
-    :return: (name of class, class type)
+    :return: Tuple where the first element is the name of the loaded class, and the second element is the class type
     """
     # get the path to the main source file
     abs_source_path = os.path.abspath(source_path)
