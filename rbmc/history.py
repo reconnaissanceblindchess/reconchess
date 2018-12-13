@@ -165,7 +165,7 @@ class GameHistory(object):
         self._validate_turn(turn, self._taken_moves)
         return self._taken_moves[turn.color][turn.turn_number]
 
-    def capture_square(self, turn: Turn) -> Optional[chess.Move]:
+    def capture_square(self, turn: Turn) -> Optional[Square]:
         self._validate_turn(turn, self._capture_squares)
         return self._capture_squares[turn.color][turn.turn_number]
 
@@ -178,7 +178,9 @@ class GameHistory(object):
 
     def truth_board_before_move(self, turn: Turn) -> chess.Board:
         self._validate_turn(turn, self._fens_before_move)
-        return chess.Board(self._fens_before_move[turn.color][turn.turn_number])
+        board = chess.Board(self._fens_before_move[turn.color][turn.turn_number])
+        board.turn = turn.color
+        return board
 
     def truth_fen_after_move(self, turn: Turn) -> str:
         self._validate_turn(turn, self._fens_after_move)
@@ -186,14 +188,17 @@ class GameHistory(object):
 
     def truth_board_after_move(self, turn: Turn) -> chess.Board:
         self._validate_turn(turn, self._fens_after_move)
-        return chess.Board(self._fens_after_move[turn.color][turn.turn_number])
+        board = chess.Board(self._fens_after_move[turn.color][turn.turn_number])
+        board.turn = turn.color
+        return board
 
-    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> List[T]:
+    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> Iterable[T]:
         if get_turn_data_fn not in [self.sense, self.sense_result, self.requested_move, self.taken_move,
                                     self.capture_square, self.move_result, self.truth_board_before_move,
                                     self.truth_board_after_move, self.truth_fen_before_move, self.truth_fen_after_move]:
             raise ValueError('get_turn_data_fn must be one of the history getter functions')
-        return list(map(get_turn_data_fn, turns))
+        for turn in turns:
+            yield get_turn_data_fn(turn)
 
     def __eq__(self, other):
         if not isinstance(other, GameHistory):

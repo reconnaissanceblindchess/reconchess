@@ -535,13 +535,13 @@ class HistoryGettersTestCase(unittest.TestCase):
             self.history.truth_fen_after_move(Turn(BLACK, 3))
 
     def test_collect(self):
-        self.assertEqual(self.history.collect(self.history.sense, self.history.turns(WHITE)), [E7, F7, G7, H7])
-        self.assertEqual(self.history.collect(self.history.sense, self.history.turns(BLACK)), [E2, F2, G2])
-        self.assertEqual(self.history.collect(self.history.sense, [Turn(WHITE, 0), Turn(BLACK, 0)]), [E7, E2])
+        self.assertEqual(list(self.history.collect(self.history.sense, self.history.turns(WHITE))), [E7, F7, G7, H7])
+        self.assertEqual(list(self.history.collect(self.history.sense, self.history.turns(BLACK))), [E2, F2, G2])
+        self.assertEqual(list(self.history.collect(self.history.sense, [Turn(WHITE, 0), Turn(BLACK, 0)])), [E7, E2])
 
     def test_invalid_collect(self):
         with self.assertRaises(ValueError):
-            self.history.collect(id, self.history.turns())
+            list(self.history.collect(id, self.history.turns()))
 
 
 class HistorySaveTestCase(unittest.TestCase):
