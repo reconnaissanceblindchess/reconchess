@@ -103,7 +103,7 @@ class ReplayWindow:
             for piece_type in chess.PIECE_TYPES:
                 piece = chess.Piece(piece_type, color)
 
-                img_path = 'res/{}/{}.png'.format(chess.COLOR_NAMES[color], chess.PIECE_SYMBOLS[piece_type])
+                img_path = 'res/{}/{}.png'.format(chess.COLOR_NAMES[color], piece.symbol())
                 full_path = pkg_resources.resource_filename('rbmc', img_path)
 
                 img = pygame.image.load(full_path)
