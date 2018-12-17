@@ -500,8 +500,10 @@ class GameHistory(object):
         :param turn: The :class:`Turn` in question.
         :return: A :class:`chess.Board` object.
         """
-        # TODO board.turn = turn.color
-        return chess.Board(self.truth_fen_before_move(turn))
+        self._validate_turn(turn, self._fens_before_move)
+        board = chess.Board(self._fens_before_move[turn.color][turn.turn_number])
+        board.turn = turn.color
+        return board
 
     def truth_fen_after_move(self, turn: Turn) -> str:
         """
@@ -538,10 +540,12 @@ class GameHistory(object):
         :param turn: The :class:`Turn` in question.
         :return: A :class:`chess.Board` object.
         """
-        # TODO board.turn = turn.color
-        return chess.Board(self.truth_fen_after_move(turn))
+        self._validate_turn(turn, self._fens_after_move)
+        board = chess.Board(self._fens_after_move[turn.color][turn.turn_number])
+        board.turn = turn.color
+        return board
 
-    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> List[T]:
+    def collect(self, get_turn_data_fn: Callable[[Turn], T], turns: Iterable[Turn]) -> Iterable[T]:
         """
         Collect data from multiple turns using any of :meth:`sense`, :meth:`sense_result`, :meth:`requested_move`,
         :meth:`taken_move`, :meth:`capture_square`, :meth:`move_result`, :meth:`truth_fen_before_move`,
@@ -558,12 +562,12 @@ class GameHistory(object):
         :param turns: The turns in question.
         :return: A list of the data, where each element is the value of the getter function on the corresponding turn.
         """
-        # TODO make this return an iterable
         if get_turn_data_fn not in [self.sense, self.sense_result, self.requested_move, self.taken_move,
                                     self.capture_square, self.move_result, self.truth_board_before_move,
                                     self.truth_board_after_move, self.truth_fen_before_move, self.truth_fen_after_move]:
             raise ValueError('get_turn_data_fn must be one of the history getter functions')
-        return list(map(get_turn_data_fn, turns))
+        for turn in turns:
+            yield get_turn_data_fn(turn)
 
     def __eq__(self, other):
         if not isinstance(other, GameHistory):
