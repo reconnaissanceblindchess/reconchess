@@ -6,7 +6,7 @@ with open('requirements.txt') as fp:
 setuptools.setup(
     name='python-rbmc',
     version='0.1',
-    packages=['rbmc', 'rbmc_server', 'rbmc.scripts', 'rbmc.examples'],
+    packages=['rbmc', 'rbmc_server', 'rbmc.scripts', 'rbmc.baselines'],
     package_data={'rbmc': ['res/white/*.png', 'res/black/*.png']},
     scripts=[
         'rbmc/scripts/rbmc-bot-match.py',
