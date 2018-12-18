@@ -6,8 +6,13 @@ with open('requirements.txt') as fp:
 setuptools.setup(
     name='python-rbmc',
     version='0.1',
-    packages=['rbmc', 'rbmc_server'],
+    packages=['rbmc', 'rbmc_server', 'rbmc.scripts', 'rbmc.examples'],
     package_data={'rbmc': ['res/white/*.png', 'res/black/*.png']},
-    scripts=['scripts/rbmc-bot-match.py', 'scripts/rbmc-connect.py', 'scripts/rbmc-play.py', 'scripts/rbmc-replay.py'],
+    scripts=[
+        'rbmc/scripts/rbmc-bot-match.py',
+        'rbmc/scripts/rbmc-connect.py',
+        'rbmc/scripts/rbmc-play.py',
+        'rbmc/scripts/rbmc-replay.py'
+    ],
     install_requires=requirements,
 )
