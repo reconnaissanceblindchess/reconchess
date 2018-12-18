@@ -27,7 +27,7 @@ def flipped_move(move):
                       promotion=move.promotion, drop=move.drop)
 
 
-class QuickAttackBot(Player):
+class AttackerBot(Player):
     def __init__(self):
         self.move_sequence = random.choice(QUICK_ATTACKS)
 
@@ -46,13 +46,13 @@ class QuickAttackBot(Player):
 
     def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
         while self.move_sequence[0] not in move_actions:
-            self.move_sequence.pop()
+            self.move_sequence.pop(0)
 
         if len(self.move_sequence) == 0:
             # pass... we failed so give up
             return None
         else:
-            return self.move_sequence.pop()
+            return self.move_sequence.pop(0)
 
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
