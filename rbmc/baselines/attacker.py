@@ -45,7 +45,7 @@ class AttackerBot(Player):
         pass
 
     def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
-        while self.move_sequence[0] not in move_actions:
+        while len(self.move_sequence) > 0 and self.move_sequence[0] not in move_actions:
             self.move_sequence.pop(0)
 
         if len(self.move_sequence) == 0:
