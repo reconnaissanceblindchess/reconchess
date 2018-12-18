@@ -13,7 +13,15 @@ black_bot_name, black_player_cls = load_player(args.black_bot_path)
 
 winner_color, win_reason, history = play_local_game(white_player_cls(), black_player_cls())
 
+print('Game Over!')
+if winner_color is not None:
+    print('{} won because of {}!'.format(white_bot_name if winner_color else black_bot_name, win_reason))
+else:
+    print('Draw!')
+
 winner = 'Draw' if winner_color is None else chess.COLOR_NAMES[winner_color]
 timestamp = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
 
-history.save('{}-{}-{}-{}.json'.format(white_bot_name, black_bot_name, winner, timestamp))
+replay_path = '{}-{}-{}-{}.json'.format(white_bot_name, black_bot_name, winner, timestamp)
+print('Saving replay to {}...'.format(replay_path))
+history.save(replay_path)
