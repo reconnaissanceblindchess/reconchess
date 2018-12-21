@@ -99,13 +99,13 @@ class LocalGame(Game):
         """
         :return: List of all squares on the board.
         """
-        return list(chess.SQUARES)
+        return None if self._is_finished else list(chess.SQUARES)
 
     def move_actions(self) -> List[chess.Move]:
         """
         :return: List of moves that are possible with only knowledge of your pieces
         """
-        return moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board)
+        return None if self._is_finished else moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board)
 
     def opponent_move_results(self) -> Optional[Square]:
         return self.move_results
@@ -128,6 +128,9 @@ class LocalGame(Game):
 
     def move(self, requested_move: Optional[chess.Move]) \
             -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
+            
+        if self._is_finished:
+            return requested_move, None, None
         if requested_move is None:
             # pass move
             taken_move = None
