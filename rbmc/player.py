@@ -175,27 +175,35 @@ class Player(object):
 
 def load_player(source_path: str) -> Tuple[str, Type[Player]]:
     """
-    Loads a subclass of the Player class that is contained in a python source file. There must only be *1* such
-    subclass in the file.
+    Loads a subclass of the Player class that is contained in a python source file or python module.
+    There must only be *1* such subclass in the file or module.
 
     Example: ::
 
         name, cls = load_player('my_player.py')
         player = cls()
 
+    ex.
+        name, cls = load_player('rbmc-random-bot')
+        player = cls()
+
     :param source_path: the path to the source file to load
     :return: Tuple where the first element is the name of the loaded class, and the second element is the class type
     """
-    # get the path to the main source file
-    abs_source_path = os.path.abspath(source_path)
+    if os.path.exists(source_path):
+        # get the path to the main source file
+        abs_source_path = os.path.abspath(source_path)
 
-    # insert the directory of the bot source file into system path so we can import it
-    # note: insert it first so we know we are searching this first
-    sys.path.insert(0, os.path.dirname(abs_source_path))
+        # insert the directory of the bot source file into system path so we can import it
+        # note: insert it first so we know we are searching this first
+        sys.path.insert(0, os.path.dirname(abs_source_path))
 
-    # import_module expects a module name, so remove the extension
-    package_name = os.path.splitext(os.path.basename(abs_source_path))[0]
-    module = importlib.import_module(package_name)
+        # import_module expects a module name, so remove the extension
+        module_name = os.path.splitext(os.path.basename(abs_source_path))[0]
+    else:
+        module_name = source_path
+
+    module = importlib.import_module(module_name)
     players = inspect.getmembers(module, lambda o: inspect.isclass(o) and issubclass(o, Player) and o != Player)
     if len(players) == 0:
         raise RuntimeError('{} did not contain any subclasses of {}'.format(source_path, Player))

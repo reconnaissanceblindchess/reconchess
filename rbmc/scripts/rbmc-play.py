@@ -3,6 +3,7 @@ import argparse
 import random
 import contextlib
 from rbmc import *
+import datetime
 
 # block output from pygame
 with contextlib.redirect_stdout(None):
@@ -156,8 +157,6 @@ class UIPlayer(Player):
         self.window.perspective = color
 
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
-        print('handle_opponent_move_result', captured_my_piece, capture_square)
-
         self.ally_capture_square = capture_square
         self.board.turn = self.color
 
@@ -201,7 +200,7 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> chess.Move:
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
         selected_square = None
         floating_piece = None
 
@@ -243,10 +242,10 @@ class UIPlayer(Player):
                         selected_square = None
                         floating_piece = None
 
-    def handle_move_result(self, requested_move: chess.Move, taken_move: chess.Move, captured_opponent_piece: bool,
-                           capture_square: Optional[Square]):
-        print('handle_move_result', requested_move, taken_move, captured_opponent_piece, capture_square)
-        self.board.push(taken_move)
+    def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
+                           captured_opponent_piece: bool, capture_square: Optional[Square]):
+        if taken_move is not None:
+            self.board.push(taken_move)
 
         self.enemy_capture_square = capture_square
 
@@ -254,10 +253,7 @@ class UIPlayer(Player):
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
-        if winner_color:
-            print('{} won because of {}!'.format(chess.COLOR_NAMES[winner_color], win_reason))
-        else:
-            print('Draw!')
+        pass
 
     def _handle_mouse_up(self, event):
         if event.button == 3 and self.window.mouse_on_board():
@@ -289,12 +285,23 @@ if __name__ == '__main__':
     bot = bot_constructor()
     player = UIPlayer()
 
-    if args.color == 'white':
-        play_local_game(player, bot)
-    elif args.color == 'black':
-        play_local_game(bot, player)
+    players = [player, bot]
+    player_names = ['Human', bot_name]
+    if args.color == 'black' or (args.color == 'random' and random.uniform(0, 1) < 0.5):
+        players.reverse()
+        player_names.reverse()
+
+    winner_color, win_reason, history = play_local_game(players[0], players[1])
+
+    print('Game Over!')
+    if winner_color is not None:
+        print('{} won because of {}!'.format(chess.COLOR_NAMES[winner_color], win_reason))
     else:
-        players = [player, bot]
-        if random.uniform(0, 1) < 0.5:
-            players.reverse()
-        play_local_game(players[0], players[1])
+        print('Draw!')
+
+    winner = 'Draw' if winner_color is None else chess.COLOR_NAMES[winner_color]
+    timestamp = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
+
+    replay_path = '{}-{}-{}-{}.json'.format(player_names[0], player_names[1], winner, timestamp)
+    print('Saving replay to {}...'.format(replay_path))
+    history.save(replay_path)

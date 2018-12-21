@@ -84,11 +84,24 @@ class ReplayWindow:
         self.actions = []
         for turn in history.turns():
             if history.has_sense(turn):
-                self.actions.append(('sense', turn.color, history.sense(turn), history.sense_result(turn),
-                                     history.truth_fen_before_move(turn)))
+                self.actions.append({
+                    'phase': 'sense',
+                    'turn_number': turn.turn_number,
+                    'turn_color': turn.color,
+                    'sense': history.sense(turn),
+                    'sense_result': history.sense_result(turn),
+                    'fen': history.truth_fen_before_move(turn),
+                })
             if history.has_move(turn):
-                self.actions.append(('move', turn.color, history.requested_move(turn), history.taken_move(turn),
-                                     history.capture_square(turn), history.truth_fen_after_move(turn)))
+                self.actions.append({
+                    'phase': 'move',
+                    'turn_number': turn.turn_number,
+                    'turn_color': turn.color,
+                    'requested_move': history.requested_move(turn),
+                    'taken_move': history.taken_move(turn),
+                    'capture_square': history.capture_square(turn),
+                    'fen': history.truth_fen_after_move(turn),
+                })
 
         self.board = chess.Board()
         self.action_index = None
@@ -198,10 +211,10 @@ class ReplayWindow:
         x, y = self.square_to_coords(square)
         return x, y, self.square_size, self.square_size
 
-    def text_coords_below(self, square):
+    def text_coords_below(self, square, horizontal_offset=0.25, vertical_offset=0.375):
         x, y = self.square_to_coords(square)
-        x += 0.25 * self.square_size
-        y += 1.375 * self.square_size
+        x += horizontal_offset * self.square_size
+        y += (1 + vertical_offset) * self.square_size
         return x, y
 
     def update(self):
@@ -221,7 +234,7 @@ class ReplayWindow:
             btn.draw(self.background)
 
         if self.action_index is not None:
-            if self.actions[self.action_index][0] == 'sense':
+            if self.actions[self.action_index]['phase'] == 'sense':
                 self.draw_sense()
             else:
                 self.draw_move()
@@ -238,7 +251,7 @@ class ReplayWindow:
         if self.action_index is None:
             self.board.set_fen(chess.STARTING_FEN)
         else:
-            self.board.set_fen(self.actions[self.action_index][-1])
+            self.board.set_fen(self.actions[self.action_index]['fen'])
 
         for square in chess.SQUARES:
             color = self.LIGHT_COLOR if square in self.LIGHT_SQUARES else self.DARK_COLOR
@@ -250,13 +263,13 @@ class ReplayWindow:
                 self.background.blit(image, self.square_rect(square))
 
     def draw_sense(self):
-        for square, opt_piece in self.actions[self.action_index][3]:
+        for square, opt_piece in self.actions[self.action_index]['sense_result']:
             self.draw_highlight(square, color=self.turn_color())
 
     def draw_move(self):
-        requested_move = self.actions[self.action_index][2]
-        taken_move = self.actions[self.action_index][3]
-        capture_square = self.actions[self.action_index][4]
+        requested_move = self.actions[self.action_index]['requested_move']
+        taken_move = self.actions[self.action_index]['taken_move']
+        capture_square = self.actions[self.action_index]['capture_square']
 
         if requested_move is not None and taken_move is None:
             self.draw_highlight(requested_move.from_square, color=(255, 0, 0))
@@ -268,13 +281,23 @@ class ReplayWindow:
             self.draw_highlight(taken_move.to_square, color=self.turn_color())
 
     def draw_turn_info(self):
-        x, y = self.text_coords_below(chess.A1)
-        turn = '-' if self.action_index is None else self.action_index + 1
-        text = self.font.render('Turn: {} / {}'.format(turn, len(self.actions)), True, (0, 0, 0))
-        self.background.blit(text, (x, y))
+        turn = '-' if self.action_index is None else (self.actions[self.action_index]['turn_number'] + 1)
+        player = '-' if self.action_index is None else chess.COLOR_NAMES[self.actions[self.action_index]['turn_color']]
+
+        text = 'Turn: {} / {}'.format(turn, self.actions[-1]['turn_number'] + 1)
+        text_width, text_height = self.font.size(text)
+        x, y = self.text_coords_below(chess.A1, vertical_offset=0.33)
+        x, y = (x, y - text_height / 2 + .33)
+        self.background.blit(self.font.render(text, True, (0, 0, 0)), (x, y))
+
+        text = 'Player: {}'.format(player)
+        text_width, text_height = self.font.size(text)
+        x, y = self.text_coords_below(chess.A1, vertical_offset=0.66)
+        x, y = (x, y - text_height / 2 + .33)
+        self.background.blit(self.font.render(text, True, (0, 0, 0)), (x, y))
 
     def turn_color(self):
-        return (255, 255, 255) if self.actions[self.action_index][1] else (0, 0, 0)
+        return (255, 255, 255) if self.actions[self.action_index]['turn_color'] else (0, 0, 0)
 
     def draw_highlight(self, square, color=(255, 255, 0)):
         pygame.draw.rect(self.background, color, self.square_rect(square), 3)
