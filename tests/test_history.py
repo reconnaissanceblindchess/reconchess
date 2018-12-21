@@ -1,9 +1,17 @@
 import unittest
 from chess import *
-from rbmc import LocalGame, play_local_game, GameHistory, Turn
-from examples.random_bot import RandomBot
+from rbmc import *
 import tempfile
 import os
+import random
+
+
+class RandomBot(Player):
+    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+        return random.choice(sense_actions)
+
+    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+        return random.choice(move_actions + [None])
 
 
 class TurnEqualityTestCase(unittest.TestCase):
