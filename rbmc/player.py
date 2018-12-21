@@ -183,7 +183,6 @@ def load_player(source_path: str) -> Tuple[str, Type[Player]]:
         name, cls = load_player('my_player.py')
         player = cls()
 
-    ex.
         name, cls = load_player('rbmc-random-bot')
         player = cls()
 
