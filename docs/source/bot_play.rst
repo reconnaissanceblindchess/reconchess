@@ -1,6 +1,32 @@
 Playing games
 =============
 
+Bot vs Bot
+----------
+
+Playing two bots against each other is as easy as playing against your bot, using the built in script :code:`rbmc-bot-match`.
+Similar to :code:`rbmc-play`, :code:`rbmc-bot-match` gets added to your path so you can execute it from the command line.
+It takes two bots and plays them against each other using a :class:`LocalGame`:
+
+.. code-block:: bash
+
+    rbmc-bot-match --help
+    rbmc-bot-match <white bot> <black bot>
+    rbmc-bot-match rbmc.baselines.random src/my_awesome_bot.py
+    rbmc-bot-match rbmc.baselines.random rbmc.baselines.random
+    rbmc-bot-match src/my_okay_bot.py src/my_awesome_bot.py
+
+Use the :code:`--help` flag for more information about the arguments.
+
+PyCharm Run Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you use PyCharm for development, you can create a run configuration to run your bot from PyCharm by targeting
+the :code:`rbmc.scripts.rbmc-bot-match` target:
+
+.. image:: _static/pycharm_bot_match_config.gif
+    :target: _static/pycharm_bot_match_config.gif
+
 Playing against your bot
 ------------------------
 
@@ -62,21 +88,3 @@ of the turn.
 
 .. image:: _static/capture.gif
     :target: _static/capture.gif
-
-
-Bot vs Bot
-----------
-
-Playing two bots against each other is as easy as playing against your bot, using the built in script :code:`rbmc-bot-match`.
-Similar to :code:`rbmc-play`, :code:`rbmc-bot-match` gets added to your path so you can execute it from the command line.
-It takes two bots and plays them against each other using a :class:`LocalGame`:
-
-.. code-block:: bash
-
-    rbmc-bot-match --help
-    rbmc-bot-match <white bot> <black bot>
-    rbmc-bot-match rbmc.baselines.random src/my_awesome_bot.py
-    rbmc-bot-match rbmc.baselines.random rbmc.baselines.random
-    rbmc-bot-match src/my_okay_bot.py src/my_awesome_bot.py
-
-Use the :code:`--help` flag for more information about the arguments.
