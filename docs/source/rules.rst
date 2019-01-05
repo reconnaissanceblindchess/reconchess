@@ -18,7 +18,7 @@ This python package implements a version of the game with the following rules.
 
     b. Sense phase: the player chooses any square on the chessboard to target their sensor.  Then, the true state of the game board in a three square by three square window centered at the chosen square is revealed to the sensing player.
 
-    c. Move phase: the player chooses a chess move, or chooses to "pass." Then, given that move, one of three conditions holds:
+    c. Move phase: the player chooses a chess move, or chooses to "pass."  If the move is a pawn promotion and the player does not specify a piece to promote to, then a queen promotion is assumed. Then, given that move, one of three conditions holds:
 
         i. The move is legal on the game board, or
 
