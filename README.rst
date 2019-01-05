@@ -20,4 +20,6 @@ Installation
 License
 -------
 
-TODO
+Distributed under BSD 3-Clause License, for details see LICENSE file.
+
+
