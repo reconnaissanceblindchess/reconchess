@@ -1,3 +1,30 @@
+General Introduction to Playing Reconnaissance Chess
+====================================================
+
+The overall idea of Reconnaissance Chess is that you play chess without sight of the opponent's pieces, and you gain
+information about the opponent's position
+by sensing.  On your turn, you first pick a part of the board to sense.  Your sensor has a 3 square x 3 square field of
+view, and once you pick where to sense you are shown what the ground truth board position looks like in that 3x3 window.
+Then you select a move, similar to classical chess.
+
+Most of the rules follow classical chess, including piece movements, initial board configuration, en passant capture,
+pawn promotion, castling, etc. However, there are some modifications, many of which are required because
+of the uncertainty in the game.  One major change from classical chess is that in Recon Chess the goal is to simply
+capture the opponent king, there are no notions of checkmate or check.  Also, because the true board position is
+uncertain, you may try to make a move that is actually illegal; this results in either a loss of turn or a modification
+to your requested move.  See the full rules below.
+
+In addition to sensing, there are other sources of information about the true position.  You are always notified about
+where your pieces move (or don't) and when one of your pieces was captured by the opponent (but you are not told the
+piece that did the
+capturing); this information allows you to keep a full accounting of your position.  You are notified if you make
+a capture (but not which piece is captured). And there is also information to be gained about the opponent from moves
+you attempted but where not legal (e.g., attempted pawn captures). It is up to the player to fuse this information
+during the game to form their best representation of the true board state (i.e., a "world model").  It is the job
+of the "game arbiter" to maintain the ground truth board position, control the game flow, and notify each player about
+any information they have gained through sensing, moving, or captures.
+
+
 Rules of Reconnaissance Chess
 =============================
 
@@ -16,9 +43,9 @@ This python package implements a version of the game with the following rules.
 
     a. Turn Start phase: the player's turn begins, and if the opponent captured a piece on their turn, the current player is given the capture square (thus the current player also knows which piece was captured).
 
-    b. Sense phase: the player chooses any square on the chessboard to target their sensor.  Then, the true state of the game board in a three square by three square window centered at the chosen square is revealed to the sensing player.
+    b. Sense phase: the player chooses any square on the chessboard to target their sensor.  Then, the true state of the game board in a three square by three square window centered at the chosen square is revealed to the sensing player.  This includes showing all pieces and empty squares in the 3x3 window.
 
-    c. Move phase: the player chooses a chess move, or chooses to "pass."  If the move is a pawn promotion and the player does not specify a piece to promote to, then a queen promotion is assumed. Then, given that move, one of three conditions holds:
+    c. Move phase: the player chooses any chess move, or chooses to "pass."  If the move is a pawn promotion and the player does not specify a piece to promote to, then a queen promotion is assumed. Then, given that move, one of three conditions holds:
 
         i. The move is legal on the game board.
 
@@ -26,10 +53,10 @@ This python package implements a version of the game with the following rules.
 
         iii. The moving piece is a pawn, moving two squares forward on that pawn's first move, and the move is illegal because an opponent's piece blocks the path of the pawn.  Then, the move is modified so that the pawn moves only one square if that modified move is legal, otherwise the player's move is illegal.
 
-        iv. If any of (i)-(iii) do not hold, the move is considered illegal (or the player chose to pass).
+        iv. If any of (i)-(iii) do not hold, the move is considered illegal (or the player chose to pass which has the same result).
 
        The results of the move are then determined: if condition (iv) holds, then no changes are made to the board, the player is notified that their move choice was illegal (or the pass is acknowledged), and the player's turn is over.  Otherwise the move is made on the game board.  If the move was modified because of (ii) or (iii), then the modified move is made, and the current player is notified of the modified move in the move results.  If the move results in a capture, the current player is notified that they captured a piece and which square the capture occurred, but not the type of opponent piece captured (the opponent will be notified of the capture square on their turn start phase).  If the move captures the opponent's king, the game ends and both players are notified.  The current player's turn is now over and play proceeds to the opponent.
 
 6. The only information revealed to either player about the game or opponent actions is that explicitly stated in (5).
 
-7. The game can also be played with a chess clock, in which case the player is notified of their remaining clock time, but not their opponent's remaining clock time.  Both players are notified if either player loses on timee.
+7. The game can also be played with a chess clock, in which case the player is notified of their remaining clock time, but not their opponent's remaining clock time.  Both players are notified if either player loses on time.
