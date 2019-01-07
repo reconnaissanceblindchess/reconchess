@@ -5,58 +5,129 @@ from .history import GameHistory
 
 
 class Game(object):
+    """
+    Abstract class that represents an instantiation of an rbmc Game. See :class:`LocalGame` and :class:`RemoteGame`
+    for implementations.
+    """
+
     @abstractmethod
     def sense_actions(self) -> List[Square]:
+        """
+        :return: List of :class:`Square` that the player can choose for sense phase.
+        """
         pass
 
     @abstractmethod
     def move_actions(self) -> List[chess.Move]:
+        """
+        :return: List of :class:`chess.Move` that the player can choose for move phase.
+        """
         pass
 
     @abstractmethod
     def get_seconds_left(self) -> float:
+        """
+        :return: float indicating the seconds the player has left to play.
+        """
         pass
 
     @abstractmethod
     def start(self):
+        """
+        Starts the game and the timers for each player.
+        """
         pass
 
     @abstractmethod
     def opponent_move_results(self) -> Optional[Square]:
+        """
+        :return: :class:`Square` where opponent captured a piece last turn if they did, otherwise `None`.
+        """
         pass
 
     @abstractmethod
     def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
+        """
+        Execute a sense action and get the sense result.
+
+        An example result returned from sensing `B7` at the beginning of the game: ::
+
+            [
+                (A8, Piece(ROOK, BLACK)), (B8, Piece(KNIGHT, BLACK)), (C8, Piece(BISHOP, BLACK)),
+                (A7, Piece(PAWN, BLACK)), (B7, Piece(PAWN, BLACK)), (C7, Piece(PAWN, BLACK)),
+                (A6, None), (B6, None), (C8, None)
+            ]
+
+        :param square: The :class:`Square` to sense.
+        :return: A list of tuples, where each tuple contains a :class:`Square` in the sense, and if there was a piece
+            on the square, then the corresponding :class:`chess.Piece`, otherwise `None`.
+        """
         pass
 
     @abstractmethod
     def move(self, requested_move: Optional[chess.Move]) \
             -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
+        """
+        Execute a move action and get the result.
+
+        :param requested_move: The :class:`chess.Move` to execute.
+        :return: A tuple containing the requested :class:`chess.Move`, the taken :class:`chess.Move`,
+            and the :class:`Square` that a capture occurred on if one occurred.
+        """
         pass
 
     @abstractmethod
     def end_turn(self):
+        """
+        End the current player's turn.
+        """
         pass
 
     @abstractmethod
     def is_over(self) -> bool:
+        """
+        The game is over if either player has run out of time, or if either player's King has been captured.
+
+        This will always return `True` after :meth:`end()` has been called.
+
+        :return: Returns `True` if the game is over, otherwise `False`.
+        """
         pass
 
     @abstractmethod
     def get_winner_color(self) -> Optional[Color]:
+        """
+        Returns the color of the player who won the game. If the game is not over, or is over but does not have a winner
+        (i.e. :meth:`end()` has been called), then this will return `None`.
+
+        :return: :class:`Color` of the winner if the game has ended and has a winner, otherwise `None`.
+        """
         pass
 
     @abstractmethod
     def get_win_reason(self) -> Optional[WinReason]:
+        """
+        Returns the reason the player who won won the game. If the game is not over, or is over but does not have a
+        winner (i.e. :meth:`end()` has been called), then this will return `None`.
+
+        :return: :class:`WinReason` of the winner if the game has ended and has a winner, otherwise `None`.
+        """
         pass
 
     @abstractmethod
     def get_game_history(self) -> Optional[GameHistory]:
+        """
+        Get the history of the game.
+
+        :return: :class:`GameHistory` if the game is over, otherwise `None`.
+        """
         pass
 
 
 class LocalGame(Game):
-    """Would implement all logic and use a chess.Board() object as the truth board"""
+    """
+    The local implementation of :class:`Game`. Used to run games locally instead of remotely via a server.
+    """
 
     def __init__(self, seconds_per_player: float = 900):
         self.turn = chess.WHITE
@@ -71,6 +142,7 @@ class LocalGame(Game):
     def start(self):
         """
         Starts off the clock for the first player.
+
         :return: None.
         """
         self.current_turn_start_time = datetime.now()
@@ -221,7 +293,12 @@ class LocalGame(Game):
 
 
 class RemoteGame(Game):
-    """A pass through object, would implement the methods as making a request to the game server"""
+    """
+    The remote implementation of :class:`Game`. Used to play games remotely via a server.
+
+    All the methods implemented are pass-throughs to the server. Each method submits a HTTP request to the corresponding
+    end point on the server.
+    """
 
     def __init__(self, game_id):
         super().__init__()
