@@ -7,6 +7,7 @@ Contents
     :maxdepth: 2
 
     rules
+    quick_start
     bot_create
     bot_play
     bot_replay
