@@ -7,11 +7,11 @@ After installation you can run all unit tests:
 
     python -m unittest discover tests
 
-After adding the rbmc/scripts directory to your path, you can also run a test game between two of the baseline bots:
+You can also run a test game between two of the baseline bots:
 
 ::
 
-    rbmc-bot-match.py rbmc.baselines.random rbmc.baselines.random
+    rbmc-bot-match rbmc.baselines.random rbmc.baselines.random
 
 Then replay the game:
 
