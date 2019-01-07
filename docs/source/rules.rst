@@ -17,11 +17,12 @@ to your requested move.  See the full rules below.
 In addition to sensing, there are other sources of information about the true position.  You are always notified about
 where your pieces move (or don't) and when one of your pieces was captured by the opponent (but you are not told the
 piece that did the
-capturing); this information allows you to keep a full accounting of your position.  You are notified if you make
+capturing); this information allows you to keep track of the true position of your own pieces.  You are notified if you make
 a capture (but not which piece is captured). And there is also information to be gained about the opponent from moves
 you attempted but where not legal (e.g., attempted pawn captures). It is up to the player to fuse this information
 during the game to form their best representation of the true board state (i.e., a "world model").  It is the job
-of the "game arbiter" to maintain the ground truth board position, control the game flow, and notify each player about
+of the "game arbiter" (implemented as part of this python package) to maintain the ground truth board position, control
+the game flow, and notify each player about
 any information they have gained through sensing, moving, or captures.
 
 
