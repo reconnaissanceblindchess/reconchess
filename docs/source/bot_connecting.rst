@@ -1,4 +1,4 @@
 Connecting your bot to the server
 =================================
 
-TODO detail reconchess-connect
+TODO detail rc-connect

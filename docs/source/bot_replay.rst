@@ -1,18 +1,18 @@
 Replaying games
 ===============
 
-You can replay a game that was already played using the built in script :code:`reconchess-replay`. When you install the
-python-reconchess package, the reconchess-play script gets added to your path so you can run it like an executable.
-:code:`reconchess-replay` expects an argument that points to a saved game history file, which will be a JSON file.
-:code:`reconchess-play` and :code:`reconchess-bot-match` automatically save a game history file in the directory where they are run,
-so you can use those files as input to :code:`reconchess-replay`. See :meth:`reconchess.Player.handle_game_end` for using the
+You can replay a game that was already played using the built in script :code:`rc-replay`. When you install the
+reconchess package, the rc-play script gets added to your path so you can run it like an executable.
+:code:`rc-replay` expects an argument that points to a saved game history file, which will be a JSON file.
+:code:`rc-play` and :code:`rc-bot-match` automatically save a game history file in the directory where they are run,
+so you can use those files as input to :code:`rc-replay`. See :meth:`reconchess.Player.handle_game_end` for using the
 game history object and :meth:`reconchess.GameHistory.save` for saving it.
 
 .. code-block:: bash
 
-    reconchess-replay --help
-    reconchess-replay <path to saved game history file>
-    reconchess-replay crazy_game.json
+    rc-replay --help
+    rc-replay <path to saved game history file>
+    rc-replay crazy_game.json
 
 Use the :code:`--help` flag for more information about the arguments.
 

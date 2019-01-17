@@ -1,7 +1,7 @@
 Creating a bot
 ==============
 
-To create a python-reconchess bot, extend the :class:`reconchess.Player` base class and implement the abstract methods that it has. In
+To create a reconchess bot, extend the :class:`reconchess.Player` base class and implement the abstract methods that it has. In
 order to use the reconchess scripts, the main python file you pass into the scripts must contain exactly 1 sub class of
 :class:`reconchess.Player`.
 
