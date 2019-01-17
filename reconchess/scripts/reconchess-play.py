@@ -2,7 +2,7 @@ import pkg_resources
 import argparse
 import random
 import contextlib
-from rbmc import *
+from reconchess import *
 import datetime
 
 # block output from pygame
@@ -32,7 +32,7 @@ class Window:
                 piece = chess.Piece(piece_type, color)
 
                 img_path = 'res/{}/{}.png'.format(chess.COLOR_NAMES[color], piece.symbol())
-                full_path = pkg_resources.resource_filename('rbmc', img_path)
+                full_path = pkg_resources.resource_filename('reconchess', img_path)
 
                 img = pygame.image.load(full_path)
                 img = pygame.transform.scale(img, (self.square_size, self.square_size))

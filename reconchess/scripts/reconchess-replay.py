@@ -2,7 +2,7 @@ import pkg_resources
 import argparse
 import contextlib
 import chess
-from rbmc import GameHistory
+from reconchess import GameHistory
 
 # block output from pygame
 with contextlib.redirect_stdout(None):
@@ -117,7 +117,7 @@ class ReplayWindow:
                 piece = chess.Piece(piece_type, color)
 
                 img_path = 'res/{}/{}.png'.format(chess.COLOR_NAMES[color], piece.symbol())
-                full_path = pkg_resources.resource_filename('rbmc', img_path)
+                full_path = pkg_resources.resource_filename('reconchess', img_path)
 
                 img = pygame.image.load(full_path)
                 img = pygame.transform.scale(img, (self.square_size, self.square_size))

@@ -11,18 +11,18 @@ You can also run a test game between two of the baseline bots:
 
 ::
 
-    rbmc-bot-match rbmc.baselines.random rbmc.baselines.random
+    reconchess-bot-match reconchess.baselines.random reconchess.baselines.random
 
 Then replay the game:
 
 ::
 
-    rbmc-replay <game-output-json-file>
+    reconchess-replay <game-output-json-file>
 
 Or, play against a bot yourself:
 
 ::
 
-    rbmc-play rbmc.baselines.random
+    reconchess-play reconchess.baselines.random
 
 Now you are ready to make your own bot algorithm to play Reconnaissance Chess.

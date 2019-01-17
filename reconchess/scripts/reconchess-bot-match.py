@@ -1,7 +1,7 @@
 import argparse
 import datetime
 import chess
-from rbmc import load_player, play_local_game
+from reconchess import load_player, play_local_game
 
 parser = argparse.ArgumentParser()
 parser.add_argument('white_bot_path', help='path to white bot source file')

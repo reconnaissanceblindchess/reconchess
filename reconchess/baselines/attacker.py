@@ -1,5 +1,5 @@
 import random
-from rbmc import *
+from reconchess import *
 
 # move sequences from white's perspective, flipped at runtime if playing as black
 QUICK_ATTACKS = [
