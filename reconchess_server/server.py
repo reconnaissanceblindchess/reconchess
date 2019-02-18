@@ -1,5 +1,5 @@
 from flask import Flask, request
-from rbmc import Game
+from reconchess import Game
 
 app = Flask(__name__)
 

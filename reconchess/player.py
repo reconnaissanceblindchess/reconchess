@@ -183,7 +183,7 @@ def load_player(source_path: str) -> Tuple[str, Type[Player]]:
         name, cls = load_player('my_player.py')
         player = cls()
 
-        name, cls = load_player('rbmc-random-bot')
+        name, cls = load_player('reconchess.baselines.random')
         player = cls()
 
     :param source_path: the path to the source file to load

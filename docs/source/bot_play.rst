@@ -4,17 +4,17 @@ Playing games
 Bot vs Bot
 ----------
 
-Playing two bots against each other is as easy as playing against your bot, using the built in script :code:`rbmc-bot-match`.
-Similar to :code:`rbmc-play`, :code:`rbmc-bot-match` gets added to your path so you can execute it from the command line.
+Playing two bots against each other is as easy as playing against your bot, using the built in script :code:`rc-bot-match`.
+Similar to :code:`rc-play`, :code:`rc-bot-match` gets added to your path so you can execute it from the command line.
 It takes two bots and plays them against each other using a :class:`LocalGame`:
 
 .. code-block:: bash
 
-    rbmc-bot-match --help
-    rbmc-bot-match <white bot> <black bot>
-    rbmc-bot-match rbmc.baselines.random src/my_awesome_bot.py
-    rbmc-bot-match rbmc.baselines.random rbmc.baselines.random
-    rbmc-bot-match src/my_okay_bot.py src/my_awesome_bot.py
+    rc-bot-match --help
+    rc-bot-match <white bot> <black bot>
+    rc-bot-match reconchess.baselines.random src/my_awesome_bot.py
+    rc-bot-match reconchess.baselines.random reconchess.baselines.random
+    rc-bot-match src/my_okay_bot.py src/my_awesome_bot.py
 
 Use the :code:`--help` flag for more information about the arguments.
 
@@ -22,7 +22,7 @@ PyCharm Run Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you use PyCharm for development, you can create a run configuration to run your bot from PyCharm by targeting
-the :code:`rbmc.scripts.rbmc-bot-match` target:
+the :code:`reconchess.scripts.rc-bot-match` target:
 
 .. image:: _static/pycharm_bot_match_config.gif
     :target: _static/pycharm_bot_match_config.gif
@@ -30,22 +30,22 @@ the :code:`rbmc.scripts.rbmc-bot-match` target:
 Playing against your bot
 ------------------------
 
-Playing against your bot is very easy with the built in script :code:`rbmc-play`. When you install the python-rbmc package,
-the rbmc-play script gets added to your path so you can run it like an executable. :code:`rbmc-play` expects an argument
-that will point it to the bot to play against. It uses :func:`rbmc.load_player` to load the bot, so it can accept
+Playing against your bot is very easy with the built in script :code:`rc-play`. When you install the reconchess package,
+the rc-play script gets added to your path so you can run it like an executable. :code:`rc-play` expects an argument
+that will point it to the bot to play against. It uses :func:`reconchess.load_player` to load the bot, so it can accept
 either a path to a python source file, or a python module name. To play against one of your own bots you will use
 a path to the source file.
 
-In either case, rbmc-play will create an instance of the provided bot, and a :class:`rbmc.LocalGame`. It will then open
-up a window using PyGame that you can play against the bot with. rbmc-play handles running the :class:`rbmc.LocalGame`,
+In either case, rc-play will create an instance of the provided bot, and a :class:`reconchess.LocalGame`. It will then open
+up a window using PyGame that you can play against the bot with. rc-play handles running the :class:`reconchess.LocalGame`,
 and interfacing your actions with the game.
 
 .. code-block:: bash
 
-    rbmc-play --help
-    rbmc-play <path to bot source file or bot module>
-    rbmc-play rbmc.baselines.random
-    rbmc-play src/my_awesome_bot.py
+    rc-play --help
+    rc-play <path to bot source file or bot module>
+    rc-play reconchess.baselines.random
+    rc-play src/my_awesome_bot.py
 
 Use the :code:`--help` flag for more information about the arguments.
 

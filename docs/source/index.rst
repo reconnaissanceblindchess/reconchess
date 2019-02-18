@@ -13,7 +13,7 @@ Contents
     bot_replay
     bot_debug
     bot_connecting
-    rbmc
+    reconchess
 
 Indices and tables
 ==================

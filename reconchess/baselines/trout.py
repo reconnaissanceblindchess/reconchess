@@ -1,6 +1,6 @@
 import chess.uci
 import random
-from rbmc import *
+from reconchess import *
 
 
 class TroutBot(Player):

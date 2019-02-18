@@ -1,4 +1,4 @@
-python-rbmc: python package for Reconnaissance Chess
+reconchess: python package for Reconnaissance Chess
 ====================================================
 
 Introduction
@@ -15,7 +15,7 @@ Installation
 
 ::
 
-    pip install python-rbmc
+    pip install reconchess
 
 License
 -------

@@ -1,5 +1,5 @@
 import unittest
-from rbmc import *
+from reconchess import *
 from chess import *
 import random
 

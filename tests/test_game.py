@@ -1,5 +1,5 @@
 import unittest
-from rbmc import LocalGame, WinReason
+from reconchess import LocalGame, WinReason
 from chess import *
 import time
 import random

@@ -1,6 +1,6 @@
 import unittest
 from chess import *
-from rbmc import *
+from reconchess import *
 import tempfile
 import os
 import random

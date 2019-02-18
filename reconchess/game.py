@@ -6,7 +6,8 @@ from .history import GameHistory
 
 class Game(object):
     """
-    Abstract class that represents an instantiation of an rbmc Game. See :class:`LocalGame` and :class:`RemoteGame`
+    Abstract class that represents an instantiation of a Reconnaissance Chess Game. See :class:`LocalGame`
+    and :class:`RemoteGame`
     for implementations.
     """
 

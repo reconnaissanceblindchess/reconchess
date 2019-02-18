@@ -1,5 +1,5 @@
 import random
-from rbmc import *
+from reconchess import *
 
 
 class RandomBot(Player):

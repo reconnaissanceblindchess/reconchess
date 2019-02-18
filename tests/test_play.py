@@ -1,7 +1,7 @@
 import unittest
 from chess import *
 from collections import defaultdict
-from rbmc import *
+from reconchess import *
 import random
 
 

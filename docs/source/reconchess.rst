@@ -1,10 +1,10 @@
-python-rbmc API
+reconchess API
 ===============
 
 Types
 -----
 
-.. py:class:: rbmc.Square
+.. py:class:: reconchess.Square
 
     A type alias for an integer.
 
@@ -12,7 +12,7 @@ Types
 
     See :data:`chess.SQUARES` for referencing all squares.
 
-.. py:class:: rbmc.Color
+.. py:class:: reconchess.Color
 
     A type alias for a boolean.
 
@@ -22,7 +22,7 @@ Types
 
     :data:`chess.BLACK` = False
 
-.. py:class:: rbmc.PieceType
+.. py:class:: reconchess.PieceType
 
     A type alias for an integer.
 
@@ -31,47 +31,47 @@ Types
 
     See :data:`chess.PIECE_TYPES` for referencing all piece types.
 
-.. autoclass:: rbmc.WinReason
+.. autoclass:: reconchess.WinReason
     :members:
 
 Player
 ------
 
-.. autoclass:: rbmc.Player
+.. autoclass:: reconchess.Player
     :members:
 
-.. autofunction:: rbmc.load_player
+.. autofunction:: reconchess.load_player
 
 Game
 ----
 
-.. autoclass:: rbmc.Game
+.. autoclass:: reconchess.Game
     :members:
 
-.. autoclass:: rbmc.LocalGame
+.. autoclass:: reconchess.LocalGame
 
-.. autoclass:: rbmc.RemoteGame
+.. autoclass:: reconchess.RemoteGame
 
 GameHistory
 -----------
 
-.. autoclass:: rbmc.Turn
+.. autoclass:: reconchess.Turn
     :members:
 
-.. autoclass:: rbmc.GameHistory
+.. autoclass:: reconchess.GameHistory
     :members:
 
 Functions for playing games
 ---------------------------
 
-.. autofunction:: rbmc.play_local_game
+.. autofunction:: reconchess.play_local_game
 
-.. autofunction:: rbmc.play_remote_game
+.. autofunction:: reconchess.play_remote_game
 
-.. autofunction:: rbmc.play_turn
+.. autofunction:: reconchess.play_turn
 
-.. autofunction:: rbmc.notify_opponent_move_results
+.. autofunction:: reconchess.notify_opponent_move_results
 
-.. autofunction:: rbmc.play_sense
+.. autofunction:: reconchess.play_sense
 
-.. autofunction:: rbmc.play_move
+.. autofunction:: reconchess.play_move
