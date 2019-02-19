@@ -35,6 +35,20 @@ class TurnEqualityTestCase(unittest.TestCase):
         self.assertFalse(Turn(WHITE, 5) > Turn(WHITE, 6))
         self.assertFalse(Turn(WHITE, 5) > Turn(BLACK, 6))
 
+    def test_equality_order(self):
+        self.assertTrue(Turn(WHITE, 5) <= Turn(BLACK, 5))
+        self.assertFalse(Turn(WHITE, 5) <= Turn(BLACK, 4))
+        self.assertTrue(Turn(WHITE, 5) <= Turn(WHITE, 6))
+        self.assertTrue(Turn(WHITE, 5) <= Turn(BLACK, 6))
+
+        self.assertTrue(Turn(WHITE, 5) >= Turn(BLACK, 4))
+        self.assertFalse(Turn(WHITE, 5) >= Turn(BLACK, 5))
+        self.assertFalse(Turn(WHITE, 5) >= Turn(WHITE, 6))
+        self.assertFalse(Turn(WHITE, 5) >= Turn(BLACK, 6))
+
+        self.assertTrue(Turn(WHITE, 5) >= Turn(WHITE, 5))
+        self.assertTrue(Turn(BLACK, 5) >= Turn(BLACK, 5))
+
 
 class TurnNeighborsTestCase(unittest.TestCase):
     def test_next(self):
@@ -57,6 +71,9 @@ class HistoryEmptyTurnsTestCase(unittest.TestCase):
         self.assertEqual(list(self.history.turns()), [])
         self.assertEqual(list(self.history.turns(WHITE)), [])
         self.assertEqual(list(self.history.turns(BLACK)), [])
+        self.assertEqual(list(self.history.turns(start=1)), [])
+        self.assertEqual(list(self.history.turns(stop=5)), [])
+        self.assertEqual(list(self.history.turns(start=1, stop=5)), [])
 
     def test_empty_num_turns(self):
         self.assertEqual(self.history.num_turns(), 0)
@@ -232,6 +249,85 @@ class HistoryTurnsTestCase(unittest.TestCase):
             Turn(BLACK, 1),
             Turn(BLACK, 2),
             Turn(BLACK, 3),
+        ])
+
+    def test_turns_range(self):
+        self.assertEqual(list(self.history.turns(start=1)), [
+            Turn(WHITE, 1), Turn(BLACK, 1),
+            Turn(WHITE, 2), Turn(BLACK, 2),
+            Turn(WHITE, 3)
+        ])
+
+        self.assertEqual(list(self.history.turns(stop=2)), [
+            Turn(WHITE, 0), Turn(BLACK, 0),
+            Turn(WHITE, 1), Turn(BLACK, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(start=1, stop=2)), [
+            Turn(WHITE, 1), Turn(BLACK, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(start=1, stop=5)), [
+            Turn(WHITE, 1), Turn(BLACK, 1),
+            Turn(WHITE, 2), Turn(BLACK, 2),
+            Turn(WHITE, 3)
+        ])
+
+        self.assertEqual(list(self.history.turns(start=1, stop=3)), [
+            Turn(WHITE, 1), Turn(BLACK, 1),
+            Turn(WHITE, 2), Turn(BLACK, 2),
+        ])
+
+    def test_turns_range_white(self):
+        self.assertEqual(list(self.history.turns(WHITE, start=1)), [
+            Turn(WHITE, 1),
+            Turn(WHITE, 2),
+            Turn(WHITE, 3)
+        ])
+
+        self.assertEqual(list(self.history.turns(WHITE, stop=2)), [
+            Turn(WHITE, 0),
+            Turn(WHITE, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(WHITE, start=1, stop=2)), [
+            Turn(WHITE, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(WHITE, start=1, stop=5)), [
+            Turn(WHITE, 1),
+            Turn(WHITE, 2),
+            Turn(WHITE, 3)
+        ])
+
+        self.assertEqual(list(self.history.turns(WHITE, start=1, stop=3)), [
+            Turn(WHITE, 1),
+            Turn(WHITE, 2),
+        ])
+
+    def test_turns_range_black(self):
+        self.assertEqual(list(self.history.turns(BLACK, start=1)), [
+            Turn(BLACK, 1),
+            Turn(BLACK, 2),
+        ])
+
+        self.assertEqual(list(self.history.turns(BLACK, stop=2)), [
+            Turn(BLACK, 0),
+            Turn(BLACK, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(BLACK, start=1, stop=2)), [
+            Turn(BLACK, 1),
+        ])
+
+        self.assertEqual(list(self.history.turns(BLACK, start=1, stop=5)), [
+            Turn(BLACK, 1),
+            Turn(BLACK, 2),
+        ])
+
+        self.assertEqual(list(self.history.turns(BLACK, start=1, stop=3)), [
+            Turn(BLACK, 1),
+            Turn(BLACK, 2),
         ])
 
     def test_num_turns(self):
