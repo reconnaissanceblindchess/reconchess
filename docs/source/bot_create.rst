@@ -11,7 +11,7 @@ Example bot: Random bot
 The random bot takes random actions each turn, for both sensing and moving. It only really implements the
 :meth:`reconchess.Player.choose_sense` and :meth:`reconchess.Player.choose_move` methods.
 
-.. literalinclude:: ../../reconchess/baselines/random.py
+.. literalinclude:: ../../reconchess/bots/random_bot.py
 
 
 Example bot: Trout bot
@@ -21,4 +21,4 @@ The trout bot is a baseline that you can test your bot against. It keeps track o
 and uses the `Stockfish <https://stockfishchess.org/>`_ engine to make a move. When it gets information back from the game,
 it naively applies that information to its :class:`chess.Board`.
 
-.. literalinclude:: ../../reconchess/baselines/trout.py
+.. literalinclude:: ../../reconchess/bots/trout_bot.py

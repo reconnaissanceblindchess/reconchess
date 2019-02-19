@@ -6,7 +6,7 @@ with open('requirements.txt') as fp:
 setuptools.setup(
     name='reconchess',
     version='0.1',
-    packages=['reconchess', 'reconchess_server', 'reconchess.scripts', 'reconchess.baselines'],
+    packages=['reconchess', 'reconchess_server', 'reconchess.scripts', 'reconchess.bots'],
     package_data={'reconchess': ['res/white/*.png', 'res/black/*.png']},
     scripts=[
         'reconchess/scripts/rc-bot-match.py',
