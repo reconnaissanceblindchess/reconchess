@@ -11,7 +11,7 @@ You can also run a test game between two of the baseline bots:
 
 ::
 
-    rc-bot-match reconchess.baselines.random reconchess.baselines.random
+    rc-bot-match reconchess.bots.random_bot reconchess.bots.random_bot
 
 Then replay the game:
 
@@ -23,6 +23,6 @@ Or, play against a bot yourself:
 
 ::
 
-    rc-play reconchess.baselines.random
+    rc-play reconchess.bots.random_bot
 
 Now you are ready to make your own bot algorithm to play Reconnaissance Chess.

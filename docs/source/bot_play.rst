@@ -12,8 +12,8 @@ It takes two bots and plays them against each other using a :class:`LocalGame`:
 
     rc-bot-match --help
     rc-bot-match <white bot> <black bot>
-    rc-bot-match reconchess.baselines.random src/my_awesome_bot.py
-    rc-bot-match reconchess.baselines.random reconchess.baselines.random
+    rc-bot-match reconchess.bots.random_bot src/my_awesome_bot.py
+    rc-bot-match reconchess.bots.random_bot reconchess.bots.random_bot
     rc-bot-match src/my_okay_bot.py src/my_awesome_bot.py
 
 Use the :code:`--help` flag for more information about the arguments.
@@ -44,7 +44,7 @@ and interfacing your actions with the game.
 
     rc-play --help
     rc-play <path to bot source file or bot module>
-    rc-play reconchess.baselines.random
+    rc-play reconchess.bots.random_bot
     rc-play src/my_awesome_bot.py
 
 Use the :code:`--help` flag for more information about the arguments.
