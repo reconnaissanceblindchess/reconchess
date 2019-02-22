@@ -2,6 +2,7 @@ import chess
 from .types import *
 from typing import Callable, TypeVar, Iterable, Mapping
 import json
+import math
 
 T = TypeVar('T')
 
@@ -46,6 +47,12 @@ class Turn(object):
             return False
         else:
             return self.color == chess.WHITE and other.color == chess.BLACK
+
+    def __le__(self, other):
+        if not isinstance(other, Turn):
+            return NotImplemented
+
+        return self == other or self < other
 
     def __str__(self):
         return 'Turn({}, {})'.format(chess.COLOR_NAMES[self.color], self.turn_number)
@@ -194,7 +201,7 @@ class GameHistory(object):
         """
         return len(list(self.turns(color=color)))
 
-    def turns(self, color: Color = None) -> Iterable[Turn]:
+    def turns(self, color: Color = None, start=0, stop=math.inf) -> Iterable[Turn]:
         """
         Get all the turns that happened in the game in order. Optionally specify a single player to get only that
         player's turns.
@@ -209,19 +216,33 @@ class GameHistory(object):
             >>> list(history.turns(BLACK))
             [Turn(BLACK, 0), Turn(BLACK, 1), ..., Turn(BLACK, 23)]
 
+            >>> list(history.turns(start=1))
+            [Turn(WHITE, 1), Turn(BLACK, 1), Turn(WHITE, 2), ..., Turn(BLACK, 23)]
+
+            >>> list(history.turns(stop=2))
+            [Turn(WHITE, 0), Turn(BLACK, 0), Turn(WHITE, 1), Turn(BLACK, 1)]
+
+            >>> list(history.turns(WHITE, stop=2))
+            [Turn(WHITE, 0), Turn(WHITE, 1)]
+
+            >>> list(history.turns(start=1, stop=2))
+            [Turn(WHITE, 1), Turn(BLACK, 1)]
+
         :param color: Optional player color indicating which player's turns to return.
+        :param start: Optional starting turn number.
+        :param stop: Optional stopping turn number.
         :return: An iterable of :class:`Turn` objects that are in the same order as they occurred in the game. If
             `color` is specified, gets the turns only for that player.
         """
         if self.is_empty():
             return
 
-        turn = Turn(color if color is not None else chess.WHITE, 0)
-        while True:
+        turn = Turn(color if color is not None else chess.WHITE, start)
+        stop_turn = Turn(color if color is not None else chess.WHITE, stop)
+        last_turn = self.last_turn()
+        while turn <= last_turn and turn < stop_turn:
             if color is None or turn.color == color:
                 yield turn
-            if self.is_last_turn(turn):
-                return
             turn = turn.next
 
     def is_first_turn(self, turn: Turn):
