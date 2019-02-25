@@ -38,13 +38,13 @@ class AttackerBot(Player):
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
         pass
 
-    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
         return random.choice(sense_actions)
 
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         pass
 
-    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         while len(self.move_sequence) > 0 and self.move_sequence[0] not in move_actions:
             self.move_sequence.pop(0)
 

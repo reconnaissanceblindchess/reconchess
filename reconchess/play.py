@@ -108,7 +108,7 @@ def play_sense(game: Game, player: Player, sense_actions: List[Square], move_act
     :param sense_actions: The possible sense actions for `player`.
     :param move_actions: The possible move actions for `player`.
     """
-    sense = player.choose_sense(game.get_seconds_left(), sense_actions, move_actions)
+    sense = player.choose_sense(sense_actions, move_actions, game.get_seconds_left())
     sense_result = game.sense(sense)
     player.handle_sense_result(sense_result)
 
@@ -125,7 +125,7 @@ def play_move(game: Game, player: Player, move_actions: List[chess.Move]):
     :param player: The :class:`Player` whose turn it is.
     :param move_actions: The possible move actions for `player`.
     """
-    move = player.choose_move(game.get_seconds_left(), move_actions)
+    move = player.choose_move(move_actions, game.get_seconds_left())
     requested_move, taken_move, opt_enemy_capture_square = game.move(move)
     player.handle_move_result(requested_move, taken_move,
                               opt_enemy_capture_square is not None, opt_enemy_capture_square)

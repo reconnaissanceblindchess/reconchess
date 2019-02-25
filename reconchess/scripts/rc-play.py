@@ -165,7 +165,7 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
         while True:
             if self.window.mouse_on_board():
                 square = self.window.coords_to_square(*pygame.mouse.get_pos())
@@ -200,7 +200,7 @@ class UIPlayer(Player):
 
         self.window.draw(self.board, capture_squares=[self.enemy_capture_square, self.ally_capture_square])
 
-    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         selected_square = None
         floating_piece = None
 

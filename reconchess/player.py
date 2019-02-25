@@ -62,7 +62,7 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
         """
         The method to implement your sensing strategy. The chosen sensing action should be returned from this function.
         I.e. the value returned is the square at the center of the 3x3 sensing area you want to sense. The returned
@@ -74,13 +74,12 @@ class Player(object):
 
         Example implementation: ::
 
-            def choose_sense(self, seconds_left: float, sense_actions: List[Square],
-                             move_actions: List[chess.Move]) -> Square:
+            def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
                 return random.choice(sense_actions)
 
-        :param seconds_left: The time in seconds you have left to use in the game.
         :param sense_actions: A :class:`list` containing the valid squares to sense over.
         :param move_actions: A :class:`list` containing the valid moves that can be returned in :meth:`choose_move()`.
+        :param seconds_left: The time in seconds you have left to use in the game.
         :return: a :class:`Square` that is the center of the 3x3 sensing area you want to get information about.
         """
         pass
@@ -107,7 +106,7 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         """
         The method to implement your movement strategy. The chosen movement action should be returned from this function.
         I.e. the value returned is the move to make. The returned move must be one of the moves in the `move_actions`
@@ -119,11 +118,11 @@ class Player(object):
 
         Example implementation: ::
 
-            def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+            def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
                 return random.choice(move_actions)
 
-        :param seconds_left: The time in seconds you have left to use in the game.
         :param move_actions: A `list` containing the valid :class:`chess.Move` you can choose.
+        :param seconds_left: The time in seconds you have left to use in the game.
         :return: The :class:`chess.Move` to make.
         """
         pass

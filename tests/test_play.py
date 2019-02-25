@@ -82,7 +82,7 @@ class TestPlayer(Player):
         self.params_by_function['handle_opponent_move_result'].append(clean_locals(locals()))
         self.call_order.append('handle_opponent_move_result')
 
-    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[Move]) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[Move], seconds_left: float) -> Square:
         self.params_by_function['choose_sense'].append(clean_locals(locals()))
         self.call_order.append('choose_sense')
         if len(self.senses) > 0:
@@ -94,7 +94,7 @@ class TestPlayer(Player):
         self.params_by_function['handle_sense_result'].append(clean_locals(locals()))
         self.call_order.append('handle_sense_result')
 
-    def choose_move(self, seconds_left: float, move_actions: List[Move]) -> Optional[Move]:
+    def choose_move(self, move_actions: List[Move], seconds_left: float) -> Optional[Move]:
         self.params_by_function['choose_move'].append(clean_locals(locals()))
         self.call_order.append('choose_move')
         if len(self.moves) > 0:
