@@ -23,13 +23,13 @@ class TroutBot(Player):
         if captured_my_piece:
             self.board.remove_piece_at(capture_square)
 
-    def choose_sense(self, seconds_left: float, sense_actions: List[Square], move_actions: List[chess.Move]) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
         # if our piece was just captured, sense where it was captured
         if self.my_piece_captured_square:
             return self.my_piece_captured_square
 
         # if we might capture a piece when we move, sense where the capture will occur
-        future_move = self.choose_move(seconds_left, move_actions)
+        future_move = self.choose_move(move_actions, seconds_left)
         if future_move is not None and self.board.piece_at(future_move.to_square) is not None:
             return future_move.to_square
 
@@ -44,7 +44,7 @@ class TroutBot(Player):
         for square, piece in sense_result:
             self.board.set_piece_at(square, piece)
 
-    def choose_move(self, seconds_left: float, move_actions: List[chess.Move]) -> Optional[chess.Move]:
+    def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         # if we might be able to take the king, try to
         enemy_king_square = self.board.king(not self.color)
         if enemy_king_square:
