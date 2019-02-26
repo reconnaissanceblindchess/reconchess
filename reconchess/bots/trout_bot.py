@@ -30,11 +30,11 @@ class TroutBot(Player):
 
         # if we might capture a piece when we move, sense where the capture will occur
         future_move = self.choose_move(move_actions, seconds_left)
-        if self.board.piece_at(future_move.to_square) is not None:
+        if future_move is not None and self.board.piece_at(future_move.to_square) is not None:
             return future_move.to_square
 
         # otherwise, just randomly choose a sense action, but don't sense on a square where our pieces are located
-        for square, piece in self.board.piece_map():
+        for square, piece in self.board.piece_map().items():
             if piece.color == self.color:
                 sense_actions.remove(square)
         return random.choice(sense_actions)
