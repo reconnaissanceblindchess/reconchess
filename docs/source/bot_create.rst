@@ -21,4 +21,7 @@ The trout bot is a baseline that you can test your bot against. It keeps track o
 and uses the `Stockfish <https://stockfishchess.org/>`_ engine to make a move. When it gets information back from the game,
 it naively applies that information to its :class:`chess.Board`.
 
+**NOTE** You will need to download Stockfish and create an environment variable called `STOCKFISH_EXECUTABLE` that has
+the path to the Stockfish executable to use TroutBot.
+
 .. literalinclude:: ../../reconchess/bots/trout_bot.py
