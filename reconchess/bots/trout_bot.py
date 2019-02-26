@@ -1,4 +1,4 @@
-import chess.uci
+import chess.engine
 import random
 from reconchess import *
 import os
@@ -30,8 +30,7 @@ class TroutBot(Player):
             raise ValueError('No stockfish executable found at "{}"'.format(stockfish_path))
 
         # initialize the stockfish engine
-        self.engine = chess.uci.popen_engine(stockfish_path)
-        self.engine.uci()
+        self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
 
     def handle_game_start(self, color: Color, board: chess.Board):
         self.board = board
@@ -77,13 +76,11 @@ class TroutBot(Player):
         # otherwise, try to move with the stockfish chess engine
         try:
             self.board.turn = self.color
-            self.engine.ucinewgame()
-            self.engine.position(self.board)
-            stockfish_move = self.engine.go(movetime=500)[0]
-            self.engine.stop()
-            return stockfish_move
-        except (chess.uci.EngineTerminatedException, chess.uci.EngineStateException):
-            print('Stockfish engine bad state')
+            self.board.clear_stack()
+            result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
+            return result.move
+        except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
+            print('Engine bad state at "{}"'.format(self.board.fen()))
 
         # if all else fails, pass
         return None
@@ -96,4 +93,4 @@ class TroutBot(Player):
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
-        pass
+        self.engine.quit()
