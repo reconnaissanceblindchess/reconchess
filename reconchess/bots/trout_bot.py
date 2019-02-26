@@ -1,16 +1,36 @@
 import chess.uci
 import random
 from reconchess import *
+import os
+
+STOCKFISH_ENV_VAR = 'STOCKFISH_EXECUTABLE'
 
 
 class TroutBot(Player):
+    """
+    TroutBot uses the Stockfish chess engine to choose moves. In order to run TroutBot you'll need to download
+    Stockfish from https://stockfishchess.org/download/ and create an environment variable called STOCKFISH_EXECUTABLE
+    that is the path to the downloaded Stockfish executable.
+    """
+
     def __init__(self):
         self.board = None
         self.color = None
         self.my_piece_captured_square = None
 
+        # make sure stockfish environment variable exists
+        if STOCKFISH_ENV_VAR not in os.environ:
+            raise KeyError(
+                'TroutBot requires an environment variable called "{}" pointing to the Stockfish executable'.format(
+                    STOCKFISH_ENV_VAR))
+
+        # make sure there is actually a file
+        stockfish_path = os.environ[STOCKFISH_ENV_VAR]
+        if not os.path.exists(stockfish_path):
+            raise ValueError('No stockfish executable found at "{}"'.format(stockfish_path))
+
         # initialize the stockfish engine
-        self.engine = chess.uci.popen_engine('./stockfish-8-64')
+        self.engine = chess.uci.popen_engine(stockfish_path)
         self.engine.uci()
 
     def handle_game_start(self, color: Color, board: chess.Board):
