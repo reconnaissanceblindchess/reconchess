@@ -5,6 +5,8 @@ To create a reconchess bot, extend the :class:`reconchess.Player` base class and
 order to use the reconchess scripts, the main python file you pass into the scripts must contain exactly 1 sub class of
 :class:`reconchess.Player`.
 
+For more information on the API see the :class:`reconchess.Player` section on the :ref:`reconchess-api` page.
+
 Example bot: Random bot
 -----------------------
 
