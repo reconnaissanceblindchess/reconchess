@@ -4,6 +4,9 @@ Playing games
 Bot vs Bot
 ----------
 
+Command Line
+^^^^^^^^^^^^
+
 Playing two bots against each other is as easy as playing against your bot, using the built in script :code:`rc-bot-match.py`.
 Similar to :code:`rc-play.py`, :code:`rc-bot-match.py` gets added to your path so you can execute it from the command line.
 It takes two bots and plays them against each other using a :class:`LocalGame`:
@@ -18,11 +21,12 @@ It takes two bots and plays them against each other using a :class:`LocalGame`:
 
 Use the :code:`--help` flag for more information about the arguments.
 
-PyCharm Run Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
+PyCharm
+^^^^^^^
 
-If you use PyCharm for development, you can create a run configuration to run your bot from PyCharm by targeting
-the :code:`reconchess.scripts.rc-bot-match` target:
+If you use PyCharm for development, you can create a run configuration to run your bot from PyCharm by
+creating a new run configuration that targets a module instead of a script. Target the
+:code:`reconchess.scripts.rc-bot-match` module:
 
 .. image:: _static/pycharm_bot_match_config.gif
     :target: _static/pycharm_bot_match_config.gif

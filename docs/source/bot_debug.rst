@@ -5,7 +5,7 @@ Debugging with PyCharm
 ----------------------
 
 You can create a run configuration to run your bot from PyCharm by targeting one of the scripts provided for running
-bots, like :code:`reconchess.scripts.rc-bot-match` or :code:`reconchess.scripts.rc-play`:
+bots, like :code:`reconchess.scripts.rc-bot-match` or :code:`reconchess.scripts.rc-play`, as a module:
 
 .. image:: _static/pycharm_bot_match_config.gif
     :target: _static/pycharm_bot_match_config.gif
