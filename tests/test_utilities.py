@@ -1,5 +1,6 @@
 import unittest
 from reconchess import *
+from reconchess.utilities import *
 from chess import *
 import random
 
