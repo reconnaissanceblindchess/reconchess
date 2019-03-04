@@ -1,3 +1,5 @@
+.. _reconchess-api:
+
 reconchess API
 ===============
 

@@ -1,11 +1,11 @@
-Quick Start
-===========
+Installation and Quick Start
+============================
 
-After installation you can run all unit tests:
+Install the python package
 
 ::
 
-    python -m unittest discover tests
+    pip install reconchess
 
 You can also run a test game between two of the baseline bots:
 

@@ -6,8 +6,9 @@ Contents
 .. toctree::
     :maxdepth: 2
 
-    rules
     quick_start
+    intro
+    rules
     bot_create
     bot_play
     bot_replay
