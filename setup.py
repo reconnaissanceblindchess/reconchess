@@ -16,12 +16,15 @@ setuptools.setup(
     url='https://github.com/reconnaissanceblindchess/reconchess',
     packages=['reconchess', 'reconchess_server', 'reconchess.scripts', 'reconchess.bots'],
     package_data={'reconchess': ['res/white/*.png', 'res/black/*.png']},
-    scripts=[
-        'reconchess/scripts/rc-bot-match.py',
-        'reconchess/scripts/rc-connect.py',
-        'reconchess/scripts/rc-play.py',
-        'reconchess/scripts/rc-replay.py'
-    ],
+    entry_points={
+        'console_scripts': [
+            'rc-bot-match=reconchess.scripts.rc_bot_match:main',
+        ],
+        'gui_scripts': [
+            'rc-play=reconchess.scripts.rc_play:main',
+            'rc-replay=reconchess.scripts.rc_replay:main',
+        ],
+    },
     python_requires='>=3.5',
     install_requires=requirements,
     project_urls={

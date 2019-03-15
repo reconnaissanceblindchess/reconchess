@@ -274,7 +274,7 @@ class UIPlayer(Player):
                 self.board.set_piece_at(square, chess.Piece(piece.piece_type + 1, not self.color))
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Allows you to play against a bot. Useful for testing and debugging.')
     parser.add_argument('bot_path', help='Path to bot source file.')
     parser.add_argument('--color', default='random', choices=['white', 'black', 'random'],
@@ -305,3 +305,7 @@ if __name__ == '__main__':
     replay_path = '{}-{}-{}-{}.json'.format(player_names[0], player_names[1], winner, timestamp)
     print('Saving replay to {}...'.format(replay_path))
     history.save(replay_path)
+
+
+if __name__ == '__main__':
+    main()

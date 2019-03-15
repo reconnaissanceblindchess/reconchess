@@ -303,7 +303,7 @@ class ReplayWindow:
         pygame.draw.rect(self.background, color, self.square_rect(square), 3)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Allows you to watch a saved match.')
     parser.add_argument('history_path', help='Path to saved Game History file.')
     args = parser.parse_args()
@@ -313,3 +313,7 @@ if __name__ == '__main__':
     while True:
         window.update()
         window.draw()
+
+
+if __name__ == '__main__':
+    main()
