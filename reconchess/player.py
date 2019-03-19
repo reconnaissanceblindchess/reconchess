@@ -175,9 +175,39 @@ class Player(object):
 def load_player(source_path: str) -> Tuple[str, Type[Player]]:
     """
     Loads a subclass of the Player class that is contained in a python source file or python module.
-    There must only be *1* such subclass in the file or module.
+    There should only be 1 such subclass in the file or module. If there are more than 1 subclasses, then you have
+    to define a function named `get_player` in the same module that returns the subclass to use.
 
-    Example: ::
+    Example of single class definition: ::
+
+        # this will import fine
+        class MyBot(Player):
+            ...
+
+    Example of multiple class definition: ::
+
+        class MyBot1(Player):
+            ...
+
+        class MyBot2(Player):
+            ...
+
+        # need to define this function!
+        def get_player():
+            return MyBot1
+
+    Example of another situation where you may need to define `get_player`: ::
+
+        from my_helper_module import MyPlayerBaseClass
+
+        class MyBot1(MyPlayerBaseClass):
+            ...
+
+        # you need to define this because both MyBot1 and MyPlayerBaseClass are subclasses of Player
+        def get_player():
+            return MyBot1
+
+    Example usage: ::
 
         name, cls = load_player('my_player.py')
         player = cls()
@@ -203,9 +233,17 @@ def load_player(source_path: str) -> Tuple[str, Type[Player]]:
 
     module = importlib.import_module(module_name)
     players = inspect.getmembers(module, lambda o: inspect.isclass(o) and issubclass(o, Player) and o != Player)
+    get_player_fns = inspect.getmembers(module, lambda o: inspect.isfunction(o) and o.__name__ == 'get_player')
     if len(players) == 0:
         raise RuntimeError('{} did not contain any subclasses of {}'.format(source_path, Player))
-    elif len(players) > 1:
-        raise RuntimeError(
-            '{} contained multiple subclasses of {}: {}. Should have exactly 1'.format(source_path, players, Player))
-    return players[0]
+    elif len(players) > 1 and len(get_player_fns) != 1:
+        msg = '{} contained multiple subclasses of {}: {}'.format(source_path, Player, players)
+        msg += ', but no get_player function was defined. See documentation for reconchess.load_player'
+        raise RuntimeError(msg)
+
+    if len(players) == 1:
+        return players[0]
+    else:
+        _, get_player_fn = get_player_fns[0]
+        cls = get_player_fn()
+        return cls.__name__, cls
