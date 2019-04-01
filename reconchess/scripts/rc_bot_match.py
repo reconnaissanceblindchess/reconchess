@@ -8,12 +8,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('white_bot_path', help='path to white bot source file')
     parser.add_argument('black_bot_path', help='path to black bot source file')
+    parser.add_argument('--seconds_per_player', default=900, type=float,
+                        help='number of seconds each player has to play the entire game.')
     args = parser.parse_args()
 
     white_bot_name, white_player_cls = load_player(args.white_bot_path)
     black_bot_name, black_player_cls = load_player(args.black_bot_path)
 
-    winner_color, win_reason, history = play_local_game(white_player_cls(), black_player_cls())
+    winner_color, win_reason, history = play_local_game(white_player_cls(), black_player_cls(),
+                                                        seconds_per_player=args.seconds_per_player)
 
     print('Game Over!')
     if winner_color is not None:

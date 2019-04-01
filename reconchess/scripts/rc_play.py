@@ -279,6 +279,8 @@ def main():
     parser.add_argument('bot_path', help='Path to bot source file.')
     parser.add_argument('--color', default='random', choices=['white', 'black', 'random'],
                         help='The color you want to play as.')
+    parser.add_argument('--seconds_per_player', default=900, type=float,
+                        help='number of seconds each player has to play the entire game.')
     args = parser.parse_args()
 
     bot_name, bot_constructor = load_player(args.bot_path)
@@ -291,7 +293,7 @@ def main():
         players.reverse()
         player_names.reverse()
 
-    winner_color, win_reason, history = play_local_game(players[0], players[1])
+    winner_color, win_reason, history = play_local_game(players[0], players[1], seconds_per_player=args.seconds_per_player)
 
     print('Game Over!')
     if winner_color is not None:
