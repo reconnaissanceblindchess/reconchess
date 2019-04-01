@@ -5,7 +5,7 @@ from .game import Game, LocalGame, RemoteGame
 from .history import GameHistory
 
 
-def play_local_game(white_player: Player, black_player: Player) -> Tuple[
+def play_local_game(white_player: Player, black_player: Player, seconds_per_player: float = 900) -> Tuple[
     Optional[Color], Optional[WinReason], GameHistory]:
     """
     Plays a game between the two players passed in. Uses :class:`LocalGame` to run the game, and just calls
@@ -20,7 +20,7 @@ def play_local_game(white_player: Player, black_player: Player) -> Tuple[
     """
     players = [black_player, white_player]
 
-    game = LocalGame()
+    game = LocalGame(seconds_per_player=seconds_per_player)
 
     white_player.handle_game_start(chess.WHITE, game.board.copy())
     black_player.handle_game_start(chess.BLACK, game.board.copy())
