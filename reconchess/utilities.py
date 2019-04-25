@@ -1,3 +1,4 @@
+import json
 import chess
 from .types import *
 
@@ -94,3 +95,49 @@ def pawn_capture_moves_on(board: chess.Board) -> List[chess.Move]:
                     pawn_capture_moves.append(chess.Move(pawn_square, attacked_square, promotion=piece_type))
 
     return pawn_capture_moves
+
+
+class ChessJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, chess.Piece):
+            return {
+                'type': 'Piece',
+                'value': o.symbol(),
+            }
+        elif isinstance(o, chess.Move):
+            return {
+                'type': 'Move',
+                'value': o.uci(),
+            }
+        elif isinstance(o, chess.Board):
+            return {
+                'type': 'Board',
+                'value': o.fen(),
+            }
+        elif isinstance(o, WinReason):
+            return {
+                'type': 'WinReason',
+                'value': o.name,
+            }
+        return super().default(o)
+
+
+class ChessJSONDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        hook = self._object_hook
+        if 'object_hook' in kwargs:
+            original_hook = kwargs.pop('object_hook')
+            hook = lambda obj: self._object_hook(original_hook(obj))
+        super().__init__(object_hook=hook, *args, **kwargs)
+
+    def _object_hook(self, obj):
+        if 'type' in obj:
+            if obj['type'] == 'Piece':
+                return chess.Piece.from_symbol(obj['value'])
+            elif obj['type'] == 'Move':
+                return chess.Move.from_uci(obj['value'])
+            elif obj['type'] == 'Board':
+                return chess.Board(fen=obj['value'])
+            elif obj['type'] == 'WinReason':
+                return WinReason[obj['value']]
+        return obj

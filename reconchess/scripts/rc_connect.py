@@ -1,20 +1,110 @@
 import argparse
+import requests
 import multiprocessing
-from reconchess import load_player
-from reconchess import play_remote_game
-
-parser = argparse.ArgumentParser()
-parser.add_argument('server', help='url to the server')
-parser.add_argument('auth_file', help='path to the file that contains auth information')
-parser.add_argument('bot_path', help='path to white bot source file')
-parser.add_argument('--max_games', type=int, help='the maximum number of bots to start up')
-args = parser.parse_args()
-
-bot_name, bot_cls = load_player(args.white_bot_path)
+import time
+import getpass
+from datetime import datetime
+from reconchess import load_player, play_remote_game
 
 
-def spawn_bot(game_id):
-    player = bot_cls()
-    multiprocessing.Process(target=play_remote_game, args=(bot_name, game_id, player))
+class RBCServer:
+    def __init__(self, server_url, auth):
+        self.invitations_url = '{}/api/invitations'.format(server_url)
+        self.user_url = '{}/api/users'.format(server_url)
+        self.status_url = '{}/api/users/me'.format(server_url)
+        self.session = requests.Session()
+        self.session.auth = auth
 
-# TODO make requests to server to see if any games are open for this player. if so, call spawn_bot()
+    def is_connected(self):
+        try:
+            response = self.session.post(self.status_url)
+            return response.status_code == 200 and response.json()['username'] == self.session.auth[0]
+        except requests.RequestException:
+            pass
+        return False
+
+    def get_active_users(self):
+        response = self.session.get('{}/'.format(self.user_url))
+        return response.json()['usernames']
+
+    def send_invitation(self, opponent, color):
+        response = self.session.post('{}/'.format(self.invitations_url), json={
+            'opponent': opponent,
+            'color': color,
+        })
+        return response.json()['game_id']
+
+    def get_invitations(self):
+        response = self.session.get('{}/'.format(self.invitations_url))
+        return response.json()['invitations']
+
+    def accept_invitation(self, invitation_id):
+        response = self.session.post('{}/{}'.format(self.invitations_url, invitation_id))
+        return response.json()['game_id']
+
+
+def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
+    print('[{}] Accepting invitation {}.'.format(datetime.now(), invitation_id))
+
+    server = RBCServer(server_url, auth)
+    game_id = server.accept_invitation(invitation_id)
+
+    print('[{}] Invitation {} accepted. Playing game {}.'.format(datetime.now(), invitation_id, game_id))
+
+    play_remote_game(server_url, game_id, auth, bot_cls())
+
+    print('[{}] Finished game {}'.format(datetime.now(), game_id))
+
+
+def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
+    server = RBCServer(server_url, auth)
+
+    connected = False
+    queued_invitations = set()
+    with multiprocessing.Pool(processes=max_concurrent_games) as pool:
+        while True:
+            while not server.is_connected():
+                connected = False
+                print('[{}] Could not connect to server... waiting 60 seconds before trying again.'.format(
+                    datetime.now()))
+                time.sleep(60)
+
+            if not connected:
+                print('[{}] Connected successfully to server!'.format(datetime.now()))
+                connected = True
+
+            try:
+                invitations = server.get_invitations()
+                unqueued_invitations = set(invitations) - queued_invitations
+                for invitation_id in unqueued_invitations:
+                    print('[{}] Received invitation {}.'.format(datetime.now(), invitation_id))
+                    pool.apply_async(accept_invitation_and_play, args=(server_url, auth, invitation_id, bot_cls))
+                    queued_invitations.add(invitation_id)
+            except requests.RequestException as e:
+                print(e)
+
+            time.sleep(5)
+
+
+def ask_for_auth():
+    username = input('Username: ')
+    password = getpass.getpass()
+    return username, password
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('bot_path', help='Path to bot source or bot module name')
+    parser.add_argument('--server-url', default='http://127.0.0.1:5000', help='url to the server')
+    parser.add_argument('--max-concurrent-games', type=int, default=1, help='the maximum number of bots to start up')
+    args = parser.parse_args()
+
+    bot_name, bot_cls = load_player(args.bot_path)
+
+    auth = ask_for_auth()
+
+    listen_for_invitations(args.server_url, auth, bot_cls, args.max_concurrent_games)
+
+
+if __name__ == '__main__':
+    main()

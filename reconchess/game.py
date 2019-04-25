@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from datetime import datetime
+import requests
 from .utilities import *
-from .history import GameHistory
+from .history import GameHistory, GameHistoryDecoder
 
 
 class Game(object):
@@ -178,7 +179,8 @@ class LocalGame(Game):
         """
         :return: List of moves that are possible with only knowledge of your pieces
         """
-        return None if self._is_finished else moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(self.board)
+        return None if self._is_finished else moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(
+            self.board)
 
     def opponent_move_results(self) -> Optional[Square]:
         return self.move_results
@@ -201,7 +203,7 @@ class LocalGame(Game):
 
     def move(self, requested_move: Optional[chess.Move]) \
             -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
-            
+
         if self._is_finished:
             return requested_move, None, None
         if requested_move is None:
@@ -317,24 +319,59 @@ class RemoteGame(Game):
     end point on the server.
     """
 
-    def __init__(self, game_id):
-        super().__init__()
-        self.game_id = game_id
-        self.latest_status = None
+    def __init__(self, server_url, game_id, auth):
+        self.game_url = '{}/api/games/{}'.format(server_url, game_id)
+        self.session = requests.Session()
+        self.session.auth = auth
 
-    def get_player_color(self, name):
-        """Would request the color of the player from the server"""
-        return chess.WHITE
+    def _get(self, endpoint, decoder_cls=ChessJSONDecoder):
+        response = self.session.get('{}/{}'.format(self.game_url, endpoint))
+        return response.json(cls=decoder_cls)
+
+    def _post(self, endpoint, obj):
+        data = json.dumps(obj, cls=ChessJSONEncoder)
+        response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
+        return response.json(cls=ChessJSONDecoder)
+
+    def get_player_color(self):
+        return self._get('color')['color']
 
     def get_starting_board(self):
-        return chess.Board()
+        return self._get('starting_board')['board']
 
-    def wait_for_turn(self, name):
-        """
-        Would request turn information from the server, and return when its the player's turn.
-        Could either do:
-        1. Busy wait, where server instantly returns response indicating the turn
-        2. Server wait, where server doesn't send response until its the turn. Not sure if this would run into timeout
-        issues.
-        """
-        pass
+    def sense_actions(self) -> List[Square]:
+        return self._get('sense_actions')['sense_actions']
+
+    def move_actions(self) -> List[chess.Move]:
+        return self._get('move_actions')['move_actions']
+
+    def get_seconds_left(self) -> float:
+        return self._get('seconds_left')['seconds_left']
+
+    def start(self):
+        self._post('ready', {})
+
+    def opponent_move_results(self) -> Optional[Square]:
+        return self._get('opponent_move_results')['opponent_move_results']
+
+    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
+        return self._post('sense', {'square': square})['sense_result']
+
+    def move(self, requested_move: Optional[chess.Move]) -> Tuple[
+        Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
+        return self._post('move', {'requested_move': requested_move})['move_result']
+
+    def end_turn(self):
+        self._post('end_turn', {})
+
+    def is_over(self) -> bool:
+        return self._get('is_over')['is_over']
+
+    def get_winner_color(self) -> Optional[Color]:
+        return self._get('winner_color')['winner_color']
+
+    def get_win_reason(self) -> Optional[WinReason]:
+        return self._get('win_reason')['win_reason']
+
+    def get_game_history(self) -> Optional[GameHistory]:
+        return self._get('game_history', decoder_cls=GameHistoryDecoder)['game_history']
