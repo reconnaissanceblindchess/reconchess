@@ -1,4 +1,4 @@
 Connecting your bot to the server
 =================================
 
-TODO detail rc-connect
+**This feature is currently in progress, and will be coming in May.**

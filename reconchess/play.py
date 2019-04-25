@@ -40,21 +40,22 @@ def play_local_game(white_player: Player, black_player: Player, seconds_per_play
     return winner_color, win_reason, game_history
 
 
-def play_remote_game(name, game_id, player: Player):
-    game = RemoteGame(game_id)
+def play_remote_game(server_url, game_id, auth, player: Player):
+    game = RemoteGame(server_url, game_id, auth)
 
-    color = game.get_player_color(name)
-
-    player.handle_game_start(color, game.get_starting_board())
+    player.handle_game_start(game.get_player_color(), game.get_starting_board())
     game.start()
 
     while not game.is_over():
-        game.wait_for_turn(name)
         play_turn(game, player)
 
-    # TODO get win reason here
+    winner_color = game.get_winner_color()
+    win_reason = game.get_win_reason()
+    game_history = game.get_game_history()
 
-    player.handle_game_end(game.get_winner_color(), game.get_game_history())
+    player.handle_game_end(winner_color, win_reason, game_history)
+
+    return winner_color, win_reason, game_history
 
 
 def play_turn(game: Game, player: Player):
@@ -78,6 +79,7 @@ def play_turn(game: Game, player: Player):
 
     play_move(game, player, move_actions)
 
+    # TODO move this to right after move()
     game.end_turn()
 
 

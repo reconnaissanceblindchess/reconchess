@@ -3,6 +3,7 @@ from .types import *
 from typing import Callable, TypeVar, Iterable, Mapping
 import json
 import math
+from .utilities import ChessJSONEncoder, ChessJSONDecoder
 
 T = TypeVar('T')
 
@@ -133,23 +134,7 @@ class GameHistory(object):
         :return: The :class:`GameHistory` object that was originally saved to the file using :meth:`save`.
         """
         with open(filename, newline='') as fp:
-            obj = json.load(fp, cls=GameHistoryDecoder)
-        if 'type' not in obj or obj['type'] != 'GameHistory':
-            raise ValueError('No GameHistory object found in {}'.format(filename))
-        history = cls()
-        history._senses = obj['senses']
-        history._sense_results = obj['sense_results']
-        history._requested_moves = obj['requested_moves']
-        history._taken_moves = obj['taken_moves']
-        history._capture_squares = obj['capture_squares']
-        history._fens_before_move = obj['fens_before_move']
-        history._fens_after_move = obj['fens_after_move']
-
-        for color, sense_results in history._sense_results.items():
-            for result in sense_results:
-                for i in range(len(result)):
-                    result[i] = tuple(result[i])
-        return history
+            return json.load(fp, cls=GameHistoryDecoder)
 
     def store_sense(self, color: Color, square: Square,
                     sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
@@ -601,7 +586,7 @@ class GameHistory(object):
         return senses_equal and moves_equal and fens_equal
 
 
-class GameHistoryEncoder(json.JSONEncoder):
+class GameHistoryEncoder(ChessJSONEncoder):
     def default(self, o):
         if isinstance(o, GameHistory):
             return {
@@ -614,29 +599,28 @@ class GameHistoryEncoder(json.JSONEncoder):
                 'fens_before_move': o._fens_before_move,
                 'fens_after_move': o._fens_after_move,
             }
-        elif isinstance(o, chess.Piece):
-            return {
-                'type': 'Piece',
-                'value': o.symbol(),
-            }
-        elif isinstance(o, chess.Move):
-            return {
-                'type': 'Move',
-                'value': o.uci(),
-            }
         return super().default(o)
 
 
-class GameHistoryDecoder(json.JSONDecoder):
-    def __init__(self, *args, **kwargs):
-        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+class GameHistoryDecoder(ChessJSONDecoder):
+    def _object_hook(self, obj):
+        if 'type' in obj and obj['type'] == 'GameHistory':
+            for key in ['senses', 'sense_results', 'requested_moves', 'taken_moves', 'capture_squares',
+                        'fens_before_move', 'fens_after_move']:
+                obj[key] = {True: obj[key]['true'], False: obj[key]['false']}
+            history = GameHistory()
+            history._senses = obj['senses']
+            history._sense_results = obj['sense_results']
+            history._requested_moves = obj['requested_moves']
+            history._taken_moves = obj['taken_moves']
+            history._capture_squares = obj['capture_squares']
+            history._fens_before_move = obj['fens_before_move']
+            history._fens_after_move = obj['fens_after_move']
 
-    def object_hook(self, obj):
-        if 'type' in obj:
-            if obj['type'] == 'Piece':
-                return chess.Piece.from_symbol(obj['value'])
-            elif obj['type'] == 'Move':
-                return chess.Move.from_uci(obj['value'])
-        elif 'true' in obj and 'false' in obj and len(obj) == 2:
-            return {True: obj['true'], False: obj['false']}
-        return obj
+            for color, sense_results in history._sense_results.items():
+                for result in sense_results:
+                    for i in range(len(result)):
+                        result[i] = tuple(result[i])
+            return history
+
+        return super()._object_hook(obj)
