@@ -14,7 +14,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_typ='text/x-rst',
     url='https://github.com/reconnaissanceblindchess/reconchess',
-    packages=['reconchess', 'reconchess_server', 'reconchess.scripts', 'reconchess.bots'],
+    packages=['reconchess', 'reconchess.scripts', 'reconchess.bots'],
     package_data={'reconchess': ['res/white/*.png', 'res/black/*.png']},
     entry_points={
         'console_scripts': [
