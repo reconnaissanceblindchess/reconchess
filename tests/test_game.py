@@ -701,6 +701,24 @@ class IsOverTest(unittest.TestCase):
         game.start()
         self.assertTrue(game.is_over())
 
+    def test_expired_white(self):
+        game = LocalGame()
+        game.seconds_left_by_color[WHITE] = 0.5
+        game.start()
+        self.assertFalse(game.is_over())
+        time.sleep(1)
+        self.assertTrue(game.is_over())
+
+    def test_expired_black(self):
+        game = LocalGame()
+        game.seconds_left_by_color[BLACK] = 0.5
+        game.start()
+        self.assertFalse(game.is_over())
+        time.sleep(1)
+        self.assertFalse(game.is_over())
+        game.turn = BLACK
+        self.assertTrue(game.is_over())
+
     def test_white_king_captured(self):
         """
         r n b q k b n r

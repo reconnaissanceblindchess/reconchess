@@ -279,7 +279,7 @@ class LocalGame(Game):
         if self._is_finished:
             return True
 
-        no_time_left = self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0
+        no_time_left = self.get_seconds_left() <= 0 or self.seconds_left_by_color[not self.turn] <= 0
         king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
         return no_time_left or king_captured
 
