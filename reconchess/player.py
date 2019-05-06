@@ -62,11 +62,14 @@ class Player(object):
         pass
 
     @abstractmethod
-    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> \
+            Optional[Square]:
         """
         The method to implement your sensing strategy. The chosen sensing action should be returned from this function.
         I.e. the value returned is the square at the center of the 3x3 sensing area you want to sense. The returned
         square must be one of the squares in the `sense_actions` parameter.
+
+        You can pass instead of sensing by returning `None` from this function.
 
         Move actions are provided through `move_actions` in case you want to sense based on a potential move.
 
