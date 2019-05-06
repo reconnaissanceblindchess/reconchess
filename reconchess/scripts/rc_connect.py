@@ -18,6 +18,10 @@ class RBCServer:
     def is_connected(self):
         try:
             response = self.session.post(self.status_url)
+            if response.status_code == 401:
+                print('Authentication Error!')
+                print(response.text)
+                quit()
             return response.status_code == 200 and response.json()['username'] == self.session.auth[0]
         except requests.RequestException:
             pass
