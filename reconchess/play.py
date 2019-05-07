@@ -5,8 +5,8 @@ from .game import Game, LocalGame, RemoteGame
 from .history import GameHistory
 
 
-def play_local_game(white_player: Player, black_player: Player, seconds_per_player: float = 900) -> Tuple[
-    Optional[Color], Optional[WinReason], GameHistory]:
+def play_local_game(white_player: Player, black_player: Player, game: LocalGame = None,
+                    seconds_per_player: float = 900) -> Tuple[Optional[Color], Optional[WinReason], GameHistory]:
     """
     Plays a game between the two players passed in. Uses :class:`LocalGame` to run the game, and just calls
     :func:`play_turn` until the game is over: ::
@@ -16,11 +16,14 @@ def play_local_game(white_player: Player, black_player: Player, seconds_per_play
 
     :param white_player: The white :class:`Player`.
     :param black_player: The black :class:`Player`.
+    :param game: The :class:`LocalGame` object to use.
+    :param seconds_per_player: The time each player has to play. Only used if `game` is not passed in.
     :return: The results of the game, also passed to each player via :meth:`Player.handle_game_end`.
     """
     players = [black_player, white_player]
 
-    game = LocalGame(seconds_per_player=seconds_per_player)
+    if game is None:
+        game = LocalGame(seconds_per_player=seconds_per_player)
 
     white_player.handle_game_start(chess.WHITE, game.board.copy())
     black_player.handle_game_start(chess.BLACK, game.board.copy())

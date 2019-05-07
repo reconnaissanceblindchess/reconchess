@@ -1,4 +1,5 @@
 import pkg_resources
+import traceback
 import argparse
 import random
 import contextlib
@@ -293,15 +294,21 @@ def main():
         players.reverse()
         player_names.reverse()
 
-    winner_color, win_reason, history = play_local_game(players[0], players[1], seconds_per_player=args.seconds_per_player)
+    game = LocalGame(args.seconds_per_player)
+
+    try:
+        winner_color, win_reason, history = play_local_game(players[0], players[1], game)
+        winner = 'Draw' if winner_color is None else chess.COLOR_NAMES[winner_color]
+    except:
+        traceback.print_exc()
+        game.end()
+
+        winner = 'ERROR'
+        history = game.get_game_history()
 
     print('Game Over!')
-    if winner_color is not None:
-        print('{} won because of {}!'.format(chess.COLOR_NAMES[winner_color], win_reason))
-    else:
-        print('Draw!')
+    print('Winner: {}!'.format(winner))
 
-    winner = 'Draw' if winner_color is None else chess.COLOR_NAMES[winner_color]
     timestamp = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
 
     replay_path = '{}-{}-{}-{}.json'.format(player_names[0], player_names[1], winner, timestamp)
