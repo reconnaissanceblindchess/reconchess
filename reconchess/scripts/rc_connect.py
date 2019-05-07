@@ -98,9 +98,10 @@ def ask_for_auth():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('bot_path', help='Path to bot source or bot module name')
-    parser.add_argument('--server-url', default='http://127.0.0.1:5000', help='url to the server')
-    parser.add_argument('--max-concurrent-games', type=int, default=1, help='the maximum number of bots to start up')
+    parser.add_argument('bot_path', help='Path to bot source or bot module name.')
+    parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
+    parser.add_argument('--max-concurrent-games', type=int, default=1,
+                        help='The maximum number of games to play at the same time.')
     args = parser.parse_args()
 
     bot_name, bot_cls = load_player(args.bot_path)
