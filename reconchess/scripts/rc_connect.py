@@ -11,13 +11,13 @@ class RBCServer:
     def __init__(self, server_url, auth):
         self.invitations_url = '{}/api/invitations'.format(server_url)
         self.user_url = '{}/api/users'.format(server_url)
-        self.status_url = '{}/api/users/me'.format(server_url)
+        self.me_url = '{}/api/users/me'.format(server_url)
         self.session = requests.Session()
         self.session.auth = auth
 
     def is_connected(self):
         try:
-            response = self.session.post(self.status_url)
+            response = self.session.post(self.me_url)
             if response.status_code == 401:
                 print('Authentication Error!')
                 print(response.text)
@@ -26,6 +26,9 @@ class RBCServer:
         except requests.RequestException:
             pass
         return False
+
+    def set_max_games(self, max_games):
+        self.session.post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
 
     def get_active_users(self):
         response = self.session.get('{}/'.format(self.user_url))
@@ -76,6 +79,7 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
             if not connected:
                 print('[{}] Connected successfully to server!'.format(datetime.now()))
                 connected = True
+                server.set_max_games(max_concurrent_games)
 
             try:
                 invitations = server.get_invitations()
@@ -100,7 +104,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('bot_path', help='Path to bot source or bot module name.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
-    parser.add_argument('--max-concurrent-games', type=int, default=1,
+    parser.add_argument('--max-concurrent-games', type=int, default=4,
                         help='The maximum number of games to play at the same time.')
     args = parser.parse_args()
 
