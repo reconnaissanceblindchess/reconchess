@@ -136,7 +136,7 @@ class GameHistory(object):
         with open(filename, newline='') as fp:
             return json.load(fp, cls=GameHistoryDecoder)
 
-    def store_sense(self, color: Color, square: Square,
+    def store_sense(self, color: Color, square: Optional[Square],
                     sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         self._senses[color].append(square)
         self._sense_results[color].append(sense_result)
@@ -338,7 +338,7 @@ class GameHistory(object):
         """
         return 0 <= turn.turn_number < len(self._senses[turn.color])
 
-    def sense(self, turn: Turn) -> Square:
+    def sense(self, turn: Turn) -> Optional[Square]:
         """
         Get the sense action on the given turn.
 
@@ -348,6 +348,9 @@ class GameHistory(object):
 
             >>> history.sense(Turn(BLACK, 0))
             E2
+
+            >>> history.sense(Turn(WHITE, 1))
+            None
 
         :param turn: The :class:`Turn` in question.
         :return: The executed sense action as a :class:`Square`.
@@ -368,6 +371,10 @@ class GameHistory(object):
                 (A7, Piece(PAWN, BLACK)), (B7, Piece(PAWN, BLACK)), (C7, Piece(PAWN, BLACK)),
                 (A6, None), (B6, None), (C8, None)
             ]
+            >>> history.sense(Turn(BLACK, 0))
+            None
+            >>> history.sense_result(Turn(BLACK, 0))
+            []
 
         :param turn: The :class:`Turn` in question.
         :return: The result of the executed sense action.

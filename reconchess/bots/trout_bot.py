@@ -42,7 +42,8 @@ class TroutBot(Player):
         if captured_my_piece:
             self.board.remove_piece_at(capture_square)
 
-    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
+    def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> \
+            Optional[Square]:
         # if our piece was just captured, sense where it was captured
         if self.my_piece_captured_square:
             return self.my_piece_captured_square

@@ -106,6 +106,10 @@ class LocalGameSenseTest(unittest.TestCase):
             for square, piece in sense_result:
                 self.assertEqual(piece, self.game.board.piece_at(square))
 
+    def test_sense_pass(self):
+        sense_result = self.game.sense(None)
+        self.assertEqual(sense_result, [])
+
 
 class LocalGameTimeTest(unittest.TestCase):
     def test_time(self, seconds=1, turns=20, phases=3):

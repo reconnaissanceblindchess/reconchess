@@ -48,7 +48,7 @@ class Game(object):
         pass
 
     @abstractmethod
-    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
+    def sense(self, square: Optional[Square]) -> List[Tuple[Square, Optional[chess.Piece]]]:
         """
         Execute a sense action and get the sense result.
 
@@ -185,17 +185,24 @@ class LocalGame(Game):
     def opponent_move_results(self) -> Optional[Square]:
         return self.move_results
 
-    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
-        if square not in self.sense_actions():
-            raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(square, square))
+    def sense(self, square: Optional[Square]) -> List[Tuple[Square, Optional[chess.Piece]]]:
+        if self._is_finished:
+            return []
 
-        rank, file = chess.square_rank(square), chess.square_file(square)
-        sense_result = []
-        for delta_rank in [1, 0, -1]:
-            for delta_file in [-1, 0, 1]:
-                if 0 <= rank + delta_rank <= 7 and 0 <= file + delta_file <= 7:
-                    sense_square = chess.square(file + delta_file, rank + delta_rank)
-                    sense_result.append((sense_square, self.board.piece_at(sense_square)))
+        if square is None:
+            # don't sense anything
+            sense_result = []
+        else:
+            if square not in self.sense_actions():
+                raise ValueError('LocalGame::sense({}): {} is not a valid square.'.format(square, square))
+
+            rank, file = chess.square_rank(square), chess.square_file(square)
+            sense_result = []
+            for delta_rank in [1, 0, -1]:
+                for delta_file in [-1, 0, 1]:
+                    if 0 <= rank + delta_rank <= 7 and 0 <= file + delta_file <= 7:
+                        sense_square = chess.square(file + delta_file, rank + delta_rank)
+                        sense_result.append((sense_square, self.board.piece_at(sense_square)))
 
         self.__game_history.store_sense(self.turn, square, sense_result)
 
@@ -203,9 +210,9 @@ class LocalGame(Game):
 
     def move(self, requested_move: Optional[chess.Move]) \
             -> Tuple[Optional[chess.Move], Optional[chess.Move], Optional[Square]]:
-
         if self._is_finished:
             return requested_move, None, None
+
         if requested_move is None:
             # pass move
             taken_move = None
@@ -354,7 +361,7 @@ class RemoteGame(Game):
     def opponent_move_results(self) -> Optional[Square]:
         return self._get('opponent_move_results')['opponent_move_results']
 
-    def sense(self, square: Square) -> List[Tuple[Square, Optional[chess.Piece]]]:
+    def sense(self, square: Optional[Square]) -> List[Tuple[Square, Optional[chess.Piece]]]:
         return self._post('sense', {'square': square})['sense_result']
 
     def move(self, requested_move: Optional[chess.Move]) -> Tuple[
