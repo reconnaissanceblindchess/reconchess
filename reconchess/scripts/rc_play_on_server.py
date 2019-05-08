@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--color', default='random', choices=['white', 'black', 'random'],
                         help='The color you want to play as.')
-    parser.add_argument('--server-url', default='http://127.0.0.1:5000', help='URL of the server.')
+    parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
 
     auth = ask_for_auth()
