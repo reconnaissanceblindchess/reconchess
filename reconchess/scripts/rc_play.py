@@ -276,7 +276,8 @@ class UIPlayer(Player):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Allows you to play against a bot. Useful for testing and debugging.')
+    parser = argparse.ArgumentParser(description='Allows you to play against a bot. Useful for testing and debugging.',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('bot_path', help='Path to bot source file.')
     parser.add_argument('--color', default='random', choices=['white', 'black', 'random'],
                         help='The color you want to play as.')

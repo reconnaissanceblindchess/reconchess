@@ -4,8 +4,8 @@ import getpass
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('username', help='Name to register under')
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('username', help='Name to register under.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
 

@@ -8,7 +8,7 @@ from reconchess.scripts.rc_play import UIPlayer
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--color', default='random', choices=['white', 'black', 'random'],
                         help='The color you want to play as.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
