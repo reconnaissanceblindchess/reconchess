@@ -9,6 +9,12 @@ def main():
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
 
+    try:
+        response = requests.get('{}/api/users'.format(args.server_url))
+    except:
+        print('No server found at {} - it may not be available yet.'.format(args.server_url))
+        quit()
+
     password = getpass.getpass()
 
     response = requests.post('{}/api/users/'.format(args.server_url), json={
