@@ -101,7 +101,7 @@ def ask_for_auth():
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('bot_path', help='Path to bot source or bot module name.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     parser.add_argument('--max-concurrent-games', type=int, default=4,

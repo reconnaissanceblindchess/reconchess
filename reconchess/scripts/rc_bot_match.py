@@ -6,7 +6,7 @@ from reconchess import load_player, play_local_game, LocalGame
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('white_bot_path', help='path to white bot source file')
     parser.add_argument('black_bot_path', help='path to black bot source file')
     parser.add_argument('--seconds_per_player', default=900, type=float,
