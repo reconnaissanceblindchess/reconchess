@@ -195,7 +195,7 @@ class PlayMoveTestCase(unittest.TestCase):
     def test_call_order(self):
         self.assertEqual(self.player.call_order, ['choose_move', 'handle_move_result'])
         self.assertEqual(self.game.call_order,
-                         ['start', 'move_actions', 'get_seconds_left', 'move', 'move_actions'])
+                         ['start', 'move_actions', 'get_seconds_left', 'move', 'move_actions', 'end_turn'])
 
     def test_player_params(self):
         self.assertEqual(self.player.params_by_function['choose_move'], [{

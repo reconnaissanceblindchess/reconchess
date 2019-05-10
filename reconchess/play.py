@@ -68,7 +68,6 @@ def play_turn(game: Game, player: Player):
     #. :func:`notify_opponent_move_results`
     #. :func:`play_sense`
     #. :func:`play_move`
-    #. :meth:`Game.end_turn`
 
     :param game: The :class:`Game` that `player` is playing in.
     :param player: The :class:`Player` whose turn it is.
@@ -81,9 +80,6 @@ def play_turn(game: Game, player: Player):
     play_sense(game, player, sense_actions, move_actions)
 
     play_move(game, player, move_actions)
-
-    # TODO move this to right after move()
-    game.end_turn()
 
 
 def notify_opponent_move_results(game: Game, player: Player):
@@ -124,6 +120,7 @@ def play_move(game: Game, player: Player, move_actions: List[chess.Move]):
 
     #. Get the moving action using :meth:`Player.choose_move`.
     #. Apply the moving action using :meth:`Game.move`.
+    #. Ends the current player's turn using :meth:`Game.end_turn`.
     #. Give the result of the moveaction to player using :meth:`Player.handle_move_result`.
 
     :param game: The :class:`Game` that `player` is playing in.
@@ -132,5 +129,8 @@ def play_move(game: Game, player: Player, move_actions: List[chess.Move]):
     """
     move = player.choose_move(move_actions, game.get_seconds_left())
     requested_move, taken_move, opt_enemy_capture_square = game.move(move)
+
+    game.end_turn()
+
     player.handle_move_result(requested_move, taken_move,
                               opt_enemy_capture_square is not None, opt_enemy_capture_square)
