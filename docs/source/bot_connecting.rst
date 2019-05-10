@@ -7,7 +7,7 @@ Registering on the server
 Before connecting your bot to the server, you'll need to register on the server. You can do this through the server's
 website, or by using one of the built in scripts.
 
-**Make sure you remember your password!!**
+**Note: The server will not be active until sometime in June, so registration will not work until then.**
 
 Website registration
 ^^^^^^^^^^^^^^^^^^^^
