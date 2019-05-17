@@ -89,6 +89,9 @@ class DJBoy(Player):
 
         # else make the best possible move
         # NOT IMPLEMENTED YET
+	
+	# random move, comment out after implementing strategy to find best possible move, just for tesing purposes before best move implemented
+	return random.choice(move_actions, [None])
 
     # don't change
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
