@@ -57,6 +57,12 @@ class DJBoy(Player):
     def edge_correct(Square):
 	n_square = Square
 	
+	# if on outer rows, move one row away from the edge
+	
+	
+	# if on outer columns, move one column away from the edge
+	
+	
 	return n_square
 
     # register where we see other pieces
