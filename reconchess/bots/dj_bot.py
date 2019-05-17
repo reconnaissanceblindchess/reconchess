@@ -58,11 +58,17 @@ class DJBoy(Player):
 	n_square = Square
 	
 	# if on outer rows, move one row away from the edge
-	
+	if (chess.square_rank(n_square) == 0):
+		n_square += 8
+	else if (chess.square_rank(n_square) == 7):
+		n_square -= 8
 	
 	# if on outer columns, move one column away from the edge
-	
-	
+	if (chess.square_file(n_square) == 0):
+		n_square += 1
+	else if (chess.square_file(n_square) == 7):
+		n_square -= 1
+		
 	return n_square
 
     # register where we see other pieces
