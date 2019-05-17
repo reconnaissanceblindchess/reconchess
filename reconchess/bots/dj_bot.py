@@ -55,7 +55,7 @@ class DJBoy(Player):
 
     # move scan away from edge to prevent it from being partially wasted
     def edge_correct(Square):
-	n_square = square
+	n_square = Square
 	
 	return n_square
 
