@@ -1,6 +1,13 @@
 reconchess: python package for Reconnaissance Chess
 ====================================================
 
+Edge Correct branch
+
+    * Implemented the edge correct algorithm, to move scan away from edge to prevent scan from being partially wasted due to 'hanging off' the edge
+            - choose_sense now uses a local variable ( poten_square ) to store the square returned by the various scan algos, so that square can be passed through edge correct before being returned
+            - edge correct uses chess.square_file and chess.square_file to determine row & column, then adds/subtracts a number equal to the amount needed to move it to the square in the adjacent row/column away from the edge of the board
+    * Implemented a random move option to 'choose move' for testing purposes before the algo for choosing the best move is implemented. Note: only intended to be temporary.
+
 Introduction
 ------------
 
