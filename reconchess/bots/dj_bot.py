@@ -90,7 +90,7 @@ class DJBoy(Player):
         # else make the best possible move
         # NOT IMPLEMENTED YET
 	
-	# random move, comment out after implementing strategy to find best possible move, just for tesing purposes before best move implemented
+	# random move, comment out after implementing strategy to find best possible move, just for tesing purposes
 	return random.choice(move_actions, [None])
 
     # don't change
