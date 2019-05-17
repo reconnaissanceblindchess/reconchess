@@ -34,14 +34,14 @@ class DJBoy(Player):
         if self.my_piece_captured_square:
 		# instead of directly returning the square to scan, save as a local variable for edge correction in all algos
 		poten_square = self.my_piece_captured_square
-		
+		poten_square = edge_correct(poten_square)
         	return poten_square
 
         # if we might capture a piece when we move, sense where the capture will occur
         future_move = self.choose_move(move_actions, seconds_left)
         if future_move is not None and self.board.piece_at(future_move.to_square) is not None:
 		poten_square = future_move.to_square
-		
+		poten_square = edge_correct(poten_square)
         	return poten_square
 
         # otherwise, just randomly choose a sense action, but don't sense on a square where our pieces are located
@@ -50,7 +50,7 @@ class DJBoy(Player):
                 sense_actions.remove(square)
 	
 	poten_square = random.choice(sense_actions)
-	
+	poten_square = edge_correct(poten_square)
         return poten_square
 
     # move scan away from edge to prevent it from being partially wasted
