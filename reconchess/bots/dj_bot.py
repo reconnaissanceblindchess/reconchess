@@ -22,6 +22,7 @@ class DJBot(Player):
         self.belief = None
         self.color = None
         self.my_piece_captured_square = None
+        self.lastMove = None
         # self.stockfish = Stockfish()
         self.space_conversions = {
         'a1': chess.A1,'a2': chess.A2,'a3': chess.A3,'a4': chess.A4,'a5': chess.A5,'a6': chess.A6,'a7': chess.A7,'a8': chess.A8,
@@ -115,16 +116,30 @@ class DJBot(Player):
         # print(score)
         return score
 
-    def calculateBestMove(self, board: chess.Board, move_actions: List[chess.Move]):
+    def calculateBestMove(self, starting_depth, depth, board: chess.Board, move_actions: List[chess.Move], isMax=True):
+        if depth == 0:
+            return self.evaluateBoard(board)
         best_move = None
+        cur_score = 0
         best_score = -1000000
+        # print("move actions:" + str(move_actions))
         for move in move_actions:
-            board.push(move)
             test_board = board
-            cur_score = self.evaluateBoard(test_board)
-            if (best_score <= cur_score):
-                best_score = cur_score
-                best_move = move
+            test_board.push(move)
+            test_moves = []
+            print("move actions:" + str(test_board.generate_pseudo_legal_moves()))
+            for next_move in test_board.generate_pseudo_legal_moves():
+                print("move: " + str(next_move))
+                test_moves.append(next_move)
+            cur_score = self.calculateBestMove(depth-1,test_board, test_moves, not isMax)
+            if isMax:
+                if (best_score <= cur_score):
+                    best_score = cur_score
+                    best_move = move
+            else:
+                if (best_score >= cur_score):
+                    best_score = cur_score
+                    best_move = move
         return best_move
 
 
@@ -140,11 +155,12 @@ class DJBot(Player):
                 return chess.Move(attacker_square, enemy_king_square)
 
         # best_move = self.stockfish.get_best_move()
-        best_move = self.calculateBestMove(self.board, move_actions)
+        best_move = self.calculateBestMove(3, 3, self.board, move_actions, True)
         # stock_move = self.stockfish_move_conversion(best_move)
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
         ucimove = best_move
-        if ucimove not in move_actions:
+        self.lastMove = ucimove
+        if ucimove not in move_actions and ucimove is not self.lastMove:
             print("failed move check, do random")
             choice = random.choice(move_actions)
             self.board.push(choice)
