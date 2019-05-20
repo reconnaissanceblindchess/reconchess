@@ -341,12 +341,17 @@ class DJBotNaiveEval(Player):
             test_board = board
             test_board.push(move)
             cur_score = self.naiveEvaluation(test_board)
+            if self.lastMove is not None:
+                if move is self.reverse_move(self.lastMove):
+                    cur_score = -10000000
             if best_score < cur_score:
                     best_score = cur_score
                     best_move = move
         return best_move
 
 
+    def reverse_move(self, move: chess.Move):
+        return chess.Move(move.to_square, move.from_square)
 
     def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         # if we might be able to take the king, try to
@@ -373,16 +378,17 @@ class DJBotNaiveEval(Player):
         # stock_move = self.stockfish_move_conversion(best_move)
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
         ucimove = best_move
-        self.lastMove = ucimove
         # if ucimove not in move_actions and ucimove is not self.lastMove:
         if ucimove not in move_actions:
             print("failed move check, do random")
             choice = random.choice(move_actions)
             self.board.push(choice)
+            self.lastMove = ucimove
             # self.stockfish.set_fen_position(self.board.fen())
             return choice
         # print("Best: " + str(best_move))
         self.board.push(ucimove)
+        self.lastMove = ucimove
         # self.stockfish.set_fen_position(self.board.fen())
         return ucimove 
 
