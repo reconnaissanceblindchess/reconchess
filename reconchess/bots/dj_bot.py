@@ -103,6 +103,20 @@ class DJBot(Player):
 
         return chess.Move( self.space_conversions[source], self.space_conversions[dest] )
 
+    def naiveEvaluation(self, board :chess.Board):
+        def evaluateBoard(self, board : chess.Board):
+        pieceScores = {chess.PAWN : 10, chess.ROOK: 50, chess.KNIGHT: 70, chess.BISHOP: 30, chess.QUEEN: 100, chess.KING: 100000 }
+        score = 0
+        #eval pawns
+        score += pieceScores[chess.PAWN] * len(board.pieces(chess.PAWN, self.color))
+        score += pieceScores[chess.ROOK] * len(board.pieces(chess.ROOK, self.color))
+        score += pieceScores[chess.KNIGHT] * len(board.pieces(chess.KNIGHT, self.color))
+        score += pieceScores[chess.BISHOP] * len(board.pieces(chess.BISHOP, self.color))
+        score += pieceScores[chess.QUEEN] * len(board.pieces(chess.QUEEN, self.color))
+        score += pieceScores[chess.KING] * len(board.pieces(chess.KING, self.color))
+        # print(score)
+        return score
+
     def evaluateBoard(self, board : chess.Board):
         pieceScores = {chess.PAWN : 10, chess.ROOK: 50, chess.KNIGHT: 70, chess.BISHOP: 30, chess.QUEEN: 100, chess.KING: 100000 }
         pawnEvals = [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
