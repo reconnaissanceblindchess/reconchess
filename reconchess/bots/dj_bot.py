@@ -217,7 +217,7 @@ class DJBot(Player):
                 attacker_square = enemy_king_attackers.pop()
                 print("attack king " + str(attacker_square) + str(enemy_king_square))
                 
-                king_cap_move = chess.square_names[attacker_square] + chess.square_names[enemy_king_square]
+                king_cap_move = chess.SQUARE_NAMES[attacker_square] + chess.SQUARE_NAMES[enemy_king_square]
                 print("attack king name " + king_cap_move)
                 
                 if king_cap_move in move_actions:
