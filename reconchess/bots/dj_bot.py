@@ -219,7 +219,7 @@ class DJBot(Player):
                 print("attack king " + king_cap_move)
                 if king_cap_move in move_actions:
                     return chess.Move(attacker_square, enemy_king_square)
-                else
+                else:
                     print("Failed attack, move blocked by unseen piece")
 
         # best_move = self.stockfish.get_best_move()
