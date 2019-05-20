@@ -104,7 +104,6 @@ class DJBot(Player):
         return chess.Move( self.space_conversions[source], self.space_conversions[dest] )
 
     def naiveEvaluation(self, board :chess.Board):
-        def evaluateBoard(self, board : chess.Board):
         pieceScores = {chess.PAWN : 10, chess.ROOK: 50, chess.KNIGHT: 70, chess.BISHOP: 30, chess.QUEEN: 100, chess.KING: 100000 }
         score = 0
         #eval pawns
@@ -184,22 +183,132 @@ class DJBot(Player):
 
         #pawns
         for piece in board.pieces(chess.PAWN, self.color):
-            score += pawnEvals[piece]
+            score += 10 + pawnEvals[piece]
+        # for piece in board.pieces(chess.PAWN, not self.color):
+        #     score -= 10 + pawnEvals[piece]
         #rooks
         for piece in board.pieces(chess.ROOK, self.color):
-            score += rookEvals[piece]
+            score += 50 + rookEvals[piece]
+        # for piece in board.pieces(chess.ROOK, not self.color):
+        #     score -= 50 + rookEvals[piece]
         #knights
         for piece in board.pieces(chess.KNIGHT, self.color):
-            score += knightEvals[piece]
+            score += 30 + knightEvals[piece]
+        # for piece in board.pieces(chess.KNIGHT, not self.color):
+        #     score -= 30 + knightEvals[piece]
         #bishops
         for piece in board.pieces(chess.BISHOP, self.color):
-            score += bishopEvals[piece]
+            score += 30 + bishopEvals[piece]
+        # for piece in board.pieces(chess.BISHOP, not self.color):
+        #     score -= 30 + bishopEvals[piece]
         #queen
         for piece in board.pieces(chess.QUEEN, self.color):
-            score += queenEvals[piece]
+            score += 90 + queenEvals[piece]
+        # for piece in board.pieces(chess.QUEEN, not self.color):
+        #     score -= 90 + queenEvals[piece]
         #king
         for piece in board.pieces(chess.KING, self.color):
-            score += kingEvals[piece]
+            score += 1000 + kingEvals[piece]
+        # for piece in board.pieces(chess.KING, not self.color):
+        #     score -= 1000 + kingEvals[piece]
+        # print(score)
+        return score    
+
+    def balanceEval(self, board : chess.Board):
+        pieceScores = {chess.PAWN : 10, chess.ROOK: 50, chess.KNIGHT: 70, chess.BISHOP: 30, chess.QUEEN: 100, chess.KING: 100000 }
+        pawnEvals = [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+        5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,
+        1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0,
+        0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5,
+        0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0,
+        0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5,
+        0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5,
+        0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+
+        knightEvals =[-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0,
+        -4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0,
+        -3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0,
+        -3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0,
+        -3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0,
+        -3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0,
+        -4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0,
+        -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+
+        bishopEvals = [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0,
+        -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0,
+        -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0,
+        -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0,
+        -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,
+        -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0,
+        -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+
+        rookEvals = [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+        0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+
+        queenEvals = [  -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0,
+        -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+        -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+        0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+        -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+
+        kingEvals = [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0,
+        -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0,
+        2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ,
+        2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+
+        if self.color == chess.BLACK:
+            pawnEvals = pawnEvals[::-1]
+            knightEvals = knightEvals[::-1]
+            bishopEvals = bishopEvals[::-1]
+            rookEvals = rookEvals[::-1]
+            queenEvals = queenEvals[::-1]
+            kingEvals = kingEvals[::-1]
+        score = 0
+
+        #pawns
+        for piece in board.pieces(chess.PAWN, self.color):
+            score += 10 + pawnEvals[piece]
+        for piece in board.pieces(chess.PAWN, not self.color):
+            score -= 10 + pawnEvals[piece]
+        #rooks
+        for piece in board.pieces(chess.ROOK, self.color):
+            score += 50 + rookEvals[piece]
+        for piece in board.pieces(chess.ROOK, not self.color):
+            score -= 50 + rookEvals[piece]
+        #knights
+        for piece in board.pieces(chess.KNIGHT, self.color):
+            score += 30 + knightEvals[piece]
+        for piece in board.pieces(chess.KNIGHT, not self.color):
+            score -= 30 + knightEvals[piece]
+        #bishops
+        for piece in board.pieces(chess.BISHOP, self.color):
+            score += 30 + bishopEvals[piece]
+        for piece in board.pieces(chess.BISHOP, not self.color):
+            score -= 30 + bishopEvals[piece]
+        #queen
+        for piece in board.pieces(chess.QUEEN, self.color):
+            score += 90 + queenEvals[piece]
+        for piece in board.pieces(chess.QUEEN, not self.color):
+            score -= 90 + queenEvals[piece]
+        #king
+        for piece in board.pieces(chess.KING, self.color):
+            score += 1000 + kingEvals[piece]
+        for piece in board.pieces(chess.KING, not self.color):
+            score -= 1000 + kingEvals[piece]
         # print(score)
         return score
 
@@ -212,7 +321,7 @@ class DJBot(Player):
         for move in move_actions:
             test_board = board
             test_board.push(move)
-            cur_score = self.evaluateBoard(test_board)
+            cur_score = self.balanceEval(test_board)
             if best_score < cur_score:
                     best_score = cur_score
                     best_move = move
