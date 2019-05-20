@@ -222,7 +222,8 @@ class DJBot(Player):
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
         ucimove = best_move
         self.lastMove = ucimove
-        if ucimove not in move_actions and ucimove is not self.lastMove:
+        # if ucimove not in move_actions and ucimove is not self.lastMove:
+        if ucimove not in move_actions:
             print("failed move check, do random")
             choice = random.choice(move_actions)
             self.board.push(choice)
