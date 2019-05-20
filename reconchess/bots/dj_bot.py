@@ -102,42 +102,104 @@ class DJBot(Player):
         dest = move[2:]
 
         return chess.Move( self.space_conversions[source], self.space_conversions[dest] )
-        
+
     def evaluateBoard(self, board : chess.Board):
         pieceScores = {chess.PAWN : 10, chess.ROOK: 50, chess.KNIGHT: 70, chess.BISHOP: 30, chess.QUEEN: 100, chess.KING: 100000 }
+        pawnEvals = [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+        5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,
+        1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0,
+        0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5,
+        0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0,
+        0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5,
+        0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5,
+        0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+
+        knightEvals =[-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0,
+        -4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0,
+        -3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0,
+        -3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0,
+        -3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0,
+        -3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0,
+        -4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0,
+        -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+
+        bishopEvals = [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0,
+        -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0,
+        -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0,
+        -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0,
+        -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,
+        -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0,
+        -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+
+        rookEvals = [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+        0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+        0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+
+        queenEvals = [  -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0,
+        -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+        -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+        0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+        -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+        -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0,
+        -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+
+        kingEvals = [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+        -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0,
+        -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0,
+        2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ,
+        2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+
+        if self.color == chess.BLACK:
+            pawnEvals = pawnEvals[::-1]
+            knightEvals = knightEvals[::-1]
+            bishopEvals = bishopEvals[::-1]
+            rookEvals = rookEvals[::-1]
+            queenEvals = queenEvals[::-1]
+            kingEvals = kingEvals[::-1]
         score = 0
-        #eval pawns
-        score += pieceScores[chess.PAWN] * len(board.pieces(chess.PAWN, self.color))
-        score += pieceScores[chess.ROOK] * len(board.pieces(chess.ROOK, self.color))
-        score += pieceScores[chess.KNIGHT] * len(board.pieces(chess.KNIGHT, self.color))
-        score += pieceScores[chess.BISHOP] * len(board.pieces(chess.BISHOP, self.color))
-        score += pieceScores[chess.QUEEN] * len(board.pieces(chess.QUEEN, self.color))
-        score += pieceScores[chess.KING] * len(board.pieces(chess.KING, self.color))
+
+        #pawns
+        for piece in board.pieces(chess.PAWN, self.color):
+            score += pawnEvals[piece]
+        #rooks
+        for piece in board.pieces(chess.ROOK, self.color):
+            score += rookEvals[piece]
+        #knights
+        for piece in board.pieces(chess.KNIGHT, self.color):
+            score += knightEvals[piece]
+        #bishops
+        for piece in board.pieces(chess.BISHOP, self.color):
+            score += bishopEvals[piece]
+        #queen
+        for piece in board.pieces(chess.QUEEN, self.color):
+            score += queenEvals[piece]
+        #king
+        for piece in board.pieces(chess.KING, self.color):
+            score += kingEvals[piece]
         # print(score)
         return score
 
-    def calculateBestMove(self, starting_depth, depth, board: chess.Board, move_actions: List[chess.Move], isMax=True):
-        if depth == 0:
-            return self.evaluateBoard(board)
+    def calculateBestMove(self, board: chess.Board, move_actions: List[chess.Move]):
         best_move = None
         cur_score = 0
         best_score = -1000000
+        test_board = board
         # print("move actions:" + str(move_actions))
         for move in move_actions:
             test_board = board
             test_board.push(move)
-            test_moves = []
-            print("move actions:" + str(test_board.generate_pseudo_legal_moves()))
-            for next_move in test_board.generate_pseudo_legal_moves():
-                print("move: " + str(next_move))
-                test_moves.append(next_move)
-            cur_score = self.calculateBestMove(depth-1,test_board, test_moves, not isMax)
-            if isMax:
-                if (best_score <= cur_score):
-                    best_score = cur_score
-                    best_move = move
-            else:
-                if (best_score >= cur_score):
+            cur_score = self.evaluateBoard(test_board)
+            if best_score < cur_score:
                     best_score = cur_score
                     best_move = move
         return best_move
@@ -155,7 +217,7 @@ class DJBot(Player):
                 return chess.Move(attacker_square, enemy_king_square)
 
         # best_move = self.stockfish.get_best_move()
-        best_move = self.calculateBestMove(3, 3, self.board, move_actions, True)
+        best_move = self.calculateBestMove(self.board, move_actions)
         # stock_move = self.stockfish_move_conversion(best_move)
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
         ucimove = best_move
@@ -166,7 +228,7 @@ class DJBot(Player):
             self.board.push(choice)
             # self.stockfish.set_fen_position(self.board.fen())
             return choice
-        print("Best: " + str(best_move))
+        # print("Best: " + str(best_move))
         self.board.push(ucimove)
         # self.stockfish.set_fen_position(self.board.fen())
         return ucimove 
