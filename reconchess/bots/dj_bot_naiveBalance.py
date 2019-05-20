@@ -341,9 +341,9 @@ class DJBotNaiveBalance(Player):
             test_board = board
             test_board.push(move)
             cur_score = self.naiveBalanceEvaluation(test_board)
-            if self.lastMove is not None:
-                if move is self.reverse_move(self.lastMove):
-                    cur_score = -10000000
+            # if self.lastMove is not None:
+            #     if move is self.reverse_move(self.lastMove):
+            #         cur_score = -10000000
             if best_score < cur_score:
                     best_score = cur_score
                     best_move = move
