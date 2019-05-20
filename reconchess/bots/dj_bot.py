@@ -211,18 +211,29 @@ class DJBot(Player):
         enemy_king_square = self.board.king(not self.color)
         if enemy_king_square:
             # if there are any ally pieces that can take king, execute one of those moves
+            # print("Try to cap king")
             enemy_king_attackers = self.board.attackers(self.color, enemy_king_square)
             if enemy_king_attackers:
                 attacker_square = enemy_king_attackers.pop()
-                return chess.Move(attacker_square, enemy_king_square)
+                print("attack king " + str(attacker_square) + str(enemy_king_square))
+                
+                king_cap_move = chess.SQUARE_NAMES[attacker_square] + chess.SQUARE_NAMES[enemy_king_square]
+                print("attack king name " + king_cap_move)
+                
+                if king_cap_move in move_actions:
+                    return chess.Move(attacker_square, enemy_king_square)
+                else:
+                    print("Failed attack, move blocked by unseen piece")
 
         # best_move = self.stockfish.get_best_move()
+        # print("Try best move")
         best_move = self.calculateBestMove(self.board, move_actions)
         # stock_move = self.stockfish_move_conversion(best_move)
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
         ucimove = best_move
         self.lastMove = ucimove
-        if ucimove not in move_actions and ucimove is not self.lastMove:
+        # if ucimove not in move_actions and ucimove is not self.lastMove:
+        if ucimove not in move_actions:
             print("failed move check, do random")
             choice = random.choice(move_actions)
             self.board.push(choice)
