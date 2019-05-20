@@ -211,8 +211,10 @@ class DJBot(Player):
         enemy_king_square = self.board.king(not self.color)
         if enemy_king_square:
             # if there are any ally pieces that can take king, execute one of those moves
+            print("Try to cap king")
             enemy_king_attackers = self.board.attackers(self.color, enemy_king_square)
             if enemy_king_attackers:
+                print("attack king")
                 attacker_square = enemy_king_attackers.pop()
                 return chess.Move(attacker_square, enemy_king_square)
 
