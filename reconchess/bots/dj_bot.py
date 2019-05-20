@@ -216,14 +216,14 @@ class DJBot(Player):
             if enemy_king_attackers:
                 attacker_square = enemy_king_attackers.pop()
                 king_cap_move = attacker_square + enemy_king_square
-                print("attack king " + king_cap_move)
+                print("attack king " + str(king_cap_move))
                 if king_cap_move in move_actions:
                     return chess.Move(attacker_square, enemy_king_square)
                 else:
                     print("Failed attack, move blocked by unseen piece")
 
         # best_move = self.stockfish.get_best_move()
-        print("Try best move")
+        # print("Try best move")
         best_move = self.calculateBestMove(self.board, move_actions)
         # stock_move = self.stockfish_move_conversion(best_move)
         # ucimove = chess.Move.from_uci(self.stockfish.get_best_move())
