@@ -41,13 +41,6 @@ class Game(object):
         pass
 
     @abstractmethod
-    def is_my_turn(self) -> bool:
-        """
-        :return: Returns `True` if it is the player's turn, otherwise `False`.
-        """
-        pass
-
-    @abstractmethod
     def opponent_move_results(self) -> Optional[Square]:
         """
         :return: :class:`Square` where opponent captured a piece last turn if they did, otherwise `None`.
