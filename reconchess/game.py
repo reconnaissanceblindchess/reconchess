@@ -358,6 +358,9 @@ class RemoteGame(Game):
     def start(self):
         self._post('ready', {})
 
+    def is_my_turn(self) -> bool:
+        return self._get('is_my_turn')['is_my_turn']
+
     def opponent_move_results(self) -> Optional[Square]:
         return self._get('opponent_move_results')['opponent_move_results']
 
