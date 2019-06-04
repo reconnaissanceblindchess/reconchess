@@ -15,6 +15,7 @@ Contents
     bot_debug
     bot_connecting
     reconchess
+    reconchess_server
 
 Indices and tables
 ==================
