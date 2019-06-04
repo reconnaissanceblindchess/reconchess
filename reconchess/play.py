@@ -53,7 +53,7 @@ def play_remote_game(server_url, game_id, auth, player: Player):
     while not game.is_over():
         while not game.is_my_turn():
             time.sleep(.1)
-        if not game.is_my_turn():
+        if not game.is_over():
             play_turn(game, player)
 
     winner_color = game.get_winner_color()
