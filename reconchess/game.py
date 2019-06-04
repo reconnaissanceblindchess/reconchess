@@ -41,6 +41,13 @@ class Game(object):
         pass
 
     @abstractmethod
+    def is_my_turn(self) -> bool:
+        """
+        :return: Returns `True` if it is the player's turn, otherwise `False`.
+        """
+        pass
+
+    @abstractmethod
     def opponent_move_results(self) -> Optional[Square]:
         """
         :return: :class:`Square` where opponent captured a piece last turn if they did, otherwise `None`.
@@ -357,6 +364,9 @@ class RemoteGame(Game):
 
     def start(self):
         self._post('ready', {})
+
+    def is_my_turn(self) -> bool:
+        return self._get('is_my_turn')['is_my_turn']
 
     def opponent_move_results(self) -> Optional[Square]:
         return self._get('opponent_move_results')['opponent_move_results']

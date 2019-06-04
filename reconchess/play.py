@@ -4,6 +4,7 @@ from .player import Player
 from .game import Game, LocalGame, RemoteGame
 from .history import GameHistory
 
+import time
 
 def play_local_game(white_player: Player, black_player: Player, game: LocalGame = None,
                     seconds_per_player: float = 900) -> Tuple[Optional[Color], Optional[WinReason], GameHistory]:
@@ -50,6 +51,8 @@ def play_remote_game(server_url, game_id, auth, player: Player):
     game.start()
 
     while not game.is_over():
+        while not game.is_my_turn():
+            time.sleep(.1)
         play_turn(game, player)
 
     winner_color = game.get_winner_color()
