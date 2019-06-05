@@ -57,4 +57,6 @@ Other languages
 If you are not using python or not using the reconchess package, you will need to implement logic to handle talking to
 the server. This is done through a RESTful HTTP API, and should be straightforward to implement.
 
-If this applies to you please send us an email at **neurips_rbc_comp@listserv.jhuapl.edu.**
+See the :ref:`reconchess-HTTP-api` page for more information
+
+If this applies to you please send us an email at **neurips_rbc_comp@listserv.jhuapl.edu** for help.

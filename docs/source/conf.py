@@ -41,6 +41,7 @@ release = ''
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.httpdomain',
 ]
 autodoc_member_order = 'bysource'
 intersphinx_mapping = {
