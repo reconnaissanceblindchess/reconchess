@@ -1,6 +1,6 @@
 import argparse
 import chess
-from reconchess import load_player, LocalGame, GameHistory, Player, Color
+from reconchess import load_player, LocalGame, GameHistory, Player, Color, play_local_game
 
 
 def playback(game_history: GameHistory, player: Player, color: Color):
@@ -16,12 +16,23 @@ def playback(game_history: GameHistory, player: Player, color: Color):
         if game.turn == color:
             player.handle_opponent_move_result(opt_capture_square is not None, opt_capture_square)
 
+        sense_actions = game.sense_actions()
+        move_actions = game.move_actions()
+
         sense = game_history.sense(turn)
+        player_sense = player.choose_sense(sense_actions, move_actions, game.get_seconds_left())
+        if game.turn == color and sense != player_sense:
+            print('Warning: Sense action did not match history on turn {}. Using the sense action from history.'.format(
+                turn))
         sense_result = game.sense(sense)
         if game.turn == color:
             player.handle_sense_result(sense_result)
 
         move = game_history.requested_move(turn)
+        player_move = player.choose_move(move_actions, game.get_seconds_left())
+        if game.turn == color and move != player_move:
+            print('Warning: Move action did not match history on turn {}. Using the move action from history.'.format(
+                turn))
         requested_move, taken_move, opt_enemy_capture_square = game.move(move)
         if game.turn == color:
             player.handle_move_result(requested_move, taken_move,
