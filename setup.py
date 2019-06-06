@@ -21,6 +21,7 @@ setuptools.setup(
             'rc-bot-match=reconchess.scripts.rc_bot_match:main',
             'rc-play=reconchess.scripts.rc_play:main',
             'rc-replay=reconchess.scripts.rc_replay:main',
+            'rc-playback=reconchess.scripts.rc_playback:main',
             'rc-register=reconchess.scripts.rc_register:main',
             'rc-connect=reconchess.scripts.rc_connect:main',
             'rc-play-on-server=reconchess.scripts.rc_play_on_server:main',
