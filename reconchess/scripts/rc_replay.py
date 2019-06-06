@@ -90,7 +90,8 @@ class ReplayWindow:
                     'turn_color': turn.color,
                     'sense': history.sense(turn),
                     'sense_result': history.sense_result(turn),
-                    'fen': history.truth_fen_before_move(turn),
+                    'fen': history.truth_fen_before_move(turn) if history.is_first_turn(
+                        turn) else history.truth_fen_after_move(turn.previous),
                 })
             if history.has_move(turn):
                 self.actions.append({
