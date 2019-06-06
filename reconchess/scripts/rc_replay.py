@@ -309,7 +309,12 @@ def main():
     parser.add_argument('history_path', help='Path to saved Game History file.')
     args = parser.parse_args()
 
-    window = ReplayWindow(GameHistory.from_file(args.history_path))
+    history = GameHistory.from_file(args.history_path)
+    if history.is_empty():
+        print('Game History is empty.')
+        quit()
+
+    window = ReplayWindow(history)
 
     while True:
         window.update()
