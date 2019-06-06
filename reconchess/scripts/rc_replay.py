@@ -90,7 +90,8 @@ class ReplayWindow:
                     'turn_color': turn.color,
                     'sense': history.sense(turn),
                     'sense_result': history.sense_result(turn),
-                    'fen': history.truth_fen_before_move(turn),
+                    'fen': history.truth_fen_before_move(turn) if history.is_first_turn(
+                        turn) else history.truth_fen_after_move(turn.previous),
                 })
             if history.has_move(turn):
                 self.actions.append({
@@ -308,7 +309,12 @@ def main():
     parser.add_argument('history_path', help='Path to saved Game History file.')
     args = parser.parse_args()
 
-    window = ReplayWindow(GameHistory.from_file(args.history_path))
+    history = GameHistory.from_file(args.history_path)
+    if history.is_empty():
+        print('Game History is empty.')
+        quit()
+
+    window = ReplayWindow(history)
 
     while True:
         window.update()
