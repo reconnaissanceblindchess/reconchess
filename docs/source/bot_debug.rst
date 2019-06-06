@@ -1,6 +1,23 @@
 Debugging your bot
 ==================
 
+Diagnosing Errors
+-----------------
+
+When your bot encounters an exception or error during a game, reproducing that error is essential to diagnosing and
+fixing it. The built in script :code:`rc-playback` takes a game history, a bot, and the color the bot played as, and
+plays back the actions the bot took during the game. This allows you to exactly replicate the error producing
+conditions. Built in scripts like :code:`rc-play` and :code:`rc-bot-match` will produce game history files when an error
+occurs.
+
+.. code-block:: bash
+
+    rc-playback --help
+    rc-playback <game history path> <bot> <color>
+    rc-playback bad_game.json src/my_awesome_bot.py white
+
+Use the :code:`--help` flag for more information about the arguments.
+
 Debugging with PyCharm
 ----------------------
 
