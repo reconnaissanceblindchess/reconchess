@@ -1,24 +1,26 @@
 import argparse
 import requests
-import getpass
+from reconchess.scripts.rc_connect import ask_for_username, ask_for_password
 
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('username', help='Name to register under.')
+    parser.add_argument('--username', default=None, help='Name to register under. Enter with prompt if not specified.')
+    parser.add_argument('--password', default=None, help='Password to use. Enter with prompt if not specified.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
 
     try:
-        response = requests.get('{}/api/users'.format(args.server_url))
+        requests.get('{}/api/users'.format(args.server_url))
     except:
         print('No server found at {} - it may not be available yet.'.format(args.server_url))
         quit()
 
-    password = getpass.getpass()
+    username = ask_for_username() if args.username is None else args.username
+    password = ask_for_password() if args.password is None else args.password
 
     response = requests.post('{}/api/users/'.format(args.server_url), json={
-        'username': args.username,
+        'username': username,
         'password': password,
     })
 
