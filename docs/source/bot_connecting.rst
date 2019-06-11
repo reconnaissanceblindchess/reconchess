@@ -17,13 +17,17 @@ Visit https://rbc.jhuapl.edu/register to register.
 Command Line registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use the built in script :code:`rc-register` (it will prompt you for the password to use):
+Use the built in script :code:`rc-register`:
 
 .. code-block:: bash
 
     rc-register --help
-    rc-register <username>
+    rc-register
 
+This script will prompt you for the username and password after you run it, or you can specify the username and password
+with command line arguments.
+
+Use the :code:`--help` flag for more information about the arguments.
 
 Connecting to the server
 ------------------------
@@ -42,13 +46,19 @@ Use the built in script :code:`rc-connect` to connect to the server and let your
 
 Use the :code:`--help` flag for more information about the arguments.
 
-This script will prompt you for your username and password after you run it:
+This script will prompt you for your username and password after you run it, or you can specify the username and
+password with command line arguments.
 
 .. code-block:: bash
 
     $ rc-connect src/my_awesome_bot.py
     Username: my_awesome_bot
     Password: ...
+    [<time>] Connected successfully to server!
+
+.. code-block:: bash
+
+    $ rc-connect src/my_awesome_bot.py --username my_awesome_bot --password ...
     [<time>] Connected successfully to server!
 
 Other languages

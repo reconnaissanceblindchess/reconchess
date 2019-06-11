@@ -94,15 +94,23 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
             time.sleep(5)
 
 
+def ask_for_username():
+    return input('Username: ')
+
+
+def ask_for_password():
+    return getpass.getpass()
+
+
 def ask_for_auth():
-    username = input('Username: ')
-    password = getpass.getpass()
-    return username, password
+    return ask_for_username(), ask_for_password()
 
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('bot_path', help='Path to bot source or bot module name.')
+    parser.add_argument('--username', default=None, help='Username for login. Enter with prompt if not specified.')
+    parser.add_argument('--password', default=None, help='Password for login. Enter with prompt if not specified.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     parser.add_argument('--max-concurrent-games', type=int, default=4,
                         help='The maximum number of games to play at the same time.')
@@ -110,7 +118,9 @@ def main():
 
     bot_name, bot_cls = load_player(args.bot_path)
 
-    auth = ask_for_auth()
+    username = ask_for_username() if args.username is None else args.username
+    password = ask_for_password() if args.password is None else args.password
+    auth = username, password
 
     listen_for_invitations(args.server_url, auth, bot_cls, args.max_concurrent_games)
 
