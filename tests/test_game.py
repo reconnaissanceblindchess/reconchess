@@ -755,6 +755,19 @@ class IsOverTest(unittest.TestCase):
         game.start()
         self.assertTrue(game.is_over())
 
+    def test_white_resign(self):
+        game = LocalGame()
+        game.start()
+        game.resign()
+        self.assertTrue(game.is_over())
+
+    def test_black_resign(self):
+        game = LocalGame()
+        game.start()
+        game.end_turn()
+        game.resign()
+        self.assertTrue(game.is_over())
+
 
 class WinnerInfoTestCase(unittest.TestCase):
     def test_not_over(self):
@@ -769,6 +782,23 @@ class WinnerInfoTestCase(unittest.TestCase):
         game.end()
         self.assertIsNone(game.get_winner_color())
         self.assertIsNone(game.get_win_reason())
+
+    def test_white_resign(self):
+        game = LocalGame()
+        game.start()
+        game.resign()
+        game.end()
+        self.assertEqual(BLACK, game.get_winner_color())
+        self.assertEqual(WinReason.RESIGN, game.get_win_reason())
+
+    def test_black_resign(self):
+        game = LocalGame()
+        game.start()
+        game.end_turn()
+        game.resign()
+        game.end()
+        self.assertEqual(WHITE, game.get_winner_color())
+        self.assertEqual(WinReason.RESIGN, game.get_win_reason())
 
     def test_no_time_white(self):
         game = LocalGame()
