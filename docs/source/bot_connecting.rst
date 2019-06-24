@@ -23,11 +23,15 @@ Use the built in script :code:`rc-register`:
 
     rc-register --help
     rc-register
+    rc-register --username <username> --email <email> --password <password>
 
-This script will prompt you for the username and password after you run it, or you can specify the username and password
+This script will prompt you for the username, email, and password after you run it, or you can specify them
 with command line arguments.
 
 Use the :code:`--help` flag for more information about the arguments.
+
+If the registration is successful, you will receive an email from `neurips_rbc_comp@listserv.jhuapl.edu` about
+confirming your email. Click the link included in the email to verify your email.
 
 Connecting to the server
 ------------------------
