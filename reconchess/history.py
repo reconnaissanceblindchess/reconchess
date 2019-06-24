@@ -117,6 +117,8 @@ class GameHistory(object):
         self._capture_squares = {chess.WHITE: [], chess.BLACK: []}
         self._fens_before_move = {chess.WHITE: [], chess.BLACK: []}
         self._fens_after_move = {chess.WHITE: [], chess.BLACK: []}
+        self._winner_color = None
+        self._win_reason = None
 
     def save(self, filename):
         """
@@ -152,6 +154,10 @@ class GameHistory(object):
 
     def store_fen_after_move(self, color: Color, fen: str):
         self._fens_after_move[color].append(fen)
+
+    def store_results(self, winner_color: Optional[Color], win_reason: Optional[WinReason]):
+        self._winner_color = winner_color
+        self._win_reason = win_reason
 
     def is_empty(self) -> bool:
         """
@@ -313,6 +319,24 @@ class GameHistory(object):
                 return Turn(chess.WHITE, num_white_turns - 1)
             else:
                 return Turn(chess.BLACK, num_black_turns - 1)
+
+    def get_winner_color(self) -> Optional[Color]:
+        """
+        Returns the color of the player who won the game. If the game is not over, or is over but does not have a winner
+         then this will return `None`.
+
+        :return: :class:`Color` of the winner if the game has ended and has a winner, otherwise `None`.
+        """
+        return self._winner_color
+
+    def get_win_reason(self) -> Optional[WinReason]:
+        """
+        Returns the reason the player who won won the game. If the game is not over, or is over but does not have a
+        winner, then this will return `None`.
+
+        :return: :class:`WinReason` of the winner if the game has ended and has a winner, otherwise `None`.
+        """
+        return self._win_reason
 
     def _validate_turn(self, turn: Turn, collection: Mapping[Color, List[T]]):
         if turn.turn_number < 0 or turn.turn_number >= len(collection[turn.color]):
@@ -589,8 +613,9 @@ class GameHistory(object):
         senses_equal = self._senses == other._senses and self._sense_results == other._sense_results
         moves_equal = self._requested_moves == other._requested_moves and self._taken_moves == other._taken_moves and self._capture_squares == other._capture_squares
         fens_equal = self._fens_before_move == other._fens_before_move and self._fens_after_move == other._fens_after_move
+        results_equal = self._win_reason == other._win_reason and self._winner_color == other._winner_color
 
-        return senses_equal and moves_equal and fens_equal
+        return senses_equal and moves_equal and fens_equal and results_equal
 
 
 class GameHistoryEncoder(ChessJSONEncoder):
@@ -605,6 +630,8 @@ class GameHistoryEncoder(ChessJSONEncoder):
                 'capture_squares': o._capture_squares,
                 'fens_before_move': o._fens_before_move,
                 'fens_after_move': o._fens_after_move,
+                'winner_color': o._winner_color,
+                'win_reason': o._win_reason,
             }
         return super().default(o)
 
@@ -623,6 +650,8 @@ class GameHistoryDecoder(ChessJSONDecoder):
             history._capture_squares = obj['capture_squares']
             history._fens_before_move = obj['fens_before_move']
             history._fens_after_move = obj['fens_after_move']
+            history._winner_color = obj['winner_color']
+            history._win_reason = obj['win_reason']
 
             for color, sense_results in history._sense_results.items():
                 for result in sense_results:
