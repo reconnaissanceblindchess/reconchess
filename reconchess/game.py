@@ -138,6 +138,7 @@ class LocalGame(Game):
         self.__game_history = GameHistory()
 
         self._is_finished = False
+        self._resignee = None
         self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
         self.current_turn_start_time = None
 
@@ -158,6 +159,10 @@ class LocalGame(Game):
         """
         self.seconds_left_by_color[self.turn] = self.get_seconds_left()
         self._is_finished = True
+        self.__game_history.store_results(self.get_winner_color(), self.get_win_reason())
+
+    def resign(self):
+        self._resignee = self.turn
 
     def get_seconds_left(self) -> float:
         """
@@ -288,11 +293,15 @@ class LocalGame(Game):
 
         no_time_left = self.get_seconds_left() <= 0 or self.seconds_left_by_color[not self.turn] <= 0
         king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
-        return no_time_left or king_captured
+        someone_resigned = self._resignee is not None
+        return no_time_left or king_captured or someone_resigned
 
     def get_winner_color(self) -> Optional[Color]:
         if not self.is_over():
             return None
+
+        if self._resignee is not None:
+            return not self._resignee
 
         if self.seconds_left_by_color[chess.WHITE] <= 0:
             return chess.BLACK
@@ -310,7 +319,9 @@ class LocalGame(Game):
         if not self.is_over():
             return None
 
-        if self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0:
+        if self._resignee is not None:
+            return WinReason.RESIGN
+        elif self.seconds_left_by_color[chess.WHITE] <= 0 or self.seconds_left_by_color[chess.BLACK] <= 0:
             return WinReason.TIMEOUT
         elif self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None:
             return WinReason.KING_CAPTURE

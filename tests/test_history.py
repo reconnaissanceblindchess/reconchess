@@ -424,6 +424,32 @@ class HistoryEqualityTestCase(unittest.TestCase):
         self.g2.store_fen_after_move(WHITE, 'qwer')
         self.assertNotEqual(self.g1, self.g2)
 
+    def test_same_results(self):
+        self.g1.store_results(True, WinReason.RESIGN)
+        self.g2.store_results(True, WinReason.RESIGN)
+        self.assertEqual(self.g1, self.g2)
+
+        self.g1.store_results(True, WinReason.TIMEOUT)
+        self.g2.store_results(True, WinReason.TIMEOUT)
+        self.assertEqual(self.g1, self.g2)
+
+        self.g1.store_results(True, WinReason.KING_CAPTURE)
+        self.g2.store_results(True, WinReason.KING_CAPTURE)
+        self.assertEqual(self.g1, self.g2)
+
+        self.g1.store_results(False, WinReason.KING_CAPTURE)
+        self.g2.store_results(False, WinReason.KING_CAPTURE)
+        self.assertEqual(self.g1, self.g2)
+
+    def test_diff_results(self):
+        self.g1.store_results(True, WinReason.KING_CAPTURE)
+        self.g2.store_results(False, WinReason.KING_CAPTURE)
+        self.assertNotEqual(self.g1, self.g2)
+
+        self.g1.store_results(True, WinReason.KING_CAPTURE)
+        self.g2.store_results(True, WinReason.RESIGN)
+        self.assertNotEqual(self.g1, self.g2)
+
 
 class HistoryGettersTestCase(unittest.TestCase):
     def setUp(self):
@@ -662,6 +688,7 @@ class HistorySaveTestCase(unittest.TestCase):
         history.store_move(WHITE, Move(E2, E3), Move(E2, E3), None)
         history.store_fen_before_move(WHITE, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -')
         history.store_fen_after_move(WHITE, 'rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq -')
+        history.store_results(WHITE, WinReason.RESIGN)
 
         with tempfile.TemporaryDirectory() as d:
             history.save(os.path.join(d, 'history.tsv'))
@@ -676,6 +703,8 @@ class HistorySaveTestCase(unittest.TestCase):
                          {WHITE: ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'], BLACK: []})
         self.assertEqual(restored_history._fens_after_move,
                          {WHITE: ['rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq -'], BLACK: []})
+        self.assertEqual(restored_history._winner_color, WHITE)
+        self.assertEqual(restored_history._win_reason, WinReason.RESIGN)
         self.assertEqual(history, restored_history)
 
     def test_fuzz(self):

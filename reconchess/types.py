@@ -13,4 +13,7 @@ class WinReason(Enum):
     """The game ended because one player captured the other's king."""
 
     TIMEOUT = 2
-    """The game ended because one player ran out of time"""
+    """The game ended because one player ran out of time."""
+
+    RESIGN = 3
+    """The game ended because one player resigned."""
