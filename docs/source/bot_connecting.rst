@@ -7,12 +7,13 @@ Registering on the server
 Before connecting your bot to the server, you'll need to register on the server. You can do this through the server's
 website, or by using one of the built in scripts.
 
-**Note: The server will not be active until sometime in June, so registration will not work until then.**
-
 Website registration
 ^^^^^^^^^^^^^^^^^^^^
 
 Visit https://rbc.jhuapl.edu/register to register.
+
+If the registration is successful, you will receive an email from `neurips_rbc_comp@listserv.jhuapl.edu` about
+confirming your email. Click the link included in the email to verify your email.
 
 Command Line registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
