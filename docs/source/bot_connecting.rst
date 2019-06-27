@@ -7,13 +7,13 @@ Registering on the server
 Before connecting your bot to the server, you'll need to register on the server. You can do this through the server's
 website, or by using one of the built in scripts.
 
+If the registration is successful, you will receive an email from neurips_rbc_comp@listserv.jhuapl.edu about
+confirming your email. Click the link included in the email to verify your email.
+
 Website registration
 ^^^^^^^^^^^^^^^^^^^^
 
 Visit https://rbc.jhuapl.edu/register to register.
-
-If the registration is successful, you will receive an email from `neurips_rbc_comp@listserv.jhuapl.edu` about
-confirming your email. Click the link included in the email to verify your email.
 
 Command Line registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30,9 +30,6 @@ This script will prompt you for the username, email, and password after you run 
 with command line arguments.
 
 Use the :code:`--help` flag for more information about the arguments.
-
-If the registration is successful, you will receive an email from `neurips_rbc_comp@listserv.jhuapl.edu` about
-confirming your email. Click the link included in the email to verify your email.
 
 Connecting to the server
 ------------------------
