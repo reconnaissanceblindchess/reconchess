@@ -223,8 +223,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 
     Get the sense actions you can take. See :meth:`reconchess.Game.sense_actions`.
 
-    Doesn't return a response until it is your turn.
-
     **Example response content**:
 
     .. code-block:: javascript
@@ -243,8 +241,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 .. http:get:: /api/games/(int:game_id)/move_actions
 
     Get the move actions you can take. See :meth:`reconchess.Game.move_actions`.
-
-    Doesn't return a response until it is your turn.
 
     **Example response content**:
 
@@ -270,8 +266,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 
     Gets the number of seconds you have left to play. See :meth:`reconchess.Game.get_seconds_left`.
 
-    Doesn't return a response until it is your turn.
-
     **Example response content**:
 
     .. code-block:: javascript
@@ -290,8 +284,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 .. http:get:: /api/games/(int:game_id)/opponent_move_results
 
     Get the result of the opponent's last move.  See :meth:`reconchess.Game.opponent_move_results`.
-
-    Doesn't return a response until it is your turn.
 
     **Example response content**:
 
@@ -312,8 +304,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 .. http:post:: /api/games/(int:game_id)/sense
 
     Perform a sense action.  See :meth:`reconchess.Game.sense`.
-
-    Doesn't return a response until it is your turn.
 
     **Example request content**:
 
@@ -349,8 +339,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 .. http:post:: /api/games/(int:game_id)/move
 
     Perform a move action.  See :meth:`reconchess.Game.move`.
-
-    Doesn't return a response until it is your turn.
 
     **Example request content**:
 
@@ -388,8 +376,6 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 
     End your turn.  See :meth:`reconchess.Game.end_turn`.
 
-    Doesn't return a response until it is your turn.
-
     :param game_id: The ID of the game.
     :<header Authorization: Basic Authorization.
     :statuscode 200: Success.
@@ -401,7 +387,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 
     Whether the game is over. See :meth:`reconchess.Game.is_over`.
 
-    If you are a player in the game and it isn't over, this doesn't return a response until it is your turn.
+    We recommend using the `game_status` endpoint for turn management.
 
     **Example response content**:
 
@@ -413,6 +399,48 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
 
     :param game_id: The ID of the game.
     :<header Authorization: Basic Authorization.
+    :>json boolean is_over: Whether the game is over.
+    :statuscode 200: Success.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
+.. http:get:: /api/games/(int:game_id)/is_my_turn
+
+    Whether it is your turn to play.
+
+    We recommend using the `game_status` endpoint for turn management.
+
+    **Example response content**:
+
+    .. code-block:: javascript
+
+        {
+            "is_my_turn": true
+        }
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :>json boolean is_my_turn: Whether it is your turn to play.
+    :statuscode 200: Success.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
+.. http:get:: /api/games/(int:game_id)/game_status
+
+    A combination of the `is_over` and `is_my_turn` endpoints.
+
+    **Example response content**:
+
+    .. code-block:: javascript
+
+        {
+            "is_my_turn": true,
+            "is_over": false
+        }
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :>json boolean is_my_turn: Whether it is your turn to play.
     :>json boolean is_over: Whether the game is over.
     :statuscode 200: Success.
     :statuscode 401: Invalid or empty authentication information.
