@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from datetime import datetime
 import requests
+import time
 from .utilities import *
 from .history import GameHistory, GameHistoryDecoder
 
@@ -386,7 +387,13 @@ class RemoteGame(Game):
         self._post('end_turn', {})
 
     def is_over(self) -> bool:
-        return self._get('is_over')['is_over']
+        while True:
+            status = self._get('game_status')
+            if status['is_over']:
+                return True
+            if status['is_my_turn']:
+                return False
+            time.sleep(0.1)
 
     def get_winner_color(self) -> Optional[Color]:
         return self._get('winner_color')['winner_color']
