@@ -3,6 +3,7 @@ import requests
 import multiprocessing
 import time
 import getpass
+import traceback
 from datetime import datetime
 from reconchess import load_player, play_remote_game
 
@@ -58,9 +59,12 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
 
     print('[{}] Invitation {} accepted. Playing game {}.'.format(datetime.now(), invitation_id, game_id))
 
-    play_remote_game(server_url, game_id, auth, bot_cls())
-
-    print('[{}] Finished game {}'.format(datetime.now(), game_id))
+    try:
+        play_remote_game(server_url, game_id, auth, bot_cls())
+        print('[{}] Finished game {}'.format(datetime.now(), game_id))
+    except:
+        print('[{}] Fatal error in game {}:'.format(datetime.now(), game_id))
+        traceback.print_exc()
 
 
 def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
