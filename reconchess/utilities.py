@@ -1,4 +1,9 @@
-import json
+try:
+    # requests uses simplejson if its present, so we need to do the same.
+    # see https://github.com/psf/requests/issues/4842
+    import simplejson as json
+except ImportError:
+    import json
 import chess
 from .types import *
 
