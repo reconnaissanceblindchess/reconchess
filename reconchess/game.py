@@ -403,7 +403,7 @@ class RemoteGame(Game):
                 return True
             if status['is_my_turn']:
                 return False
-            time.sleep(0.1)
+            time.sleep(0.5)
 
     def get_winner_color(self) -> Optional[Color]:
         return self._get('winner_color')['winner_color']
