@@ -345,11 +345,21 @@ class RemoteGame(Game):
 
     def _get(self, endpoint, decoder_cls=ChessJSONDecoder):
         response = self.session.get('{}/{}'.format(self.game_url, endpoint))
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.get('{}/{}'.format(self.game_url, endpoint))
+        if response.status_code != 200:
+            raise ValueError(response.text)
         return response.json(cls=decoder_cls)
 
     def _post(self, endpoint, obj):
         data = json.dumps(obj, cls=ChessJSONEncoder)
         response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
+        if response.status_code != 200:
+            raise ValueError(response.text)
         return response.json(cls=ChessJSONDecoder)
 
     def get_player_color(self):
@@ -393,7 +403,7 @@ class RemoteGame(Game):
                 return True
             if status['is_my_turn']:
                 return False
-            time.sleep(0.1)
+            time.sleep(0.5)
 
     def get_winner_color(self) -> Optional[Color]:
         return self._get('winner_color')['winner_color']
