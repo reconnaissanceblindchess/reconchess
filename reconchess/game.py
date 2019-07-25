@@ -349,7 +349,7 @@ class RemoteGame(Game):
             time.sleep(0.5)
             response = self.session.get('{}/{}'.format(self.game_url, endpoint))
         if response.status_code != 200:
-            raise ValueError(response.content)
+            raise ValueError(response.text)
         return response.json(cls=decoder_cls)
 
     def _post(self, endpoint, obj):
@@ -359,7 +359,7 @@ class RemoteGame(Game):
             time.sleep(0.5)
             response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
         if response.status_code != 200:
-            raise ValueError(response.content)
+            raise ValueError(response.text)
         return response.json(cls=ChessJSONDecoder)
 
     def get_player_color(self):
