@@ -33,6 +33,9 @@ class RBCServer:
 
     def get_active_users(self):
         response = self.session.get('{}/'.format(self.user_url))
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.get('{}/'.format(self.user_url))
         return response.json()['usernames']
 
     def send_invitation(self, opponent, color):
@@ -44,10 +47,16 @@ class RBCServer:
 
     def get_invitations(self):
         response = self.session.get('{}/'.format(self.invitations_url))
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.get('{}/'.format(self.invitations_url))
         return response.json()['invitations']
 
     def accept_invitation(self, invitation_id):
         response = self.session.post('{}/{}'.format(self.invitations_url, invitation_id))
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.post('{}/{}'.format(self.invitations_url, invitation_id))
         return response.json()['game_id']
 
 
