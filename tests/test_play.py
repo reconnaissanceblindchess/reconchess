@@ -74,7 +74,7 @@ class TestPlayer(Player):
         self.params_by_function = defaultdict(list)
         self.call_order = []
 
-    def handle_game_start(self, color: Color, board: Board):
+    def handle_game_start(self, color: Color, board: Board, opponent_name: str):
         self.params_by_function['handle_game_start'].append(clean_locals(locals()))
         self.call_order.append('handle_game_start')
 
@@ -303,6 +303,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
         self.assertEqual(self.white_player.params_by_function['handle_game_start'], [{
             'color': WHITE,
             'board': chess.Board(),
+            'opponent_name': 'TestPlayer',
         }])
 
         self.assertEqual(self.white_player.params_by_function['handle_game_end'], [{
@@ -315,6 +316,7 @@ class PlayLocalGameTestCase(unittest.TestCase):
         self.assertEqual(self.black_player.params_by_function['handle_game_start'], [{
             'color': BLACK,
             'board': chess.Board(),
+            'opponent_name': 'TestPlayer',
         }])
 
         self.assertEqual(self.black_player.params_by_function['handle_game_end'], [{
