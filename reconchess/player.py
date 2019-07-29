@@ -28,7 +28,7 @@ class Player(object):
     """
 
     @abstractmethod
-    def handle_game_start(self, color: Color, board: chess.Board):
+    def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         """
         Provides a place to initialize game wide structures like boards, and initialize data that depends on what
         color you are playing as.
@@ -39,6 +39,7 @@ class Player(object):
 
         :param color: The color that you are playing as. Either :data:`chess.WHITE` or :data:`chess.BLACK`.
         :param board: The initial board of the game. See :class:`chess.Board`.
+        :param opponent_name: The name of your opponent.
         """
         pass
 
