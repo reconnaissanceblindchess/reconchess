@@ -4,7 +4,6 @@ from .player import Player
 from .game import Game, LocalGame, RemoteGame
 from .history import GameHistory
 
-import time
 
 def play_local_game(white_player: Player, black_player: Player, game: LocalGame = None,
                     seconds_per_player: float = 900) -> Tuple[Optional[Color], Optional[WinReason], GameHistory]:
@@ -26,8 +25,12 @@ def play_local_game(white_player: Player, black_player: Player, game: LocalGame 
     if game is None:
         game = LocalGame(seconds_per_player=seconds_per_player)
 
-    white_player.handle_game_start(chess.WHITE, game.board.copy())
-    black_player.handle_game_start(chess.BLACK, game.board.copy())
+    white_name = white_player.__class__.__name__
+    black_name = black_player.__class__.__name__
+    game.store_players(white_name, black_name)
+
+    white_player.handle_game_start(chess.WHITE, game.board.copy(), white_name)
+    black_player.handle_game_start(chess.BLACK, game.board.copy(), black_name)
     game.start()
 
     while not game.is_over():
@@ -47,7 +50,7 @@ def play_local_game(white_player: Player, black_player: Player, game: LocalGame 
 def play_remote_game(server_url, game_id, auth, player: Player):
     game = RemoteGame(server_url, game_id, auth)
 
-    player.handle_game_start(game.get_player_color(), game.get_starting_board())
+    player.handle_game_start(game.get_player_color(), game.get_starting_board(), game.get_opponent_name())
     game.start()
 
     while not game.is_over():
