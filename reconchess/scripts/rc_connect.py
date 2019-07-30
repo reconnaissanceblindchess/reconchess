@@ -27,24 +27,34 @@ class RBCServer:
             quit()
         return response.json()
 
+    def _post(self, endpoint, json=None):
+        response = self.session.post(endpoint, json=json)
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.post(endpoint, json=json)
+        if response.status_code == 401:
+            print('Authentication Error!')
+            print(response.text)
+            quit()
+        return response.json()
+
     def set_max_games(self, max_games):
-        self.session.post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
+        self._post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
 
     def get_active_users(self):
         return self._get('{}/'.format(self.user_url))['usernames']
 
     def send_invitation(self, opponent, color):
-        response = self.session.post('{}/'.format(self.invitations_url), json={
+        return self._post('{}/'.format(self.invitations_url), json={
             'opponent': opponent,
             'color': color,
-        })
-        return response.json()['game_id']
+        })['game_id']
 
     def get_invitations(self):
         return self._get('{}/'.format(self.invitations_url))['invitations']
 
     def accept_invitation(self, invitation_id):
-        return self._get('{}/{}'.format(self.invitations_url, invitation_id))['game_id']
+        return self._post('{}/{}'.format(self.invitations_url, invitation_id))['game_id']
 
 
 def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
@@ -85,9 +95,8 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
                     queued_invitations.add(invitation_id)
             except requests.RequestException as e:
                 connected = False
-                print('[{}] Could not connect to server... waiting 60 seconds before trying again:'.format(
+                print('[{}] Could not connect to server... waiting 60 seconds before trying again'.format(
                     datetime.now()))
-                traceback.print_exc()
                 time.sleep(60)
 
             time.sleep(5)
