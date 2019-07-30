@@ -16,48 +16,45 @@ class RBCServer:
         self.session = requests.Session()
         self.session.auth = auth
 
-    def is_connected(self):
-        try:
-            response = self.session.post(self.me_url)
-            if response.status_code == 401:
-                print('Authentication Error!')
-                print(response.text)
-                quit()
-            return response.status_code == 200 and response.json()['username'] == self.session.auth[0]
-        except requests.RequestException:
-            pass
-        return False
+    def _get(self, endpoint):
+        response = self.session.get(endpoint)
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.get(endpoint)
+        if response.status_code == 401:
+            print('Authentication Error!')
+            print(response.text)
+            quit()
+        return response.json()
+
+    def _post(self, endpoint, json=None):
+        response = self.session.post(endpoint, json=json)
+        while response.status_code == 502:
+            time.sleep(0.5)
+            response = self.session.post(endpoint, json=json)
+        if response.status_code == 401:
+            print('Authentication Error!')
+            print(response.text)
+            quit()
+        return response.json()
 
     def set_max_games(self, max_games):
-        self.session.post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
+        self._post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
 
     def get_active_users(self):
-        response = self.session.get('{}/'.format(self.user_url))
-        while response.status_code == 502:
-            time.sleep(0.5)
-            response = self.session.get('{}/'.format(self.user_url))
-        return response.json()['usernames']
+        return self._get('{}/'.format(self.user_url))['usernames']
 
     def send_invitation(self, opponent, color):
-        response = self.session.post('{}/'.format(self.invitations_url), json={
+        return self._post('{}/'.format(self.invitations_url), json={
             'opponent': opponent,
             'color': color,
-        })
-        return response.json()['game_id']
+        })['game_id']
 
     def get_invitations(self):
-        response = self.session.get('{}/'.format(self.invitations_url))
-        while response.status_code == 502:
-            time.sleep(0.5)
-            response = self.session.get('{}/'.format(self.invitations_url))
-        return response.json()['invitations']
+        return self._get('{}/'.format(self.invitations_url))['invitations']
 
     def accept_invitation(self, invitation_id):
-        response = self.session.post('{}/{}'.format(self.invitations_url, invitation_id))
-        while response.status_code == 502:
-            time.sleep(0.5)
-            response = self.session.post('{}/{}'.format(self.invitations_url, invitation_id))
-        return response.json()['game_id']
+        return self._post('{}/{}'.format(self.invitations_url, invitation_id))['game_id']
 
 
 def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
@@ -83,26 +80,24 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
     queued_invitations = set()
     with multiprocessing.Pool(processes=max_concurrent_games) as pool:
         while True:
-            while not server.is_connected():
-                connected = False
-                print('[{}] Could not connect to server... waiting 60 seconds before trying again.'.format(
-                    datetime.now()))
-                time.sleep(60)
-
-            if not connected:
-                print('[{}] Connected successfully to server!'.format(datetime.now()))
-                connected = True
-                server.set_max_games(max_concurrent_games)
-
             try:
                 invitations = server.get_invitations()
+
+                if not connected:
+                    print('[{}] Connected successfully to server!'.format(datetime.now()))
+                    connected = True
+                    server.set_max_games(max_concurrent_games)
+
                 unqueued_invitations = set(invitations) - queued_invitations
                 for invitation_id in unqueued_invitations:
                     print('[{}] Received invitation {}.'.format(datetime.now(), invitation_id))
                     pool.apply_async(accept_invitation_and_play, args=(server_url, auth, invitation_id, bot_cls))
                     queued_invitations.add(invitation_id)
             except requests.RequestException as e:
-                print(e)
+                connected = False
+                print('[{}] Could not connect to server... waiting 60 seconds before trying again'.format(
+                    datetime.now()))
+                time.sleep(60)
 
             time.sleep(5)
 
