@@ -8,7 +8,7 @@ with open('README.rst') as fp:
 
 setuptools.setup(
     name='reconchess',
-    version='1.3.4',
+    version='1.3.5',
     author='Johns Hopkins University Applied Physics Laboratory',
     description='A python package for building Reconnaissance Chess players',
     long_description=long_description,
