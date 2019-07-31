@@ -31,7 +31,7 @@ class AttackerBot(Player):
     def __init__(self):
         self.move_sequence = random.choice(QUICK_ATTACKS)
 
-    def handle_game_start(self, color: Color, board: chess.Board):
+    def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         if color == chess.BLACK:
             self.move_sequence = list(map(flipped_move, self.move_sequence))
 

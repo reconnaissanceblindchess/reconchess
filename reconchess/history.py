@@ -110,6 +110,8 @@ class GameHistory(object):
     """
 
     def __init__(self):
+        self._white_name = None
+        self._black_name = None
         self._senses = {chess.WHITE: [], chess.BLACK: []}
         self._sense_results = {chess.WHITE: [], chess.BLACK: []}
         self._requested_moves = {chess.WHITE: [], chess.BLACK: []}
@@ -138,6 +140,10 @@ class GameHistory(object):
         with open(filename, newline='') as fp:
             return json.load(fp, cls=GameHistoryDecoder)
 
+    def store_players(self, white_name: str, black_name: str):
+        self._white_name = white_name
+        self._black_name = black_name
+
     def store_sense(self, color: Color, square: Optional[Square],
                     sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         self._senses[color].append(square)
@@ -158,6 +164,20 @@ class GameHistory(object):
     def store_results(self, winner_color: Optional[Color], win_reason: Optional[WinReason]):
         self._winner_color = winner_color
         self._win_reason = win_reason
+
+    def get_white_player_name(self) -> str:
+        """
+        Get the name of white.
+        :return: str
+        """
+        return self._white_name
+
+    def get_black_player_name(self) -> str:
+        """
+        Get the name of black.
+        :return: str
+        """
+        return self._black_name
 
     def is_empty(self) -> bool:
         """
@@ -623,6 +643,8 @@ class GameHistoryEncoder(ChessJSONEncoder):
         if isinstance(o, GameHistory):
             return {
                 'type': 'GameHistory',
+                'white_name': o._white_name,
+                'black_name': o._black_name,
                 'senses': o._senses,
                 'sense_results': o._sense_results,
                 'requested_moves': o._requested_moves,
@@ -643,6 +665,8 @@ class GameHistoryDecoder(ChessJSONDecoder):
                         'fens_before_move', 'fens_after_move']:
                 obj[key] = {True: obj[key]['true'], False: obj[key]['false']}
             history = GameHistory()
+            history._white_name = obj['white_name']
+            history._black_name = obj['black_name']
             history._senses = obj['senses']
             history._sense_results = obj['sense_results']
             history._requested_moves = obj['requested_moves']

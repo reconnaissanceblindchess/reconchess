@@ -208,6 +208,25 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
     :statuscode 401: Invalid or empty authentication information, or not a player in the specified game.
     :statuscode 404: Game does not exist.
 
+.. http:get:: /api/games/(int:game_id)/opponent_name
+
+    Get the name of your opponent for game `game_id`.
+
+    **Example response content**:
+
+    .. code-block:: javascript
+
+        {
+            "opponent_name": "super evil dude 123"
+        }
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :>json string opponent_name: The name of the opponent.
+    :statuscode 200: Success.
+    :statuscode 401: Invalid or empty authentication information, or not a player in the specified game.
+    :statuscode 404: Game does not exist.
+
 .. http:post:: /api/games/(int:game_id)/ready
 
     Mark yourself as ready to start the game.

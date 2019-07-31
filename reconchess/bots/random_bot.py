@@ -3,7 +3,7 @@ from reconchess import *
 
 
 class RandomBot(Player):
-    def handle_game_start(self, color: Color, board: chess.Board):
+    def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         pass
 
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):

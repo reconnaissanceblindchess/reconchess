@@ -152,7 +152,7 @@ class UIPlayer(Player):
         self.ally_capture_square = None
         self.enemy_capture_square = None
 
-    def handle_game_start(self, color: Color, board: chess.Board):
+    def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         self.board = board
         self.color = color
         self.window.perspective = color

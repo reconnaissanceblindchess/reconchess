@@ -162,6 +162,9 @@ class LocalGame(Game):
         self._is_finished = True
         self.__game_history.store_results(self.get_winner_color(), self.get_win_reason())
 
+    def store_players(self, white_name, black_name):
+        self.__game_history.store_players(white_name, black_name)
+
     def resign(self):
         self._resignee = self.turn
 
@@ -367,6 +370,9 @@ class RemoteGame(Game):
 
     def get_starting_board(self):
         return self._get('starting_board')['board']
+
+    def get_opponent_name(self):
+        return self._get('opponent_name')['opponent_name']
 
     def sense_actions(self) -> List[Square]:
         return self._get('sense_actions')['sense_actions']

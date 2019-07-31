@@ -32,7 +32,7 @@ class TroutBot(Player):
         # initialize the stockfish engine
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
 
-    def handle_game_start(self, color: Color, board: chess.Board):
+    def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         self.board = board
         self.color = color
 
