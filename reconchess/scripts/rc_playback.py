@@ -6,7 +6,10 @@ from reconchess import load_player, LocalGame, GameHistory, Player, Color, play_
 def playback(game_history: GameHistory, player: Player, color: Color):
     game = LocalGame()
 
-    player.handle_game_start(color, game.board.copy())
+    opponent_name = game_history.get_white_player_name()
+    if color == chess.WHITE:
+        opponent_name = game_history.get_black_player_name()
+    player.handle_game_start(color, game.board.copy(), opponent_name)
     game.start()
 
     turn = game_history.first_turn()
