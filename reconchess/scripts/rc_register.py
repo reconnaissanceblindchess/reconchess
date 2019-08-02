@@ -7,6 +7,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--username', default=None, help='Name to register under. Enter with prompt if not specified.')
     parser.add_argument('--email', default=None, help='Email to associate with account. Enter with prompt if not specified.')
+    parser.add_argument('--affiliation', default=None, help='Organization you are affiliated with.')
     parser.add_argument('--password', default=None, help='Password to use. Enter with prompt if not specified.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
