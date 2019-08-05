@@ -20,11 +20,13 @@ def main():
 
     username = ask_for_username() if args.username is None else args.username
     email = input('Email: ') if args.email is None else args.email
+    affiliation = input('Affiliation: ') if args.affiliation is None else args.affiliation
     password = ask_for_password() if args.password is None else args.password
 
     response = requests.post('{}/api/users/'.format(args.server_url), json={
         'username': username,
         'email': email,
+        'affiliation': affiliation,
         'password': password,
     })
 
