@@ -7,6 +7,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--username', default=None, help='Name to register under. Enter with prompt if not specified.')
     parser.add_argument('--email', default=None, help='Email to associate with account. Enter with prompt if not specified.')
+    parser.add_argument('--affiliation', default=None, help='Organization you are affiliated with.')
     parser.add_argument('--password', default=None, help='Password to use. Enter with prompt if not specified.')
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     args = parser.parse_args()
@@ -19,11 +20,13 @@ def main():
 
     username = ask_for_username() if args.username is None else args.username
     email = input('Email: ') if args.email is None else args.email
+    affiliation = input('Affiliation: ') if args.affiliation is None else args.affiliation
     password = ask_for_password() if args.password is None else args.password
 
     response = requests.post('{}/api/users/'.format(args.server_url), json={
         'username': username,
         'email': email,
+        'affiliation': affiliation,
         'password': password,
     })
 
