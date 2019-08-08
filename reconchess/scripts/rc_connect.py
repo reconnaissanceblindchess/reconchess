@@ -98,6 +98,10 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
                 print('[{}] Could not connect to server... waiting 60 seconds before trying again'.format(
                     datetime.now()))
                 time.sleep(60)
+            except Exception:
+                print("Error in invitation processing: ")
+                traceback.print_exc()
+                time.sleep(.5)
 
             time.sleep(5)
 
