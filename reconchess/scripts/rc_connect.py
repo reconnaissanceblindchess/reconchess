@@ -18,7 +18,7 @@ class RBCServer:
 
     def _get(self, endpoint):
         response = self.session.get(endpoint)
-        while response.status_code == 502:
+        while response.status_code >= 500:
             time.sleep(0.5)
             response = self.session.get(endpoint)
         if response.status_code == 401:
@@ -29,7 +29,7 @@ class RBCServer:
 
     def _post(self, endpoint, json=None):
         response = self.session.post(endpoint, json=json)
-        while response.status_code == 502:
+        while response.status_code >= 500:
             time.sleep(0.5)
             response = self.session.post(endpoint, json=json)
         if response.status_code == 401:
@@ -98,6 +98,10 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
                 print('[{}] Could not connect to server... waiting 60 seconds before trying again'.format(
                     datetime.now()))
                 time.sleep(60)
+            except Exception:
+                print("Error in invitation processing: ")
+                traceback.print_exc()
+                time.sleep(.5)
 
             time.sleep(5)
 
