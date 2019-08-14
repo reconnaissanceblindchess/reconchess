@@ -339,7 +339,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
         {
             "sense_result": [
                 [54, {"type": "Piece", "value": "p"}],
-                [55, {"type": "Piece", "value": null}],
+                [55, null],
                 [56, {"type": "Piece", "value": "K"}]
             ]
         }
@@ -374,7 +374,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
         {
             "move_result": [
                 {"type": "Move", "value": "e2e4"},
-                {"type": "Move", "value": null},
+                null,
                 23
             ]
         }
@@ -530,7 +530,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
                     "true": [
                         [
                             [54, {"type": "Piece", "value": "p"}],
-                            [55, {"type": "Piece", "value": null}],
+                            [55, null],
                             [56, {"type": "Piece", "value": "K"}]
                         ]
                     ],
@@ -542,7 +542,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
                 },
                 "taken_moves": {
                     "true": [{"type": "Move", "value": "e2e4"}],
-                    "false": [{"type": "Move", "value": null}]
+                    "false": [null]
                 },
                 "capture_squares": {
                     "true": [23],
