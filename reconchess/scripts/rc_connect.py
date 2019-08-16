@@ -95,13 +95,11 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
                     queued_invitations.add(invitation_id)
             except requests.RequestException as e:
                 connected = False
-                print('[{}] Could not connect to server... waiting 60 seconds before trying again'.format(
-                    datetime.now()))
-                time.sleep(60)
+                print('[{}] Failed to connect to server'.format(datetime.now()))
+                print(e)
             except Exception:
                 print("Error in invitation processing: ")
                 traceback.print_exc()
-                time.sleep(.5)
 
             time.sleep(5)
 
