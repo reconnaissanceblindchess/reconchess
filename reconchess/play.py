@@ -34,7 +34,7 @@ def play_local_game(white_player: Player, black_player: Player, game: LocalGame 
     game.start()
 
     while not game.is_over():
-        play_turn(game, players[game.turn])
+        play_turn(game, players[game.turn], end_turn_last=True)
 
     game.end()
     winner_color = game.get_winner_color()
@@ -54,7 +54,7 @@ def play_remote_game(server_url, game_id, auth, player: Player):
     game.start()
 
     while not game.is_over():
-        play_turn(game, player)
+        play_turn(game, player, end_turn_last=False)
 
     winner_color = game.get_winner_color()
     win_reason = game.get_win_reason()
@@ -65,7 +65,7 @@ def play_remote_game(server_url, game_id, auth, player: Player):
     return winner_color, win_reason, game_history
 
 
-def play_turn(game: Game, player: Player):
+def play_turn(game: Game, player: Player, end_turn_last=False):
     """
     Coordinates playing a turn for `player` in `game`. Does the following sequentially:
 
@@ -73,8 +73,11 @@ def play_turn(game: Game, player: Player):
     #. :func:`play_sense`
     #. :func:`play_move`
 
+    See :func:`play_move` for more info on `end_turn_last`.
+
     :param game: The :class:`Game` that `player` is playing in.
     :param player: The :class:`Player` whose turn it is.
+    :param end_turn_last: Flag indicating whether to call :meth:`Game.end_turn` before or after :meth:`Player.handle_move_result`
     """
     sense_actions = game.sense_actions()
     move_actions = game.move_actions()
@@ -83,7 +86,7 @@ def play_turn(game: Game, player: Player):
 
     play_sense(game, player, sense_actions, move_actions)
 
-    play_move(game, player, move_actions)
+    play_move(game, player, move_actions, end_turn_last=end_turn_last)
 
 
 def notify_opponent_move_results(game: Game, player: Player):
@@ -118,7 +121,7 @@ def play_sense(game: Game, player: Player, sense_actions: List[Square], move_act
     player.handle_sense_result(sense_result)
 
 
-def play_move(game: Game, player: Player, move_actions: List[chess.Move]):
+def play_move(game: Game, player: Player, move_actions: List[chess.Move], end_turn_last=False):
     """
     Runs the move phase for `player` in `game`. Does the following sequentially:
 
@@ -127,14 +130,22 @@ def play_move(game: Game, player: Player, move_actions: List[chess.Move]):
     #. Ends the current player's turn using :meth:`Game.end_turn`.
     #. Give the result of the moveaction to player using :meth:`Player.handle_move_result`.
 
+    If `end_turn_last` is True, then :meth:`Game.end_turn` is called last instead of before
+    :meth:`Player.handle_move_result`.
+
     :param game: The :class:`Game` that `player` is playing in.
     :param player: The :class:`Player` whose turn it is.
     :param move_actions: The possible move actions for `player`.
+    :param end_turn_last: Flag indicating whether to call :meth:`Game.end_turn` before or after :meth:`Player.handle_move_result`
     """
     move = player.choose_move(move_actions, game.get_seconds_left())
     requested_move, taken_move, opt_enemy_capture_square = game.move(move)
 
-    game.end_turn()
+    if not end_turn_last:
+        game.end_turn()
 
     player.handle_move_result(requested_move, taken_move,
                               opt_enemy_capture_square is not None, opt_enemy_capture_square)
+
+    if end_turn_last:
+        game.end_turn()
