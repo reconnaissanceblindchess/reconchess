@@ -13,6 +13,7 @@ class RBCServer:
         self.invitations_url = '{}/api/invitations'.format(server_url)
         self.user_url = '{}/api/users'.format(server_url)
         self.me_url = '{}/api/users/me'.format(server_url)
+        self.game_url = '{}/api/games'.format(server_url)
         self.session = requests.Session()
         self.session.auth = auth
 
@@ -56,6 +57,9 @@ class RBCServer:
     def accept_invitation(self, invitation_id):
         return self._post('{}/{}'.format(self.invitations_url, invitation_id))['game_id']
 
+    def error_resign(self, game_id):
+        return self._post('{}/{}/error_resign'.format(self.game_url, game_id))
+
 
 def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
     print('[{}] Accepting invitation {}.'.format(datetime.now(), invitation_id))
@@ -71,6 +75,7 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
     except:
         print('[{}] Fatal error in game {}:'.format(datetime.now(), game_id))
         traceback.print_exc()
+        server.error_resign(game_id)
 
 
 def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
