@@ -423,6 +423,28 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
     :statuscode 401: Invalid or empty authentication information.
     :statuscode 404: Game does not exist.
 
+.. http:post:: /api/games/(int:game_id)/resign
+
+    Resign from the game. Can only be called during your turn.
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :statuscode 200: Success.
+    :statuscode 400: It is not your turn.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
+.. http:post:: /api/games/(int:game_id)/error_resign
+
+    Tell the server that you have errored out. This just zeros out any time you have remaining instead of waiting
+    for the time to run out.
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :statuscode 200: Success.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
 .. http:get:: /api/games/(int:game_id)/is_my_turn
 
     Whether it is your turn to play.
