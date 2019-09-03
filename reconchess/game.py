@@ -243,12 +243,12 @@ class LocalGame(Game):
         # store move information before the move is pushed, as pushing a move
         # will change the turn over to the opponent
         self.__game_history.store_move(self.turn, requested_move, taken_move, opt_capture_square)
-        self.__game_history.store_fen_before_move(self.turn, self.board.fen())
+        self.__game_history.store_fen_before_move(self.turn, self.board.fen(en_passant='fen'))
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
 
-        self.__game_history.store_fen_after_move(self.turn, self.board.fen())
+        self.__game_history.store_fen_after_move(self.turn, self.board.fen(en_passant='fen'))
 
         # store results of move for notifying other player
         self.move_results = opt_capture_square
