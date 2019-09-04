@@ -441,6 +441,39 @@ class LocalGameMoveTest(unittest.TestCase):
         self.assertIsNotNone(opt_capture)
         self.assertEqual(opt_capture, F5)
 
+    def test_en_passant_in_check(self):
+        req, taken, opt_capture = self.game.move(Move(E2, E3))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(F7, F6))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(D1, H5))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(E7, E5))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(None)
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(E5, E4))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(D2, D4))
+        self.assertEqual(req, taken)
+        self.assertIsNone(opt_capture)
+
+        req, taken, opt_capture = self.game.move(Move(E4, D3))
+        self.assertEqual(req, taken)
+        self.assertEqual(opt_capture, D4)
+
     def test_move_opponent_piece(self):
         # test moving opponent pieces
         b = Board()
