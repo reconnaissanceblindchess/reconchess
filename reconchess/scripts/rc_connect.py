@@ -57,6 +57,9 @@ class RBCServer:
     def accept_invitation(self, invitation_id):
         return self._post('{}/{}'.format(self.invitations_url, invitation_id))['game_id']
 
+    def finish_invitation(self, invitation_id):
+        self._post('{}/{}/finish'.format(self.invitations_url, invitation_id))
+
     def error_resign(self, game_id):
         return self._post('{}/{}/error_resign'.format(self.game_url, game_id))
 
@@ -76,6 +79,8 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
         print('[{}] Fatal error in game {}:'.format(datetime.now(), game_id))
         traceback.print_exc()
         server.error_resign(game_id)
+
+    server.finish_invitation(invitation_id)
 
 
 def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
