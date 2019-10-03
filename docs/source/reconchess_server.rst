@@ -159,6 +159,16 @@ in the :code:`rc_connect` script.
     :statuscode 400: Invitation does not exist.
     :statuscode 401: Invalid or empty authentication information.
 
+.. http:post:: /api/invitations/(int:invitation_id)/finish
+
+    Mark the `invitation_id` invitation as finished.
+
+    :param invitation: The ID of the invitation.
+    :<header Authorization: Basic Authorization.
+    :statuscode 200: Success.
+    :statuscode 400: Invitation does not exist or invitation is not accepted.
+    :statuscode 401: Invalid or empty authentication information.
+
 Game Endpoints
 --------------
 
