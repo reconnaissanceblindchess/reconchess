@@ -243,12 +243,12 @@ class LocalGame(Game):
         # store move information before the move is pushed, as pushing a move
         # will change the turn over to the opponent
         self.__game_history.store_move(self.turn, requested_move, taken_move, opt_capture_square)
-        self.__game_history.store_fen_before_move(self.turn, self.board.fen())
+        self.__game_history.store_fen_before_move(self.turn, self.board.fen(en_passant='fen'))
 
         # apply move
         self.board.push(taken_move if taken_move is not None else chess.Move.null())
 
-        self.__game_history.store_fen_after_move(self.turn, self.board.fen())
+        self.__game_history.store_fen_after_move(self.turn, self.board.fen(en_passant='fen'))
 
         # store results of move for notifying other player
         self.move_results = opt_capture_square
@@ -347,23 +347,35 @@ class RemoteGame(Game):
         self.session.auth = auth
 
     def _get(self, endpoint, decoder_cls=ChessJSONDecoder):
-        response = self.session.get('{}/{}'.format(self.game_url, endpoint))
-        while response.status_code >= 500:
-            time.sleep(0.5)
-            response = self.session.get('{}/{}'.format(self.game_url, endpoint))
-        if response.status_code != 200:
-            raise ValueError(response.text)
-        return response.json(cls=decoder_cls)
+        url = '{}/{}'.format(self.game_url, endpoint)
+        while True:
+            try:
+                response = self.session.get(url)
+                if response.status_code == 200:
+                    return response.json(cls=decoder_cls)
+                elif response.status_code >= 500:
+                    time.sleep(0.5)
+                else:
+                    raise ValueError(response.text)
+            except requests.RequestException as e:
+                print(e)
+                time.sleep(0.5)
 
     def _post(self, endpoint, obj):
+        url = '{}/{}'.format(self.game_url, endpoint)
         data = json.dumps(obj, cls=ChessJSONEncoder)
-        response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
-        while response.status_code >= 500:
-            time.sleep(0.5)
-            response = self.session.post('{}/{}'.format(self.game_url, endpoint), data=data)
-        if response.status_code != 200:
-            raise ValueError(response.text)
-        return response.json(cls=ChessJSONDecoder)
+        while True:
+            try:
+                response = self.session.post(url, data=data)
+                if response.status_code == 200:
+                    return response.json(cls=ChessJSONDecoder)
+                elif response.status_code >= 500:
+                    time.sleep(0.5)
+                else:
+                    raise ValueError(response.text)
+            except requests.RequestException as e:
+                print(e)
+                time.sleep(0.5)
 
     def get_player_color(self):
         return self._get('color')['color']

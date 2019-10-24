@@ -24,9 +24,9 @@ Use the built in script :code:`rc-register`:
 
     rc-register --help
     rc-register
-    rc-register --username <username> --email <email> --password <password>
+    rc-register --username <username> --email <email> --affiliation <affiliation> --password <password>
 
-This script will prompt you for the username, email, and password after you run it, or you can specify them
+This script will prompt you for the username, email, affiliation, and password after you run it, or you can specify them
 with command line arguments.
 
 Use the :code:`--help` flag for more information about the arguments.

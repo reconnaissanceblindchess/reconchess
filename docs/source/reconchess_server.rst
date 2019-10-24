@@ -159,6 +159,16 @@ in the :code:`rc_connect` script.
     :statuscode 400: Invitation does not exist.
     :statuscode 401: Invalid or empty authentication information.
 
+.. http:post:: /api/invitations/(int:invitation_id)/finish
+
+    Mark the `invitation_id` invitation as finished.
+
+    :param invitation: The ID of the invitation.
+    :<header Authorization: Basic Authorization.
+    :statuscode 200: Success.
+    :statuscode 400: Invitation does not exist or invitation is not accepted.
+    :statuscode 401: Invalid or empty authentication information.
+
 Game Endpoints
 --------------
 
@@ -317,6 +327,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
     :>json Optional<integer> opponent_move_results: The square the opponent captured one of your pieces on.
         :code:`null` if no capture occurred.
     :statuscode 200: Success.
+    :statuscode 400: Game is finished.
     :statuscode 401: Invalid or empty authentication information, or not a player in the specified game.
     :statuscode 404: Game does not exist.
 
@@ -419,6 +430,28 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
     :param game_id: The ID of the game.
     :<header Authorization: Basic Authorization.
     :>json boolean is_over: Whether the game is over.
+    :statuscode 200: Success.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
+.. http:post:: /api/games/(int:game_id)/resign
+
+    Resign from the game. Can only be called during your turn.
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
+    :statuscode 200: Success.
+    :statuscode 400: It is not your turn.
+    :statuscode 401: Invalid or empty authentication information.
+    :statuscode 404: Game does not exist.
+
+.. http:post:: /api/games/(int:game_id)/error_resign
+
+    Tell the server that you have errored out. This just zeros out any time you have remaining instead of waiting
+    for the time to run out.
+
+    :param game_id: The ID of the game.
+    :<header Authorization: Basic Authorization.
     :statuscode 200: Success.
     :statuscode 401: Invalid or empty authentication information.
     :statuscode 404: Game does not exist.
