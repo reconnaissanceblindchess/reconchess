@@ -258,13 +258,13 @@ def _respond_to_requests(game: LocalGame, queues):
                 if on_own_turn:
                     queues[color]['to player'].put({'sense_actions': game.sense_actions()})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'move_actions':
                 if on_own_turn:
                     queues[color]['to player'].put({'move_actions': game.move_actions()})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'seconds_left':
                 if on_own_turn:
@@ -282,28 +282,28 @@ def _respond_to_requests(game: LocalGame, queues):
                 if on_own_turn:
                     queues[color]['to player'].put({'opponent_move_results': game.opponent_move_results()})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'sense':
                 request_value = request[1]
                 if on_own_turn:
                     queues[color]['to player'].put({'sense_result': game.sense(request_value['square'])})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'move':
                 request_value = request[1]
                 if on_own_turn:
                     queues[color]['to player'].put({'move_result': game.move(request_value['requested_move'])})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'end_turn':
                 if on_own_turn:
                     game.end_turn()
                     queues[color]['to player'].put({'end_turn': 'done'})
                 else:
-                    queues[color]['to player'].put(None)
+                    queues[color]['to player'].put('Request unavailable')
 
             elif request_command == 'game_status':
                 queues[color]['to player'].put({'is_over': game.is_over(), 'is_my_turn': on_own_turn})

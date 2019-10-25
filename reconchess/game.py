@@ -445,7 +445,7 @@ class MultiprocessingLocalGame(RemoteGame):
         while True:
             self.queues['to moderator'].put((request,))
             response = self.queues['to player'].get()
-            if response is not None:
+            if response != 'Request unavailable':
                 return response
             else:
                 time.sleep(0.5)
@@ -454,7 +454,7 @@ class MultiprocessingLocalGame(RemoteGame):
         while True:
             self.queues['to moderator'].put((request, obj))
             response = self.queues['to player'].get()
-            if response is not None:
+            if response != 'Request unavailable':
                 return response
             else:
                 time.sleep(0.5)
