@@ -431,3 +431,30 @@ class RemoteGame(Game):
 
     def get_game_history(self) -> Optional[GameHistory]:
         return self._get('game_history', decoder_cls=GameHistoryDecoder)['game_history']
+
+
+class MultiprocessingLocalGame(RemoteGame):
+    """
+    The multiprocessing implementation of :class:`Game`. Used to play a LocalGame that behaves like a RemoteGame.
+    """
+
+    def __init__(self, queues):
+        self.queues = queues  # dict {'to moderator': queue, 'to player': queue}
+
+    def _get(self, request, decoder_cls=None):
+        while True:
+            self.queues['to moderator'].put((request,))
+            response = self.queues['to player'].get()
+            if response is not None:
+                return response
+            else:
+                time.sleep(0.5)
+
+    def _post(self, request, obj):
+        while True:
+            self.queues['to moderator'].put((request, obj))
+            response = self.queues['to player'].get()
+            if response is not None:
+                return response
+            else:
+                time.sleep(0.5)

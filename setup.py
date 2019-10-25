@@ -19,6 +19,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'rc-bot-match=reconchess.scripts.rc_bot_match:main',
+            'rc-mp-bot-match=reconchess.scripts.rc_mp_bot_match:main',
             'rc-play=reconchess.scripts.rc_play:main',
             'rc-replay=reconchess.scripts.rc_replay:main',
             'rc-playback=reconchess.scripts.rc_playback:main',
