@@ -276,7 +276,7 @@ def _respond_to_requests(game: LocalGame, queues):
                 queues[color]['to player'].put({'ready': 'ready'})
 
             elif request_command == 'is_my_turn':
-                queues[color]['to player'].put({'is_my_turn': on_own_turn or game.is_over()})
+                queues[color]['to player'].put({'is_my_turn': on_own_turn and not game.is_over()})
 
             elif request_command == 'opponent_move_results':
                 if on_own_turn:
