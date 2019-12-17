@@ -5,11 +5,13 @@ import time
 import getpass
 import traceback
 from datetime import datetime
+import reconchess
 from reconchess import load_player, play_remote_game
 
 
 class RBCServer:
     def __init__(self, server_url, auth):
+        self.server_url = server_url
         self.invitations_url = '{}/api/invitations'.format(server_url)
         self.user_url = '{}/api/users'.format(server_url)
         self.me_url = '{}/api/users/me'.format(server_url)
@@ -38,6 +40,9 @@ class RBCServer:
             print(response.text)
             quit()
         return response.json()
+
+    def get_reconchess_version(self):
+        return self._get('{}/api/version'.format(self.server_url))['version']
 
     def set_max_games(self, max_games):
         self._post('{}/max_games'.format(self.me_url), json={'max_games': max_games})
@@ -85,6 +90,14 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
 
 def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
     server = RBCServer(server_url, auth)
+
+    server_version = server.get_reconchess_version()
+    if server_version != reconchess.__version__:
+        print('Your reconchess package is out of date!'.format(reconchess.__version__))
+        print('Current:', 'reconchess v{}'.format(reconchess.__version__))
+        print('Latest :', 'reconchess v{}'.format(server_version))
+        print('Please run the command `pip install --upgrade reconchess` to upgrade to the latest.')
+        quit()
 
     connected = False
     queued_invitations = set()
