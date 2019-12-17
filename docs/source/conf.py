@@ -16,6 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
+import reconchess
 
 # -- Project information -----------------------------------------------------
 
@@ -24,9 +25,9 @@ copyright = '2018, The Johns Hopkins University Applied Physics Laboratory'
 author = 'Corey Lowman, Casey Richardson'
 
 # The short X.Y version
-version = ''
+version = reconchess.__version__
 # The full version, including alpha/beta/rc tags
-release = ''
+release = reconchess.__version__
 
 
 # -- General configuration ---------------------------------------------------
