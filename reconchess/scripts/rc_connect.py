@@ -87,31 +87,44 @@ def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
     server = RBCServer(server_url, auth)
 
     connected = False
-    queued_invitations = set()
-    with multiprocessing.Pool(processes=max_concurrent_games) as pool:
-        while True:
-            try:
-                invitations = server.get_invitations()
+    process_by_invitation = {}
+    while True:
+        try:
+            # get unaccepted invitations
+            invitations = server.get_invitations()
 
-                if not connected:
-                    print('[{}] Connected successfully to server!'.format(datetime.now()))
-                    connected = True
-                    server.set_max_games(max_concurrent_games)
+            # set max games on server if this is the first successful connection after being disconnected
+            if not connected:
+                print('[{}] Connected successfully to server!'.format(datetime.now()))
+                connected = True
+                server.set_max_games(max_concurrent_games)
 
-                unqueued_invitations = set(invitations) - queued_invitations
-                for invitation_id in unqueued_invitations:
-                    print('[{}] Received invitation {}.'.format(datetime.now(), invitation_id))
-                    pool.apply_async(accept_invitation_and_play, args=(server_url, auth, invitation_id, bot_cls))
-                    queued_invitations.add(invitation_id)
-            except requests.RequestException as e:
-                connected = False
-                print('[{}] Failed to connect to server'.format(datetime.now()))
-                print(e)
-            except Exception:
-                print("Error in invitation processing: ")
-                traceback.print_exc()
+            # filter out finished processes
+            process_by_invitation = {i: p for i, p in process_by_invitation.items() if p.is_alive()}
 
-            time.sleep(5)
+            # accept invitations until we have #max_concurrent_games processes alive
+            for invitation in invitations:
+                # only accept the invitation if we have room and the invite doesn't have a process already
+                if len(process_by_invitation) < max_concurrent_games and invitation not in process_by_invitation:
+                    print('[{}] Received invitation {}.'.format(datetime.now(), invitation))
+
+                    # start the process for playing a game
+                    process = multiprocessing.Process(
+                        target=accept_invitation_and_play, args=(server_url, auth, invitation, bot_cls))
+                    process.start()
+
+                    # store the process so we can check when it finishes
+                    process_by_invitation[invitation] = process
+
+        except requests.RequestException as e:
+            connected = False
+            print('[{}] Failed to connect to server'.format(datetime.now()))
+            print(e)
+        except Exception:
+            print("Error in invitation processing: ")
+            traceback.print_exc()
+
+        time.sleep(5)
 
 
 def ask_for_username():
