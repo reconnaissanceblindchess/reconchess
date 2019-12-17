@@ -79,8 +79,8 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
         print('[{}] Fatal error in game {}:'.format(datetime.now(), game_id))
         traceback.print_exc()
         server.error_resign(game_id)
-
-    server.finish_invitation(invitation_id)
+    finally:
+        server.finish_invitation(invitation_id)
 
 
 def listen_for_invitations(server_url, auth, bot_cls, max_concurrent_games):
