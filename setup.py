@@ -1,4 +1,5 @@
 import setuptools
+import reconchess
 
 with open('requirements.txt') as fp:
     requirements = fp.readlines()
@@ -8,7 +9,7 @@ with open('README.rst') as fp:
 
 setuptools.setup(
     name='reconchess',
-    version='1.5.0',
+    version=reconchess.__version__,
     author='Johns Hopkins University Applied Physics Laboratory',
     description='A python package for building Reconnaissance Chess players',
     long_description=long_description,
