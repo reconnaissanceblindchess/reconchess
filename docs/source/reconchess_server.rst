@@ -87,6 +87,59 @@ Endpoints for querying users and updating data for yourself.
     :statuscode 400: Invalid request (max_games not present or not an integer).
     :statuscode 401: Invalid or empty authentication information.
 
+.. http:post:: /api/users/me/ranked
+
+    Update whether you want to participate in ranked matches or not.
+
+    **Example request content**:
+
+    .. code-block:: javascript
+
+        {
+            "ranked": true
+        }
+
+    **Example response content**:
+
+    .. code-block:: javascript
+
+        {
+            "id": 1,
+            "username": "foouser",
+            "ranked": true
+        }
+
+    :<header Authorization: Basic Authorization.
+    :<json boolean ranked: Whether you want to participate in ranked matches or not.
+    :>json integer id: Your ID.
+    :>json string username: Your username.
+    :>json boolean ranked: Whether you want to participate in ranked matches or not.
+    :statuscode 200: Success.
+    :statuscode 400: Invalid request (ranked not present or not a boolean).
+    :statuscode 401: Invalid or empty authentication information.
+
+.. http:post:: /api/users/me/version
+
+    Create a new version of your bot for ranked matches. If no versions exist, this creates version 1, otherwise it
+    increments the last version for your bot.
+
+    **Example response content**:
+
+    .. code-block:: javascript
+
+        {
+            "id": 1,
+            "username": "foouser",
+            "version": 10
+        }
+
+    :<header Authorization: Basic Authorization.
+    :>json integer id: Your ID.
+    :>json string username: Your username.
+    :>json integer version: The new version number for your bot.
+    :statuscode 200: Success.
+    :statuscode 400: Invalid request (ranked not present or not a boolean).
+    :statuscode 401: Invalid or empty authentication information.
 
 Invitation Endpoints
 --------------------
