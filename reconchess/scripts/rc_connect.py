@@ -107,12 +107,14 @@ def check_package_version(server):
         quit()
 
 
-def ranked_mode(server):
+def ranked_mode(server, keep_version):
     current_version = server.get_bot_version()
 
     # ask if they want to update their version number
     if current_version == 0:
         should_increment_version = True
+    elif keep_version:
+        should_increment_version = False
     else:
         should_increment_version = confirm('Is this a new version of your bot?')
 
@@ -120,8 +122,9 @@ def ranked_mode(server):
     next_version = current_version + (1 if should_increment_version else 0)
 
     # make sure they want to participate with this info
-    if not confirm('Are you sure you want to participate in ranked matches as v{} (currently v{})?'.format(
-            next_version, current_version)):
+    if not keep_version and not confirm(
+            'Are you sure you want to participate in ranked matches as v{} (currently v{})?'.format(
+                next_version, current_version)):
         quit()
 
     # update information on server
@@ -208,6 +211,8 @@ def main():
     parser.add_argument('--server-url', default='https://rbc.jhuapl.edu', help='URL of the server.')
     parser.add_argument('--ranked', action='store_true', default=False,
                         help='Whether you want to play ranked matches.')
+    parser.add_argument('--keep-version', action='store_true', default=False,
+                        help='Force your ranked version to stay the same with no prompts.')
     parser.add_argument('--max-concurrent-games', type=int, default=4,
                         help='The maximum number of games to play at the same time.')
     args = parser.parse_args()
@@ -225,7 +230,7 @@ def main():
 
     # tell the server whether we want to do ranked matches or not
     if args.ranked:
-        ranked_mode(server)
+        ranked_mode(server, args.keep_version)
     else:
         unranked_mode(server)
 
