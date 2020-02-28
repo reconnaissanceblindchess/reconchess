@@ -14,6 +14,7 @@ Contents
     bot_replay
     bot_debug
     bot_connecting
+    ranked
     reconchess
     reconchess_server
 
