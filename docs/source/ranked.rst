@@ -32,7 +32,7 @@ version, and :code:`n` otherwise.
 
 .. code-block:: bash
 
-    > rc-connect --ranked <my bot>
+    > rc-connect --ranked src/my_awesome_bot.py
     ...
     Is this a new version of your bot? [y/n]
 
@@ -42,7 +42,7 @@ exit the script.
 
 .. code-block:: bash
 
-    > rc-connect --ranked <my bot>
+    > rc-connect --ranked src/my_awesome_bot.py
     ...
     Are you sure you want to participate in ranked matches as v<new version> (currently v<old version>)? [y/n]
 
@@ -50,7 +50,7 @@ Example of connecting to the server in ranked mode using the same version as las
 
 .. code-block:: bash
 
-    > rc-connect --ranked <my bot>
+    > rc-connect --ranked src/my_awesome_bot.py
     ...
     Is this a new version of your bot? [y/n]n
     Are you sure you want to participate in ranked matches as v1 (currently v1)? [y/n]y
@@ -60,7 +60,7 @@ Example of connecting to the server in ranked mode as a new version:
 
 .. code-block:: bash
 
-    > rc-connect --ranked <my bot>
+    > rc-connect --ranked src/my_awesome_bot.py
     ...
     Is this a new version of your bot? [y/n]y
     Are you sure you want to participate in ranked matches as v2 (currently v1)? [y/n]y

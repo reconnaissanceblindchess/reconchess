@@ -34,6 +34,9 @@ Use the :code:`--help` flag for more information about the arguments.
 Connecting to the server
 ------------------------
 
+Note: By default rc-connect connects you to the server in unranked mode, so no ranked matches will be scheduled by
+default. See the Playing Ranked matches section for information on how to play ranked matches.
+
 python
 ^^^^^^
 
