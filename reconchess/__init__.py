@@ -1,4 +1,4 @@
-__version__ = '1.6.2'
+__version__ = '1.6.3'
 
 from .game import Game, LocalGame, RemoteGame
 from .player import Player, load_player
