@@ -1,4 +1,4 @@
-Playing Ranked matches
+Playing Ranked Matches
 ======================
 
 Ranked matches allow you to quickly compare your bot to other bots with an ELO score based on the ranked matches you
