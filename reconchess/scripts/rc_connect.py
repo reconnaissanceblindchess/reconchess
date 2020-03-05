@@ -84,8 +84,6 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
     # make sure this process doesn't react to interrupt signals
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    if sys.platform not in ['win32', 'cygwin']:
-        signal.signal(signal.SIGKILL, signal.SIG_IGN)
 
     print('[{}] Accepting invitation {}.'.format(datetime.now(), invitation_id))
 
@@ -243,8 +241,6 @@ def main():
 
     signal.signal(signal.SIGINT, handle_term)
     signal.signal(signal.SIGTERM, handle_term)
-    if sys.platform not in ['win32', 'cygwin']:
-        signal.signal(signal.SIGKILL, handle_term)
 
     # tell the server whether we want to do ranked matches or not
     if args.ranked:
