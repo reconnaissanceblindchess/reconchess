@@ -16,6 +16,18 @@ ranked matches:
 
 Use the :code:`--help` flag for more information about the arguments.
 
+Disconnecting your bot
+^^^^^^^^^^^^^^^^^^^^^^
+
+On termination, :code:`rc-connect` will safely disconnect your bot from the server so that any in progress ranked
+matches are not aborted before they finish.
+
+Pressing `ctrl+c` or sending a kill signal to the :code:`rc-connect` process will cause the following to happen:
+
+    1. :code:`rc-connect` will send a message to the server telling it to not schedule any more ranked games for you.
+    2. :code:`rc-connect` will wait for any in progress games to finish.
+    3. Once all the in progress games are finished, it will exit.
+
 Versioning
 ^^^^^^^^^^
 
