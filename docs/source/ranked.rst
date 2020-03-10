@@ -28,6 +28,15 @@ Pressing `ctrl+c` or sending a kill signal to the :code:`rc-connect` process wil
     2. :code:`rc-connect` will wait for any in progress games to finish.
     3. Once all the in progress games are finished, it will exit.
 
+**Note** if your bot opens new subprocesses (e.g. StockFish), you will have to make sure signals sent to
+:code:`rc-connect` aren't also sent to the subprocesses. For example, if using StockFish with the python-chess library,
+you should open StockFish like this:
+
+.. code-block:: python
+
+    # the setpgrp=True flag will make sure the Stockfish process won't receive signals sent to the rc-connect process.
+    chess.engine.SimpleEngine.popen_uci(stockfish_path, setpgrp=True)
+
 Versioning
 ^^^^^^^^^^
 
