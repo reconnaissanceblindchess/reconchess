@@ -30,7 +30,7 @@ class TroutBot(Player):
             raise ValueError('No stockfish executable found at "{}"'.format(stockfish_path))
 
         # initialize the stockfish engine
-        self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
+        self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path, setpgrp=True)
 
     def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         self.board = board
@@ -80,8 +80,10 @@ class TroutBot(Player):
             self.board.clear_stack()
             result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
             return result.move
-        except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
-            print('Engine bad state at "{}"'.format(self.board.fen()))
+        except chess.engine.EngineTerminatedError:
+            print('Stockfish Engine died')
+        except chess.engine.EngineError:
+            print('Stockfish Engine bad state at "{}"'.format(self.board.fen()))
 
         # if all else fails, pass
         return None

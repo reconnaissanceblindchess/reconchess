@@ -7,6 +7,8 @@ import traceback
 from datetime import datetime
 import reconchess
 from reconchess import load_player, play_remote_game
+import sys
+import signal
 
 
 class RBCServer:
@@ -79,6 +81,10 @@ class RBCServer:
 
 
 def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
+    # make sure this process doesn't react to interrupt signals
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     print('[{}] Accepting invitation {}.'.format(datetime.now(), invitation_id))
 
     server = RBCServer(server_url, auth)
@@ -227,6 +233,14 @@ def main():
 
     # verify we have the correct version of reconchess package
     check_package_version(server)
+
+    def handle_term(signum, frame):
+        print('[{}] Received terminate signal, waiting for games to finish and then exiting...'.format(datetime.now()))
+        unranked_mode(server)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, handle_term)
+    signal.signal(signal.SIGTERM, handle_term)
 
     # tell the server whether we want to do ranked matches or not
     if args.ranked:
