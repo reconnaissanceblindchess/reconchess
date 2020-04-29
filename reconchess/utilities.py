@@ -35,7 +35,7 @@ def is_illegal_castle(board: chess.Board, move: chess.Move) -> bool:
 
     # illegal if any pieces are between king & rook
     rook_square = chess.square(7 if board.is_kingside_castling(move) else 0, chess.square_rank(move.from_square))
-    between_squares = chess.SquareSet(chess.BB_BETWEEN[move.from_square][rook_square])
+    between_squares = chess.SquareSet(chess.between(move.from_square, rook_square))
     if any(map(lambda s: board.piece_at(s), between_squares)):
         return True
 
@@ -45,7 +45,7 @@ def is_illegal_castle(board: chess.Board, move: chess.Move) -> bool:
 
 def slide_move(board: chess.Board, move: chess.Move) -> Optional[chess.Move]:
     psuedo_legal_moves = list(board.generate_pseudo_legal_moves())
-    squares = list(chess.SquareSet(chess.BB_BETWEEN[move.from_square][move.to_square])) + [move.to_square]
+    squares = list(chess.SquareSet(chess.between(move.from_square, move.to_square))) + [move.to_square]
     squares = sorted(squares, key=lambda s: chess.square_distance(s, move.from_square), reverse=True)
     for slide_square in squares:
         revised = chess.Move(move.from_square, slide_square, move.promotion)
