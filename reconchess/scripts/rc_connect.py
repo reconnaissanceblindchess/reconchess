@@ -101,8 +101,7 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls, finishe
         server.error_resign(game_id)
     finally:
         server.finish_invitation(invitation_id)
-
-    finished.value = True
+        finished.value = True
 
 
 def check_package_version(server):
