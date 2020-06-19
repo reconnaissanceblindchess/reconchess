@@ -80,7 +80,7 @@ class RBCServer:
         self._post('{}/version'.format(self.me_url))
 
 
-def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
+def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls, finished):
     # make sure this process doesn't react to interrupt signals
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -101,6 +101,7 @@ def accept_invitation_and_play(server_url, auth, invitation_id, bot_cls):
         server.error_resign(game_id)
     finally:
         server.finish_invitation(invitation_id)
+        finished.value = True
 
 
 def check_package_version(server):
@@ -146,6 +147,7 @@ def unranked_mode(server):
 def listen_for_invitations(server, bot_cls, max_concurrent_games):
     connected = False
     process_by_invitation = {}
+    finished_by_invitation = {}
     while True:
         try:
             # get unaccepted invitations
@@ -158,22 +160,35 @@ def listen_for_invitations(server, bot_cls, max_concurrent_games):
                 server.set_max_games(max_concurrent_games)
 
             # filter out finished processes
-            process_by_invitation = {i: p for i, p in process_by_invitation.items() if p.is_alive()}
+            finished_invitations = []
+            for invitation in process_by_invitation.keys():
+                if not process_by_invitation[invitation].is_alive() or finished_by_invitation[invitation].value:
+                    finished_invitations.append(invitation)
+            for invitation in finished_invitations:
+                print('[{}] Terminating process for invitation {}'.format(datetime.now(), invitation))
+                process_by_invitation[invitation].terminate()
+                del process_by_invitation[invitation]
+                del finished_by_invitation[invitation]
 
             # accept invitations until we have #max_concurrent_games processes alive
             for invitation in invitations:
                 # only accept the invitation if we have room and the invite doesn't have a process already
-                if len(process_by_invitation) < max_concurrent_games and invitation not in process_by_invitation:
+                if invitation not in process_by_invitation:
                     print('[{}] Received invitation {}.'.format(datetime.now(), invitation))
 
-                    # start the process for playing a game
-                    process = multiprocessing.Process(
-                        target=accept_invitation_and_play,
-                        args=(server.server_url, server.session.auth, invitation, bot_cls))
-                    process.start()
+                    if len(process_by_invitation) < max_concurrent_games:
+                        # start the process for playing a game
+                        finished = multiprocessing.Value('b', False)
+                        process = multiprocessing.Process(
+                            target=accept_invitation_and_play,
+                            args=(server.server_url, server.session.auth, invitation, bot_cls, finished))
+                        process.start()
 
-                    # store the process so we can check when it finishes
-                    process_by_invitation[invitation] = process
+                        # store the process so we can check when it finishes
+                        process_by_invitation[invitation] = process
+                        finished_by_invitation[invitation] = finished
+                    else:
+                        print('[{}] Not enough game slots to play invitation {}.'.format(datetime.now(), invitation))
 
         except requests.RequestException as e:
             connected = False
