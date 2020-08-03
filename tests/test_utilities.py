@@ -691,6 +691,15 @@ class NoOpponentsPiecesTestCase(unittest.TestCase):
             self.assertEqual(board.pieces(piece_type, BLACK), no_opponents_board.pieces(piece_type, BLACK))
             self.assertEqual(SquareSet(), no_opponents_board.pieces(piece_type, WHITE))
 
+    def test_en_passant(self):
+        board = Board()
+        board.set_board_fen('rnbqkbnr/pppppppp/8/1P6/8/8/P1PPPPPP/RNBQKBNR')
+        board.turn = BLACK
+        board.push(Move(A7, A5))
+        self.assertEqual(board.ep_square, chess.A6)
+        self.assertIn(chess.Move(chess.B5, chess.A6), board.generate_pseudo_legal_moves())
+        self.assertNotIn(chess.Move(chess.B5, chess.A6), moves_without_opponent_pieces(board))
+
     def test_fuzz(self, turns=500):
         board = Board()
         turn = 1
