@@ -360,6 +360,7 @@ can be seen in the implementation of :class:`reconchess.RemoteGame`.
     :<header Authorization: Basic Authorization.
     :>json float seconds_left: The time you have left to play.
     :statuscode 200: Success.
+    :statuscode 400: Game is finished.    
     :statuscode 401: Invalid or empty authentication information, or not a player in the specified game.
     :statuscode 404: Game does not exist.
 
