@@ -102,6 +102,31 @@ def pawn_capture_moves_on(board: chess.Board) -> List[chess.Move]:
     return pawn_capture_moves
 
 
+def revise_move(board, move):
+    # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
+    # include psuedo legal castles
+    if board.is_pseudo_legal(move) or is_psuedo_legal_castle(board, move):
+        return move
+
+    # note: if there are pieces in the way, we DONT capture them
+    if is_illegal_castle(board, move):
+        return None
+
+    # if the piece is a sliding piece, slide it as far as it can go
+    piece = board.piece_at(move.from_square)
+    if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
+        move = slide_move(board, move)
+
+    return move if board.is_pseudo_legal(move) else None
+
+
+def move_actions(board: chess.Board) -> List[chess.Move]:
+    """
+    :return: List of moves that are possible with only knowledge of your pieces
+    """
+    return moves_without_opponent_pieces(board) + pawn_capture_moves_on(board)
+
+
 class ChessJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, chess.Piece):

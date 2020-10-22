@@ -188,8 +188,7 @@ class LocalGame(Game):
         """
         :return: List of moves that are possible with only knowledge of your pieces
         """
-        return None if self._is_finished else moves_without_opponent_pieces(self.board) + pawn_capture_moves_on(
-            self.board)
+        return None if self._is_finished else move_actions(self.board)
 
     def opponent_move_results(self) -> Optional[Square]:
         return self.move_results
@@ -256,21 +255,7 @@ class LocalGame(Game):
         return requested_move, taken_move, opt_capture_square
 
     def _revise_move(self, move):
-        # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
-        # include psuedo legal castles
-        if self.board.is_pseudo_legal(move) or is_psuedo_legal_castle(self.board, move):
-            return move
-
-        # note: if there are pieces in the way, we DONT capture them
-        if is_illegal_castle(self.board, move):
-            return None
-
-        # if the piece is a sliding piece, slide it as far as it can go
-        piece = self.board.piece_at(move.from_square)
-        if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
-            move = slide_move(self.board, move)
-
-        return move if self.board.is_pseudo_legal(move) else None
+        return revise_move(self.board, move)
 
     def end_turn(self):
         """
