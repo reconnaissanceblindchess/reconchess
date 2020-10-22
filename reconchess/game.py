@@ -258,7 +258,7 @@ class LocalGame(Game):
     def _revise_move(self, move):
         # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
         # include psuedo legal castles
-        if move in self.board.generate_pseudo_legal_moves() or is_psuedo_legal_castle(self.board, move):
+        if self.board.is_pseudo_legal(move) or is_psuedo_legal_castle(self.board, move):
             return move
 
         # note: if there are pieces in the way, we DONT capture them
@@ -270,7 +270,7 @@ class LocalGame(Game):
         if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
             move = slide_move(self.board, move)
 
-        return move if move in self.board.generate_pseudo_legal_moves() else None
+        return move if self.board.is_pseudo_legal(move) else None
 
     def end_turn(self):
         """
