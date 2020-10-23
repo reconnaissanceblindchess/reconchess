@@ -72,7 +72,8 @@ def capture_square_of_move(board: chess.Board, move: Optional[chess.Move]) -> Op
 
 def without_opponent_pieces(board: chess.Board) -> chess.Board:
     """Returns a copy of `board` with the opponent's pieces removed."""
-    return board.transform(lambda bb: bb & board.occupied_co[board.turn])
+    mine = board.occupied_co[board.turn]
+    return board.transform(lambda bb: bb & mine)
 
 
 def moves_without_opponent_pieces(board: chess.Board, has_opponent_pieces=True) -> List[chess.Move]:
