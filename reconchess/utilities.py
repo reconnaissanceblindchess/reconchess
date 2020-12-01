@@ -44,12 +44,16 @@ def is_illegal_castle(board: chess.Board, move: chess.Move) -> bool:
 
 
 def slide_move(board: chess.Board, move: chess.Move) -> Optional[chess.Move]:
-    psuedo_legal_moves = list(board.generate_pseudo_legal_moves())
-    squares = list(chess.SquareSet(chess.between(move.from_square, move.to_square))) + [move.to_square]
-    squares = sorted(squares, key=lambda s: chess.square_distance(s, move.from_square), reverse=True)
-    for slide_square in squares:
+    # We iterate longest to shortest so the revised move is the longest pseudo-legal move.
+    # If the to-square < from-square then we want our list in sorted order.
+    # Otherwise we want it in reverse order.
+    # In either case, we need to add the to-square to the front of our list manually.
+    squares = chess.SquareSet(chess.between(move.from_square, move.to_square))
+    if move.to_square > move.from_square:
+        squares = reversed(squares)
+    for slide_square in [move.to_square] + list(squares):
         revised = chess.Move(move.from_square, slide_square, move.promotion)
-        if revised in psuedo_legal_moves:
+        if board.is_pseudo_legal(revised):
             return revised
     return None
 
@@ -68,12 +72,8 @@ def capture_square_of_move(board: chess.Board, move: Optional[chess.Move]) -> Op
 
 def without_opponent_pieces(board: chess.Board) -> chess.Board:
     """Returns a copy of `board` with the opponent's pieces removed."""
-    b = board.copy()
-    b.ep_square = None
-    for piece_type in chess.PIECE_TYPES:
-        for sq in b.pieces(piece_type, not board.turn):
-            b.remove_piece_at(sq)
-    return b
+    mine = board.occupied_co[board.turn]
+    return board.transform(lambda bb: bb & mine)
 
 
 def moves_without_opponent_pieces(board: chess.Board) -> List[chess.Move]:
@@ -85,22 +85,46 @@ def pawn_capture_moves_on(board: chess.Board) -> List[chess.Move]:
     """Generates all pawn captures on `board`, even if there is no piece to capture. All promotion moves are included."""
     pawn_capture_moves = []
 
-    no_opponents_board = without_opponent_pieces(board)
-
     for pawn_square in board.pieces(chess.PAWN, board.turn):
         for attacked_square in board.attacks(pawn_square):
             # skip this square if one of our own pieces are on the square
-            if no_opponents_board.piece_at(attacked_square):
+            attacked_piece = board.piece_at(attacked_square)
+            if attacked_piece and attacked_piece.color == board.turn:
                 continue
 
             pawn_capture_moves.append(chess.Move(pawn_square, attacked_square))
 
             # add in promotion moves
-            if attacked_square in chess.SquareSet(chess.BB_BACKRANKS):
+            if attacked_square in BACK_RANKS:
                 for piece_type in chess.PIECE_TYPES[1:-1]:
                     pawn_capture_moves.append(chess.Move(pawn_square, attacked_square, promotion=piece_type))
 
     return pawn_capture_moves
+
+
+def revise_move(board, move):
+    # if its a legal move, don't change it at all. note that board.generate_psuedo_legal_moves() does not
+    # include psuedo legal castles
+    if board.is_pseudo_legal(move) or is_psuedo_legal_castle(board, move):
+        return move
+
+    # note: if there are pieces in the way, we DONT capture them
+    if is_illegal_castle(board, move):
+        return None
+
+    # if the piece is a sliding piece, slide it as far as it can go
+    piece = board.piece_at(move.from_square)
+    if piece.piece_type in [chess.PAWN, chess.ROOK, chess.BISHOP, chess.QUEEN]:
+        move = slide_move(board, move)
+
+    return move if board.is_pseudo_legal(move) else None
+
+
+def move_actions(board: chess.Board) -> List[chess.Move]:
+    """
+    :return: List of moves that are possible with only knowledge of your pieces
+    """
+    return moves_without_opponent_pieces(board) + pawn_capture_moves_on(board)
 
 
 class ChessJSONEncoder(json.JSONEncoder):
