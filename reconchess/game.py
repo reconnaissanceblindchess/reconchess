@@ -1,5 +1,9 @@
 from abc import abstractmethod
 from datetime import datetime
+import math
+from typing import Optional
+
+import chess
 import requests
 import time
 from .utilities import *
@@ -132,7 +136,32 @@ class LocalGame(Game):
     The local implementation of :class:`Game`. Used to run games locally instead of remotely via a server.
     """
 
-    def __init__(self, seconds_per_player: float = 900):
+    def __init__(
+            self,
+            seconds_per_player: Optional[float] = 900,
+            seconds_increment: Optional[float] = 5,
+            reversible_moves_limit: Optional[int] = 100,
+            full_turn_limit: Optional[int] = None,
+    ):
+        """
+        Constructs the Game object
+
+        :param seconds_per_player: Initial clock limit for each player in seconds.
+            Use None for unlimited. Default is 900.
+        :param seconds_increment: Seconds added to a player's clock limit on each turn.
+            Will treat None as 0. Default is 5.
+        :param reversible_moves_limit: Maximum number of moves without pawn moves or captures before game is a draw.
+            Use None for unlimited. Default is 100 (a non-optional version of the "`50-move rule`_").
+        :param full_turn_limit: Maximum number of full turns (both players move) before game is a draw.
+            Use None for unlimited. Default is None.
+
+        .. _50-move rule: https://en.wikipedia.org/wiki/Fifty-move_rule
+        """
+        self.seconds_per_player = seconds_per_player if seconds_per_player is not None else math.inf
+        self.seconds_increment = seconds_increment if seconds_increment is not None else 0
+        self.reversible_moves_limit = reversible_moves_limit if reversible_moves_limit is not None else math.inf
+        self.full_turn_limit = full_turn_limit if full_turn_limit is not None else math.inf
+
         self.turn = chess.WHITE
         self.board = chess.Board()
 
@@ -140,7 +169,10 @@ class LocalGame(Game):
 
         self._is_finished = False
         self._resignee = None
-        self.seconds_left_by_color = {chess.WHITE: seconds_per_player, chess.BLACK: seconds_per_player}
+        self.seconds_left_by_color = {
+            chess.WHITE: self.seconds_per_player,
+            chess.BLACK: self.seconds_per_player,
+        }
         self.current_turn_start_time = None
 
         self.move_results = None
@@ -269,6 +301,7 @@ class LocalGame(Game):
         """
         elapsed = datetime.now() - self.current_turn_start_time
         self.seconds_left_by_color[self.turn] -= elapsed.total_seconds()
+        self.seconds_left_by_color[self.turn] += self.seconds_increment
 
         self.turn = not self.turn
         self.current_turn_start_time = datetime.now()
@@ -283,7 +316,11 @@ class LocalGame(Game):
         no_time_left = self.get_seconds_left() <= 0 or self.seconds_left_by_color[not self.turn] <= 0
         king_captured = self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None
         someone_resigned = self._resignee is not None
-        return no_time_left or king_captured or someone_resigned
+
+        max_turns_reached = self.board.fullmove_number > self.full_turn_limit
+        move_limit_reached = self.board.halfmove_clock >= self.reversible_moves_limit
+
+        return no_time_left or king_captured or someone_resigned or max_turns_reached or move_limit_reached
 
     def get_winner_color(self) -> Optional[Color]:
         if not self.is_over():
@@ -314,6 +351,10 @@ class LocalGame(Game):
             return WinReason.TIMEOUT
         elif self.board.king(chess.WHITE) is None or self.board.king(chess.BLACK) is None:
             return WinReason.KING_CAPTURE
+        elif self.board.fullmove_number > self.full_turn_limit:
+            return WinReason.TURN_LIMIT
+        elif self.board.halfmove_clock >= self.reversible_moves_limit:
+            return WinReason.MOVE_LIMIT
 
         return None
 

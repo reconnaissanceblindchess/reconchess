@@ -112,10 +112,10 @@ class LocalGameSenseTest(unittest.TestCase):
 
 
 class LocalGameTimeTest(unittest.TestCase):
-    def test_time(self, seconds=1, turns=20, phases=3):
+    def test_time(self, seconds=1, increment=0, turns=20, phases=3):
         delta = seconds / (turns * phases)
 
-        game = LocalGame(seconds_per_player=seconds)
+        game = LocalGame(seconds_per_player=seconds, seconds_increment=increment)
 
         turn = True
         time_by_color = game.seconds_left_by_color.copy()
@@ -127,16 +127,20 @@ class LocalGameTimeTest(unittest.TestCase):
                 time.sleep(delta)
                 end = game.get_seconds_left()
 
-                self.assertAlmostEqual(start - end, delta, places=2)
+                self.assertAlmostEqual(start - end, delta, places=1)
 
-            time_by_color[turn] = game.get_seconds_left()
+            time_by_color[turn] = game.get_seconds_left() + increment
             turn = not turn
             game.end_turn()
-            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
+            self.assertAlmostEqual(game.seconds_left_by_color[not turn], time_by_color[not turn], places=1)
+            self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=1)
         game.end()
-        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
+        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=1)
         time.sleep(delta)
-        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=2)
+        self.assertAlmostEqual(game.get_seconds_left(), time_by_color[turn], places=1)
+
+    def test_incremental_time(self):
+        self.test_time(increment=5)
 
 
 class LocalGameMoveActionsTest(unittest.TestCase):
@@ -738,6 +742,38 @@ class IsOverTest(unittest.TestCase):
         game.start()
         self.assertTrue(game.is_over())
 
+    def test_turn_limit(self):
+        game = LocalGame(full_turn_limit=1)
+        game.start()
+        for half_turn in range(2):
+            game.sense(None)
+            game.move(None)
+            game.end_turn()
+        self.assertTrue(game.is_over())
+
+    def test_move_limit(self):
+        game = LocalGame(reversible_moves_limit=1)
+        game.start()
+        for half_turn in range(2):
+            game.sense(None)
+            game.move(None)
+            game.end_turn()
+        self.assertTrue(game.is_over())
+
+    def test_unlimited(self):
+        game = LocalGame(
+            seconds_per_player=None,
+            seconds_increment=None,
+            full_turn_limit=None,
+            reversible_moves_limit=None,
+        )
+        game.start()
+        for half_turn in range(20):
+            game.sense(None)
+            game.move(None)
+            game.end_turn()
+        self.assertFalse(game.is_over())
+
     def test_expired_white(self):
         game = LocalGame()
         game.seconds_left_by_color[WHITE] = 0.5
@@ -846,6 +882,26 @@ class WinnerInfoTestCase(unittest.TestCase):
         game.start()
         self.assertEqual(WHITE, game.get_winner_color())
         self.assertEqual(WinReason.TIMEOUT, game.get_win_reason())
+
+    def test_turn_limit(self):
+        game = LocalGame(full_turn_limit=1)
+        game.start()
+        for half_turn in range(2):
+            game.sense(None)
+            game.move(None)
+            game.end_turn()
+        self.assertEqual(None, game.get_winner_color())
+        self.assertEqual(WinReason.TURN_LIMIT, game.get_win_reason())
+
+    def test_move_limit(self):
+        game = LocalGame(reversible_moves_limit=1)
+        game.start()
+        for half_turn in range(2):
+            game.sense(None)
+            game.move(None)
+            game.end_turn()
+        self.assertEqual(None, game.get_winner_color())
+        self.assertEqual(WinReason.MOVE_LIMIT, game.get_win_reason())
 
     def test_white_king_captured(self):
         """

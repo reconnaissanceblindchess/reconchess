@@ -17,3 +17,9 @@ class WinReason(Enum):
 
     RESIGN = 3
     """The game ended because one player resigned."""
+
+    TURN_LIMIT = 4
+    """The game ended because it exceeded the full turn limit."""
+
+    MOVE_LIMIT = 5
+    """The game ended because it exceeded the reversible move limit."""

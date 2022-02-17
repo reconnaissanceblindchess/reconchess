@@ -10,7 +10,7 @@ This python package implements a version of the game with the following rules.
 
 3. The rules associated with check are all eliminated.  This includes: a player is not told if their king is in check, a player may make a move that leaves their king in check, and can castle into or through check.
 
-4. All rules associated with stalemates or automatic draw conditions are eliminated.
+4. All rules associated with stalemates are eliminated. Automatic draws can be included, but are declared by the arbiter rather than requested by a player. This library defaults to a non-optional version of the "`50-move rule <https://en.wikipedia.org/wiki/Fifty-move_rule>`_."
 
 5. Each player's turn has three phases, played in this order: turn start phase, sense phase, and move phase.
 

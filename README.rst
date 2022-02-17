@@ -17,6 +17,11 @@ Installation
 
     pip install reconchess
 
+Documentation
+-------------
+
+Documentation is hosted by `Read the Docs <https://reconchess.readthedocs.io/>`_.
+
 License
 -------
 

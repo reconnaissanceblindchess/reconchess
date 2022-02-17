@@ -51,6 +51,7 @@ Game
     :members:
 
 .. autoclass:: reconchess.LocalGame
+    :special-members: __init__
 
 .. autoclass:: reconchess.RemoteGame
 
